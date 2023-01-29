@@ -289,6 +289,7 @@ class FastTest:
     
     # -----------------------------------------------------------------------------
     def plot_asset(self, asset_name : str,
+                   close_column = "CLOSE",
                    overlays = [],
                    _from = None,
                    _to = None):
@@ -307,8 +308,8 @@ class FastTest:
         opens.set_index("position_create_time", inplace = True)
         closes.set_index("position_close_time", inplace = True)
                 
-        opens = pd.merge(asset_df["CLOSE"], opens,left_index=True, right_index=True, how = "inner")
-        closes = pd.merge(asset_df["CLOSE"], closes,left_index=True, right_index=True, how = "inner")
+        opens = pd.merge(asset_df[close_column], opens,left_index=True, right_index=True, how = "inner")
+        closes = pd.merge(asset_df[close_column], closes,left_index=True, right_index=True, how = "inner")
         
         asset_orders = self.broker.get_order_history().to_df()
         
@@ -335,21 +336,21 @@ class FastTest:
         fig, ax = plt.subplots(figsize=(10.5, 6.5))
         
         #plot asset close price agaisnt time
-        ax.plot(asset_df.index, asset_df["CLOSE"], color = "black", label = asset_name)  
+        ax.plot(asset_df.index, asset_df[close_column], color = "black", label = asset_name)  
         
         for overlay in overlays:
             ax.plot(asset_df.index, asset_df[overlay], label = overlay)  
             
         
         #plot all of the order for the given asset
-        ax.scatter(markers_buy.index, markers_buy["CLOSE"], marker = "^", c = "green", label = "Buys", alpha = .3)
-        ax.scatter(markers_sell.index, markers_sell["CLOSE"], marker = "^", c = "red", label = "Sells", alpha = .3)
+        ax.scatter(markers_buy.index, markers_buy[close_column], marker = "^", c = "green", label = "Buys", alpha = .3)
+        ax.scatter(markers_sell.index, markers_sell[close_column], marker = "^", c = "red", label = "Sells", alpha = .3)
         
         #plot position opens and closes
         color = ['green' if c > 0 else 'red' for c in opens['units']]
-        ax.scatter(opens.index, opens["CLOSE"], marker = "o", c = color, label = "Position Open", s =100, alpha=.75)
+        ax.scatter(opens.index, opens[close_column], marker = "o", c = color, label = "Position Open", s =100, alpha=.75)
         color = ['green' if c > 0 else 'red' for c in closes['units']]
-        ax.scatter(closes.index, closes["CLOSE"], marker = "X", c = color, label = "Position Close", s=100, alpha = .75)
+        ax.scatter(closes.index, closes[close_column], marker = "X", c = color, label = "Position Close", s=100, alpha = .75)
 
         ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
           ncol=3, fancybox=True, shadow=True)
