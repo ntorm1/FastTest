@@ -176,6 +176,7 @@ public:
 	void log_canceled_orders(std::vector<std::unique_ptr<Order>> cleared_orders);
 	bool cancel_orders(unsigned int asset_id);
 	void clear_child_orders(Position& existing_position);
+	void remove_child_order(std::unique_ptr<Order>& child_order);
 	std::deque<std::unique_ptr<Order>>& open_orders(unsigned int exchange_id = 0);
 	void process_filled_orders(std::vector<std::unique_ptr<Order>> orders_filled);
 

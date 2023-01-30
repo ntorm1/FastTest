@@ -318,8 +318,12 @@ bool __Broker::cancel_order(unsigned int order_id_cancel) {
 		__Exchange *exchange = pair.second;
 		for (auto& order : exchange->orders) {
 			if(order->order_id == order_id_cancel){
+				//remove the order from the exchange
 				std::unique_ptr<Order> canceled_order = exchange->cancel_order(order);
 				canceled_order->order_state = CANCELED;
+				
+				//if the order is a child remove it from it's parent child order container
+				this->remove_child_order(canceled_order);
 				this->order_history.push_back(std::move(canceled_order));
 				return true;
 			}
@@ -600,11 +604,40 @@ void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_respo
 	this->send_order(std::move(order), order_response);
 }
 
+void __Broker::remove_child_order(std::unique_ptr<Order>& child_order){
+	if(child_order->order_type == STOP_LOSS_ORDER){
+		StopLossOrder* stop_loss_order = static_cast <StopLossOrder*>(child_order.get());
+		//parent is a position
+		if(stop_loss_order->order_parent.type == POSITION){
+			Position* parent_position = stop_loss_order->order_parent.member.parent_position;
+			auto & ids =  parent_position->child_order_ids;
+			for(int i = 0; i < ids.size(); i++){
+				if(ids[i] == child_order->order_id){
+					ids.erase(ids.begin() + i);
+					return;
+				}
+			}
+		}
+	}
+	else if(child_order->order_type == TAKE_PROFIT_ORDER){
+		TakeProfitOrder* stop_loss_order = static_cast <TakeProfitOrder*>(child_order.get());
+
+	}
+	else{
+		return;
+	}
+}
+
 void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_filled) {
 	for (auto& order : orders_filled) {
 		auto & account = this->accounts[order->account_id];
 		if(this->debug){
 			printf("ORDER_ID: %i FILLED\n", order->order_id);
+		}
+
+		auto order_type = order->order_type;
+		if(order_type == STOP_LOSS_ORDER || order_type == TAKE_PROFIT_ORDER){
+			remove_child_order(order);
 		}
 
 		//no position exists, create new open position
