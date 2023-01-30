@@ -172,7 +172,7 @@ public:
 
 	//functions for managing orders on the exchange
 	void send_order(std::unique_ptr<Order> new_order, OrderResponse *order_response);
-	bool cancel_order(std::unique_ptr<Order>& order_cancel, unsigned int exchange_id = 0);
+	bool cancel_order(unsigned int order_id);
 	void log_canceled_orders(std::vector<std::unique_ptr<Order>> cleared_orders);
 	bool cancel_orders(unsigned int asset_id);
 	void clear_child_orders(Position& existing_position);
@@ -212,7 +212,10 @@ public:
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
 			unsigned int account_id = 0);
-
+	void place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss,
+			bool cheat_on_close = false,
+			bool limit_pct = false
+			);
 	//functions for managing positions
 	double get_net_liquidation_value();
 	bool _position_exists(int asset_id, int account_id = -1);
@@ -230,26 +233,6 @@ public:
 		this->margin = margin;
 		this->exchanges[exchange_ptr->exchange_id] = exchange_ptr;
 	};
-
-	template <class T>
-	void place_stoploss_order(T* parent, OrderResponse *order_response, double units, double stop_loss, bool cheat_on_close = false, bool limit_pct = false) {
-		std::unique_ptr<Order> order(new StopLossOrder(
-			parent,
-			units,
-			stop_loss,
-			cheat_on_close,
-			limit_pct
-		));
-#ifdef CHECK_ORDER
-		if (check_order(order) != VALID_ORDER) {
-			order->order_state = BROKER_REJECTED;
-			this->order_history.push_back(std::move(order));
-			order_response->order_state = BROKER_REJECTED;
-			return;
-		}
-#endif
-		this->send_order(std::move(order), order_response);
-	}
 };
 
 extern "C" {
@@ -271,6 +254,7 @@ extern "C" {
 	BROKER_API int get_order_count(void *broker_ptr);
 	BROKER_API int get_position_count(void *broker_ptr);
 	BROKER_API int get_open_position_count(void *broker_ptr);
+	BROKER_API int get_open_order_count(void *broker_ptr);
 	BROKER_API void get_order_history(void *broker_ptr, OrderArray *order_history);
 	BROKER_API void get_position_history(void *broker_ptr, PositionArray *position_history);
 	

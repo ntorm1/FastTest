@@ -70,6 +70,10 @@ class Broker():
     def get_order_count(self):
         #get total mumber of orders taken across the fasttest
         return Wrapper._get_order_count(self.ptr)
+    
+    def get_open_order_count(self):
+        #get total mumber of open orders taken across the fasttest
+        return Wrapper._get_open_order_count(self.ptr)
         
     # -----------------------------------------------------------------------------
     def get_total_position_count(self):

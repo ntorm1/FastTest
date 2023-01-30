@@ -3,6 +3,7 @@
 #define POSITION_H
 #include "pch.h"
 #include <ctime>
+#include <vector>
 #include "utils_time.h"
 
 
@@ -56,6 +57,8 @@ public:
 
 	timeval position_create_time;           /**<the datetime that the position was created*/
 	timeval position_close_time = MAX_TIME; /**<the datetime that the position was closed*/
+
+	std::vector<unsigned int> child_order_ids; /**<container for child order ids for the positions*/
 
 	double unrealized_pl = 0;
 	double realized_pl = 0;

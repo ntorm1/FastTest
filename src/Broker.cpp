@@ -276,6 +276,12 @@ void __Broker::close_position(Position &existing_position, double order_fill_pri
 	else{
 		account->cash += existing_position.units * order_fill_price;
 	}
+
+	//close any child orders:
+	for(auto & order_id : existing_position.child_order_ids){
+		this->cancel_order(order_id);
+	}
+
 	if (this->logging) { log_close_position(existing_position); }
 }
 
@@ -301,26 +307,32 @@ void __Broker::increase_position(Position &existing_position, std::unique_ptr<Or
 	existing_position.increase(order->fill_price, order->units);
 }
 
-bool __Broker::cancel_order(std::unique_ptr<Order>& order_cancel, unsigned int exchange_id) {
-	__Exchange *exchange = this->exchanges[exchange_id];
-	std::unique_ptr<Order> canceled_order = exchange->cancel_order(order_cancel);
-	canceled_order->order_state = CANCELED;
-	this->order_history.push_back(std::move(canceled_order));
-	return true;
-}
-
 void __Broker::log_canceled_orders(std::vector<std::unique_ptr<Order>> cleared_orders) {
 	for (auto& order : cleared_orders) {
 		this->order_history.push_back(std::move(order));
 	}
 }
 
+bool __Broker::cancel_order(unsigned int order_id_cancel) {
+	for(auto& pair : this->exchanges){
+		__Exchange *exchange = pair.second;
+		for (auto& order : exchange->orders) {
+			if(order->order_id == order_id_cancel){
+				std::unique_ptr<Order> canceled_order = exchange->cancel_order(order);
+				canceled_order->order_state = CANCELED;
+				this->order_history.push_back(std::move(canceled_order));
+				return true;
+			}
+		}
+	}
+}
+
 bool __Broker::cancel_orders(unsigned int asset_id) {
-	for(auto const& pair : this->exchanges){
+	for(auto & pair : this->exchanges){
 		__Exchange *exchange = pair.second;
 		for (auto& order : exchange->orders) {
 			if (order->asset_id != asset_id) { continue; }
-			if (!this->cancel_order(order)) {
+			if (!this->cancel_order(order->order_id)) {
 				return false;
 			}
 		}
@@ -567,6 +579,27 @@ void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int as
 #endif
 	this->send_order(std::move(order), order_response);
 }
+
+void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss, bool cheat_on_close, bool limit_pct) {
+	std::unique_ptr<Order> order(new StopLossOrder(
+		parent,
+		units,
+		stop_loss,
+		cheat_on_close,
+		limit_pct
+	));
+#ifdef CHECK_ORDER
+	if (check_order(order) != VALID_ORDER) {
+		order->order_state = BROKER_REJECTED;
+		this->order_history.push_back(std::move(order));
+		order_response->order_state = BROKER_REJECTED;
+		return;
+	}
+#endif
+	parent->child_order_ids.push_back(this->order_counter);
+	this->send_order(std::move(order), order_response);
+}
+
 void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_filled) {
 	for (auto& order : orders_filled) {
 		auto & account = this->accounts[order->account_id];
@@ -746,6 +779,14 @@ int get_order_count(void *broker_ptr) {
 int get_position_count(void *broker_ptr) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->position_history.size();
+}
+int get_open_order_count(void *broker_ptr){
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	int count = 0;
+	for (const auto & pair : __broker_ref->exchanges){
+		count += pair.second->orders.size();
+	}
+	return count;
 }
 int get_open_position_count(void *broker_ptr){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);

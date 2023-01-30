@@ -296,6 +296,10 @@ _get_order_count = FastTest.get_order_count
 _get_order_count.argtypes = [c_void_p]
 _get_order_count.restype = c_int
 
+_get_open_order_count = FastTest.get_open_order_count
+_get_open_order_count.argtypes = [c_void_p]
+_get_open_order_count.restype = c_int
+
 _get_position_count = FastTest.get_position_count
 _get_position_count.argtypes = [c_void_p]
 _get_position_count.restype = c_int

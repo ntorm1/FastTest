@@ -118,7 +118,7 @@ class BrokerTestMethods(unittest.TestCase):
                     limit = 98
                 )
             ]
-        exchange, broker, ft = setup_multi(False)
+        exchange, broker, ft = setup_multi(debug=False)
         strategy = TestStrategy(orders, broker, exchange)
         ft.add_strategy(strategy)
         ft.run()
@@ -352,6 +352,42 @@ class BrokerTestMethods(unittest.TestCase):
         
         assert(np.array_equal(broker.get_cash_history(),np.array([100000,   94950,   94850,   97587.5,  97587.5, 99850])))
         assert(np.array_equal(broker.get_nlv_history(),np.array([100000,  99900,  99700, 100125, 100125,  99850])))
+        
+    def test_order_cancel_close(self):
+        orders = [
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 0,
+                    units = 100
+                ),
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 2,
+                    units = -100
+                ),
+                OrderSchedule(
+                    order_type = OrderType.STOP_LOSS_ORDER,
+                    asset_name = "2",
+                    i = 1,
+                    units = -100,
+                    limit = 95
+                )
+            ]
+        exchange, broker, ft = setup_multi(logging=False, margin=True, debug=False)
+        
+        strategy = TestStrategy(orders, broker, exchange)
+        ft.add_strategy(strategy)
+        
+        order_counts = []
+        while ft.step():
+            order_counts.append(broker.get_open_order_count())
+        assert(order_counts == [1,1,2,0,0,0])
+        order_history = broker.get_order_history()
+        
+        assert(OrderState(order_history.ORDER_ARRAY[1].contents.order_state) == OrderState.CANCELED)
+
         
 if __name__ == '__main__':
     unittest.main()

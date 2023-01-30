@@ -66,7 +66,7 @@ void __Account::evaluate_account(bool on_close){
                 }
                 position.collateral = new_collateral;
             }
-            this->broker->close_position(this->portfolio[asset_id], market_price, exchange->current_time);
+            this->broker->close_position(position, market_price, exchange->current_time);
             it = this->portfolio.erase(it);
         }
         else {
