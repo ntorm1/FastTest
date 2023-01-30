@@ -11,6 +11,7 @@
 void Position::to_struct(PositionStruct &position_struct){
 	position_struct.average_price = this->average_price;
 	position_struct.close_price = this->close_price;
+	position_struct.last_price = this->last_price;
 
 	position_struct.bars_held = this->bars_held;
 	position_struct.bars_since_change = this->bars_since_change;

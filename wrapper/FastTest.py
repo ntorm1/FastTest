@@ -3,6 +3,7 @@ from ctypes import *
 import sys
 import os
 import cProfile
+from pyinstrument import Profiler
 import copy
 
 import numpy as np
@@ -202,8 +203,12 @@ class FastTest:
         self.reset()
             
         #core event loop of test
+        #profiler = Profiler()
+        #profiler.start()
         while self.step():
             pass
+        #profiler.stop()
+        #profiler.print()
         
     # -----------------------------------------------------------------------------  
     def step(self):
@@ -235,6 +240,7 @@ class FastTest:
         if to_df:
             last_positions = last_positions.to_df()
             last_positions["asset_id"] = last_positions["asset_id"].map(self.asset_id_to_name)
+            last_positions["PCT_NLV"] = (abs(last_positions["units"]) * last_positions["last_price"]) / self.broker.get_nlv_history()[-1]
             return last_positions
     
         return last_positions

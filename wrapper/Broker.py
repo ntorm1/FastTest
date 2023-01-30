@@ -22,6 +22,9 @@ class Broker():
         self.margin = margin
         self.account_counter = 0
         
+        self.position_struct = Wrapper.PositionStruct()
+        self.position_struct_pointer = pointer(self.position_struct)
+        
         self.ptr = Wrapper._new_broker_ptr(exchange.ptr, logging, margin, debug)
 
         if self.debug: print(f"ALLOCATING BROKER POINTER AT {self.ptr}\n")
@@ -161,10 +164,8 @@ class Broker():
         asset_id = exchange.asset_map[asset_name]
         account_id = self.account_map[account_name]
         
-        position_struct = Wrapper.PositionStruct()
-        position_struct_pointer = pointer(position_struct)
-        Wrapper._get_position(self.ptr, asset_id, position_struct_pointer, account_id)
-        return position_struct
+        Wrapper._get_position(self.ptr, asset_id, self.position_struct_pointer, account_id)
+        return self.position_struct
        
     # -----------------------------------------------------------------------------   
     def get_position_ptr(self, asset_name : str, account_id = 0):

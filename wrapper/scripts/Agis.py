@@ -47,7 +47,7 @@ class Agis_Strategy(Strategy):
         _avg_predicted_return = sum(predicted_returns.values()) / len(predicted_returns)
         
         nlv = self.broker.get_nlv(account_name="agis")
-        position_size = (nlv) / (self.position_count * self.lookahead) * .5
+        position_size = (nlv) / (self.position_count * self.lookahead) * .9
         
         keys = list(predicted_returns.keys())
         counts = 0
@@ -138,5 +138,5 @@ if __name__ == "__main__":
     
     last_positions = ft.get_last_positions(to_df=True)
     print(last_positions)
-    ft.plot(benchmark.df())
+    #ft.plot(benchmark.df())
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")

@@ -16,7 +16,7 @@ from Broker import Broker
 from Strategy import *
 from FastTest import FastTest
 
-asset_count = 1000
+asset_count = 500
 
 class CustomDataLoader(btfeeds.PandasData):
     lines = ("slow_ma","fast_ma")
@@ -257,6 +257,6 @@ if __name__ == "__main__":
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
           ncol=3, fancybox=True, shadow=True)
     
-    print(df)
-    plt.show()
+    #print(df)
+    #plt.show()
     

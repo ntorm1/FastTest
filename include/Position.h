@@ -9,6 +9,7 @@
 struct PositionStruct {
 	double average_price;
 	double close_price;
+	double last_price;
 	double units;
 
 	unsigned int bars_held;

@@ -59,6 +59,9 @@ void Order::fill(double market_price, timeval fill_time) {
 				}
 				break;
 			}
+			default:{
+				break;
+			}
 		}
 	}
 }

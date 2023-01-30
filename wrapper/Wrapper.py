@@ -104,6 +104,7 @@ class PositionStruct(Structure):
     _fields_ = [
         ('average_price', c_double),
         ('close_price', c_double),
+        ('last_price', c_double),
         ('units',c_double),
         
         ('bars_held', c_uint),
@@ -137,6 +138,7 @@ class PositionStruct(Structure):
             
             self.average_price,
             self.close_price,
+            self.last_price,
             self.units,
             
             self.bars_held,
@@ -167,7 +169,7 @@ class PositionArrayStruct(Structure):
         df = pd.DataFrame(positions, columns = [
             "position_id","asset_id","exchange_id","account_id","strategy_id",
             "position_create_time","position_close_time",
-            "average_price","close_price","units",
+            "average_price","close_price","last_price","units",
             "bars_held","bars_since_change",
             "realized_pl","unrealized_pl"])
         df["position_create_time"] = df["position_create_time"]  * 1e9
