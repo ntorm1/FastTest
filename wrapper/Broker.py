@@ -284,6 +284,7 @@ class Broker():
                 order_id = order_response.order_id,
                 stop_loss = stop_loss_on_fill,
                 limit_pct = stop_loss_limit_pct,
+                exchange_name=exchange_name,
                 account_name = account_name
             )
         

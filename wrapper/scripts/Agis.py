@@ -16,7 +16,7 @@ from FastTest import FastTest
 class Agis_Strategy(Strategy):
     def __init__(self, broker: Broker, exchange: Exchange, ft : FastTest, lookahead : int) -> None:
         super().__init__(broker, exchange)
-        self.zip_path = "/Users/nathantormaschy/Downloads/preds_test.zip"
+        self.zip_path = "/Users/nathantormaschy/Downloads/SP500.zip"
         self.ft = ft
         self.load()
         self.i = 0
@@ -59,7 +59,8 @@ class Agis_Strategy(Strategy):
                 self.broker.place_market_order(asset_name, units,
                                             strategy_id=self.strategy_id,
                                             account_name="agis",
-                                            exchange_name="sp500")
+                                            exchange_name="sp500",
+                                        )
                 counts += 1
                 if counts == self.position_count: break
         
@@ -135,6 +136,7 @@ if __name__ == "__main__":
     print(strategy.count / (et-st))
     #print(ft.metrics.get_stats())
     
-    #last_positions = ft.get_last_positions(to_df=True)
-    ft.plot(benchmark.df(), _from = "2020-01-01", _to = "2023-01-01")
+    last_positions = ft.get_last_positions(to_df=True)
+    print(last_positions)
+    ft.plot(benchmark.df())
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")
