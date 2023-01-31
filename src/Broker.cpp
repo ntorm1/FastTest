@@ -57,7 +57,7 @@ void __Broker::build(){
 	size_t size;
 	std::vector<long> epoch_index;
 	if(this->exchanges.size() > 1){
-		for(int i = 0; i < this->exchanges.size(); i++){
+		for(unsigned int i = 0; i < this->exchanges.size(); i++){
 			if(i == 0){
 				epoch_index = this->exchanges[i]->epoch_index;
 			}
@@ -329,6 +329,7 @@ bool __Broker::cancel_order(unsigned int order_id_cancel) {
 			}
 		}
 	}
+	return false;
 }
 
 bool __Broker::cancel_orders(unsigned int asset_id) {
@@ -620,8 +621,8 @@ void __Broker::remove_child_order(std::unique_ptr<Order>& child_order){
 		}
 	}
 	else if(child_order->order_type == TAKE_PROFIT_ORDER){
-		TakeProfitOrder* stop_loss_order = static_cast <TakeProfitOrder*>(child_order.get());
-
+		//TakeProfitOrder* stop_loss_order = static_cast <TakeProfitOrder*>(child_order.get());
+		return;
 	}
 	else{
 		return;
@@ -858,7 +859,7 @@ void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void
 		__position_ref, order_response, units, stop_loss, cheat_on_close, limit_pct
 	);
 }
-void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, bool cheat_on_clos, unsigned int exchange_id, bool limit_pct){
+void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, unsigned int exchange_id, bool limit_pct){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	__Exchange *exchange = __broker_ref->exchanges[exchange_id];
 	for (auto& order : exchange->orders){

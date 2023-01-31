@@ -6,9 +6,9 @@
 #include "Broker.h"
 #include "Order.h"
 
-Strategy::Strategy(__Exchange &exchangeObj, __Broker &brokerObj) :
-	__exchange(exchangeObj), __broker(brokerObj)
-{
+Strategy::Strategy(__Exchange *exchangeObj, __Broker *brokerObj){
+	this->__exchange = exchangeObj;
+	this->__broker = brokerObj;
 }
 void Strategy::next() {
 }
@@ -22,11 +22,11 @@ void TestStrategy::next() {
 		if (it->i == i) {
 			switch (it->order_type) {
 			case MARKET_ORDER: {
-				this->__broker._place_market_order(&order_response, it->asset_id, it->units);
+				this->__broker->_place_market_order(&order_response, it->asset_id, it->units);
 				break;
 			}
 			case LIMIT_ORDER: {
-				this->__broker._place_limit_order(&order_response, it->asset_id, it->units, it->limit);
+				this->__broker->_place_limit_order(&order_response, it->asset_id, it->units, it->limit);
 				break;
 			}
 			case STOP_LOSS_ORDER: {

@@ -362,7 +362,7 @@ _position_place_stoploss_order = FastTest.position_add_stoploss
 _position_place_stoploss_order.argtypes = [c_void_p, POINTER(OrderResponse), c_void_p, c_double, c_double, c_bool, c_bool]
 
 _order_place_stoploss_order = FastTest.order_add_stoploss
-_order_place_stoploss_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint, c_double, c_double, c_bool, c_bool]
+_order_place_stoploss_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint, c_double, c_double, c_bool]
 
 """ACCOUNT WRAPPER"""
 _new_account_ptr = FastTest.CreateAccountPtr

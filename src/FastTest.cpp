@@ -52,7 +52,7 @@ void __FastTest::build(){
 
 	this->epoch_index = this->__exchanges[0]->epoch_index;
 	if(this->__exchanges.size() > 1){
-		for(int i = 1; i < this->__exchanges.size(); i++){
+		for(unsigned int i = 1; i < this->__exchanges.size(); i++){
 			this->epoch_index = getUnion(this->epoch_index, this->__exchanges[i]->epoch_index);
 		}
 	}

@@ -9,12 +9,12 @@
 class Strategy
 {
 public:
-	__Exchange &__exchange;
-	__Broker &__broker;
+	__Exchange *__exchange;
+	__Broker *__broker;
 
 	virtual void next();
 
-	Strategy(__Exchange &__exchange, __Broker &broker);
+	Strategy(__Exchange *__exchange, __Broker *broker);
 	Strategy() = default;
 };
 struct order_schedule {

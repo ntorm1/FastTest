@@ -45,10 +45,8 @@ namespace Risk {
             throw std::runtime_error("beta lookback period greater then number of rows");
         }
 
-        unsigned int asset_end_index = asset->current_index - 1;
-        unsigned int asset_start_index = asset_start_index - n;
-        unsigned int benchmark_end_index = benchmark->current_index - 1;
-        unsigned int benchmark_start_index = benchmark_end_index - n;
+        unsigned int asset_start_index = asset->current_index - n - 1;
+        unsigned int benchmark_start_index = asset->current_index - n - 1;
 
         unsigned int asset_step_size = asset->AM.col_size();
         unsigned int benchmark_step_size = asset->AM.col_size();

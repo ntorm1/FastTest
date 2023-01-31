@@ -372,7 +372,6 @@ class Broker():
                 order_id,
                 units,
                 stop_loss,
-                cheat_on_close,
                 exchange_id,
                 limit_pct
                 )

@@ -283,7 +283,7 @@ extern "C" {
 			unsigned int account_id = 0);
 
 	BROKER_API void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void *position_ptr, double units, double stop_loss, bool cheat_on_close = false, bool limit_pct = false);
-	BROKER_API void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, bool cheat_on_close = false, unsigned int exchange_id = 0, bool limit_pct = false);
+	BROKER_API void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, unsigned int exchange_id = 0, bool limit_pct = false);
 
 	ACCOUNT_API void * CreateAccountPtr(unsigned int account_id, double cash);
 	ACCOUNT_API void DeleteAccountPtr(void *ptr);
