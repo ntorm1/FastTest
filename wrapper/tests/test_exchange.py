@@ -80,6 +80,40 @@ class ExchangeTestMethods(unittest.TestCase):
         
         print("TESTING: test_get_id_max passed")
         
+    def test_level1_fill(self):
+        print("TESTING test_level1_fill...")
+        exchange, broker, ft = setup_level1_test()
+    
+        orders = [
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,asset_name = "1",
+                    i = 0, units = 100
+                ),
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,asset_name = "1",
+                    i = 1, units = -100
+                ),
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,asset_name = "1",
+                    i = 3, units = -100
+                )
+            ]
+        exchange, broker, ft = setup_level1_test(logging=False)
+        strategy = TestStrategy(orders, broker, exchange)
+        ft.add_strategy(strategy)
+        ft.run()
+        
+        position_history = broker.get_position_history()
+        order_history = broker.get_order_history()
+        
+        assert(order_history.ORDER_ARRAY[0].contents.fill_price == 10.18)
+        assert(order_history.ORDER_ARRAY[1].contents.fill_price == 10.17)
+        assert(order_history.ORDER_ARRAY[2].contents.fill_price == 9.72)
+        
+        assert(position_history.POSITION_ARRAY[0].contents.close_price == 10.17)
+        assert(position_history.POSITION_ARRAY[1].contents.close_price == 9.40)
+        print("TESTING: test_level1_fill passed")
+                
 if __name__ == '__main__':
     unittest.main()
 

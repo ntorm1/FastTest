@@ -21,6 +21,7 @@ test2_close = np.array([101.5,99,97,101.5,101.5,96])
 
 file_name_1 = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)),"tests","data","test1.csv")
 file_name_2 = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)),"tests","data","test2.csv")
+file_name_3 = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)),"tests","data","test3.csv")
 
 def get_unix_time(dt64):
     return dt64.astype("datetime64[s]").astype('int')
@@ -108,3 +109,23 @@ def setup_multi_account(logging = False, margin = False, debug = False, save_las
     ft.build()
     
     return exchange, broker, ft
+    
+def setup_level1_test(logging = False, margin = False, debug = False, save_last_positions = False):
+    ft = FastTest(logging=logging, debug=debug, save_last_positions=save_last_positions)
+    exchange = Exchange(logging = logging)
+    ft.register_exchange(exchange)
+    
+    broker = Broker(exchange,logging=logging, margin=margin, debug=debug)
+    ft.register_broker(broker)
+    ft.add_account("default", 100000)
+    
+    new_asset = ft.register_asset(str(1))
+    new_asset.set_format("%d-%d-%d", 0, 1, 2, 3)
+    new_asset.load_from_csv(file_name_3)
+    
+    ft.build()
+        
+    return exchange, broker, ft
+    
+if __name__ == "__main__":
+    setup_level1_test()

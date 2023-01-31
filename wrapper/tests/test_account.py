@@ -84,6 +84,7 @@ class AccountTestMethods(unittest.TestCase):
         strategy2 = TestStrategy(orders2, broker, exchange=None)
         ft.add_strategy(strategy1)
         ft.add_strategy(strategy2)
+        
         ft.run()
         
         order_history = broker.get_order_history()
