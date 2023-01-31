@@ -3,9 +3,11 @@
 #include <numeric>
 #include <algorithm>
 #include "Asset.h"
+#include "Position.h"
 
 namespace Risk {
 
+    //get the beta of a stock given a vector of market prices and benchmark prices
     template <typename T>
     T beta(const std::vector<T> &market_prices, const std::vector<T> &stock_prices) {
         T mean_market_returns = 0.0;
@@ -34,6 +36,9 @@ namespace Risk {
 
         return beta;
     }
+
+    //Get the current beta of an asset given a poitner to a benchmark asset
+    //n is the n period lookback (how face back to use when calculating beta)
     template <typename T>
     T beta(const __Asset *asset, const __Asset *benchmark, unsigned int n){
         T mean_market_returns = 0.0;
@@ -45,19 +50,18 @@ namespace Risk {
             throw std::runtime_error("beta lookback period greater then number of rows");
         }
 
-        unsigned int asset_start_index = asset->current_index - n - 1;
-        unsigned int benchmark_start_index = asset->current_index - n - 1;
+        std::vector<T> &stock_prices = asset->AM.data;
+        std::vector<T> &market_prices = benchmark->AM.data;
 
         unsigned int asset_step_size = asset->AM.col_size();
         unsigned int benchmark_step_size = asset->AM.col_size();
-        std::vector<T> &stock_prices = asset->AM.data;
-        std::vector<T> &market_prices = benchmark->AM.data;
 
         unsigned int asset_col = asset->close_col_ask;
         unsigned int benchmark_col = benchmark->close_col_ask;
 
-        unsigned int asset_index = asset_start_index + asset_col;
-        unsigned int benchmark_index = benchmark_start_index + benchmark_col;
+        unsigned int asset_index = asset_step_size * (asset->current_index - n - 1) + asset_col;
+        unsigned int benchmark_index = benchmark_step_size * (asset->current_index - n - 1) + benchmark_col;
+
         for (unsigned int i = 1; i < n; i++) {
             T market_return = (market_prices[benchmark_index+i] - market_prices[benchmark_index+i - 1]) 
                                 / market_prices[benchmark_index+i - 1];
@@ -84,6 +88,7 @@ namespace Risk {
         return beta;
     }
 
+    //variance of a vector of values
     template <typename T>
     T variance(const std::vector<T> &vec) {
         T mean = 0.0, sum_square_dev = 0.0;
@@ -96,4 +101,14 @@ namespace Risk {
         T variance = (sum_square_dev - size * mean * mean) / (size - 1);
         return variance;
     }
+
+    //get beta dollars for a position, defined as the beta of a position multiplied
+    //by the number of units held in the position
+    template <typename T>
+    T beta_dollars(const Position *position, const __Asset *benchmark, unsigned int n){
+        __Asset *asset = position->asset;
+        T beta = beta(asset, benchmark, n);
+        return beta * position->units;
+    }
+
 }

@@ -40,10 +40,10 @@ struct __AssetDataFormat {
 template <typename T>
 class __AssetMatrix {
 public:
-	std::size_t N = 0;
-	std::size_t M = 0;
-	std::size_t size = 0;
-	std::vector<T> data;
+	std::size_t N = 0;    //row count
+	std::size_t M = 0;	  //col count
+	std::size_t size = 0; //rows*columns
+	std::vector<T> data;  //underlying data
 
 	//constructors 
 	__AssetMatrix() :__AssetMatrix(0, 0) {};

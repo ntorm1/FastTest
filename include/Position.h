@@ -5,7 +5,7 @@
 #include <ctime>
 #include <vector>
 #include "utils_time.h"
-
+#include "Asset.h"
 
 struct PositionStruct {
 	double average_price;
@@ -49,6 +49,7 @@ public:
 	double close_price;     /**<the closing price of the position*/
 	double last_price;      /**<the last price the the position as evaluated at*/
 
+	__Asset *asset;			  /**<underlying asset of the position*/
 	unsigned int position_id; /**<id of the position*/
 	unsigned int asset_id;    /**<id of the asset for the order*/
 	unsigned int exchange_id; /**<id of the exchange the order was placed on*/

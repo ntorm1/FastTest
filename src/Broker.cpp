@@ -150,7 +150,6 @@ void __Broker::margin_adjustment(Position &position, double market_price){
 		margin_req_mid = this->margin_req;
 	}
 	double new_collateral = abs(margin_req_mid* position.units*market_price);
-	double adjustment = (new_collateral - position.collateral);
 	position.collateral = new_collateral;
 }
 
@@ -214,6 +213,9 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 		order->account_id,
 		order->strategy_id
 	};
+
+	__Exchange *exchange = this->exchanges[order->exchange_id];
+	 new_position.asset = &exchange->market[order->asset_id];
 	
 	//adjust account's cash and margin balance accoringly
 	__Account* account = this->accounts[order->account_id];
@@ -612,7 +614,7 @@ void __Broker::remove_child_order(std::unique_ptr<Order>& child_order){
 		if(stop_loss_order->order_parent.type == POSITION){
 			Position* parent_position = stop_loss_order->order_parent.member.parent_position;
 			auto & ids =  parent_position->child_order_ids;
-			for(int i = 0; i < ids.size(); i++){
+			for(unsigned int i = 0; i < ids.size(); i++){
 				if(ids[i] == child_order->order_id){
 					ids.erase(ids.begin() + i);
 					return;
@@ -632,6 +634,7 @@ void __Broker::remove_child_order(std::unique_ptr<Order>& child_order){
 void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_filled) {
 	for (auto& order : orders_filled) {
 		auto & account = this->accounts[order->account_id];
+
 		if(this->debug){
 			printf("ORDER_ID: %i FILLED\n", order->order_id);
 		}
