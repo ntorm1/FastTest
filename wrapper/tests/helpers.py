@@ -38,7 +38,7 @@ def setup_simple(logging = False):
     ft.add_account("default", 100000)
 
     new_asset = ft.register_asset(asset_name="1")
-    new_asset.set_format("%d-%d-%d", 0, 1)
+    new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
     new_asset.load_from_csv(file_name_2)
     
     ft.build()
@@ -56,7 +56,7 @@ def setup_multi(logging = False, margin = False, debug = False):
 
     for i, file_name in enumerate([file_name_1,file_name_2]):
         new_asset = ft.register_asset(str(i+1))
-        new_asset.set_format("%d-%d-%d", 0, 1)
+        new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
         new_asset.load_from_csv(file_name)
         
     ft.build()
@@ -78,10 +78,10 @@ def setup_multi_exchange(logging = False, margin = False, debug = False, build =
     new_asset1 = ft.register_asset("1", "exchange1")
     new_asset2 = ft.register_asset("2", "exchange2")
 
-    new_asset1.set_format("%d-%d-%d", 0, 1)
+    new_asset1.set_format("%d-%d-%d", 0, 0, 1, 1)
     new_asset1.load_from_csv(file_name_1)
     
-    new_asset2.set_format("%d-%d-%d", 0, 1)
+    new_asset2.set_format("%d-%d-%d", 0, 0, 1, 1)
     new_asset2.load_from_csv(file_name_2)
    
     broker.register_exchange(exchange2)
@@ -102,7 +102,7 @@ def setup_multi_account(logging = False, margin = False, debug = False, save_las
         
     for i, file_name in enumerate([file_name_1,file_name_2]):
         new_asset = ft.register_asset(str(i+1))
-        new_asset.set_format("%d-%d-%d", 0, 1)
+        new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
         new_asset.load_from_csv(file_name)
         
     ft.build()

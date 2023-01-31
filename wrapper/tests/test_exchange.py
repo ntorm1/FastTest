@@ -24,7 +24,7 @@ class ExchangeTestMethods(unittest.TestCase):
         
         for i in range (0,6):
             new_asset = ft.register_asset(asset_name = str(i))
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset.load_from_csv(file_name_2)
 
         ft.build()

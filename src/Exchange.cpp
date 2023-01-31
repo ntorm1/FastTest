@@ -147,7 +147,7 @@ double __Exchange::apply_slippage(unsigned int asset_id, double market_price, do
 }
 
 void __Exchange::process_market_order(MarketOrder * const open_order) {
-	double market_price = _get_market_price(open_order->asset_id, open_order->cheat_on_close);
+	double market_price = _get_market_price(open_order->asset_id, open_order->units, open_order->cheat_on_close);
 	if (isnan(market_price)) { 
 		throw std::invalid_argument("recieved order for which asset has no market price");
 	}
@@ -158,7 +158,7 @@ void __Exchange::process_market_order(MarketOrder * const open_order) {
 }
 
 void __Exchange::process_limit_order(LimitOrder *const open_order, bool on_close) {
-	double market_price = _get_market_price(open_order->asset_id, on_close);
+	double market_price = _get_market_price(open_order->asset_id, open_order->units, on_close);
 	if (isnan(market_price)) {
 		throw std::invalid_argument("recieved order for which asset has no market price");
 	}
@@ -173,7 +173,7 @@ void __Exchange::process_limit_order(LimitOrder *const open_order, bool on_close
 }
 
 void __Exchange::process_stoploss_order(StopLossOrder *const open_order, bool on_close){
-	double market_price = _get_market_price(open_order->asset_id, on_close);
+	double market_price = _get_market_price(open_order->asset_id, open_order->units, on_close);
 	if ((open_order->units < 0) & (market_price <= open_order->stop_loss)) {
 		if(this->has_slippage){market_price = this->apply_slippage(open_order->asset_id,market_price,open_order->units);}
 		open_order->fill(market_price, this->current_time);
@@ -361,9 +361,9 @@ void get_market_view(void *exchange_ptr) {
 	__Exchange *__exchange_ref = static_cast<__Exchange *>(exchange_ptr);
 	__exchange_ref->_get_market_view();
 }
-double get_market_price(void *exchange_ptr, unsigned int asset_id, bool on_close) {
+double get_market_price(void *exchange_ptr, unsigned int asset_id, double units, bool on_close) {
 	__Exchange * __exchange_ref = static_cast<__Exchange *>(exchange_ptr);
-	double price =  __exchange_ref->_get_market_price(asset_id, on_close);
+	double price =  __exchange_ref->_get_market_price(asset_id,units,on_close);
 	return price;
 }
 void* get_asset_ptr(void *exchange_ptr, unsigned int asset_id) {

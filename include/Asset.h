@@ -19,12 +19,21 @@ enum ASSET_TYPE {
 
 struct __AssetDataFormat {
 	const char * digit_datetime_format;
-	size_t open_col;
-	size_t close_col;
-	__AssetDataFormat(const char * dformat = "%d-%d-%d", size_t open = 0, size_t close = 1) :
+	size_t open_col_bid;
+	size_t open_col_ask;
+	size_t close_col_bid;
+	size_t close_col_ask;
+	__AssetDataFormat(const char * dformat = "%d-%d-%d", 
+				size_t open_col_bid = 0,
+				size_t open_col_ask = 1,
+				size_t close_col_bid = 2,
+				size_t close_col_ask = 3
+				) :
 		digit_datetime_format(dformat),
-		open_col(open),
-		close_col(close)
+		open_col_bid(open_col_bid),
+		open_col_ask(open_col_ask),
+		close_col_bid(close_col_bid),
+		close_col_ask(close_col_ask)
 	{}
 };
 
@@ -77,8 +86,11 @@ public:
 	const char *digit_datetime_format; //the digit sequence used to parse datetime index
 	const char *datetime_format;       //format of the datetime index
 	unsigned int frequency;            //frequency of the datettime index
-	size_t open_col;                   //the index of the open column
-	size_t close_col;                  //the index of the close column
+	
+	size_t open_col_bid;  //the index of the open bid column
+	size_t open_col_ask;  //the index of the open ask column
+	size_t close_col_bid; //the index of the close bid column
+	size_t close_col_ask; //the index of the close ask column
 
 	bool streaming = false; //is the asset finished streaming data
 
@@ -103,6 +115,9 @@ public:
 
 	//function to load an asset from a double pointer using specified dims
 	void _load_from_pointer(double *datetime_index,double *data, size_t rows, size_t columns);
+
+	//function to load a format object for the asset
+	void _load_format(__AssetDataFormat& format);
 
 	//function to set the slippage rate of an asset
 	void _set_asset_slippage(double slippage);
@@ -136,8 +151,12 @@ public:
 		this->asset_id = asset_id;
 		this->minimum_warmup = minimum_warmup;
 		this->digit_datetime_format = format.digit_datetime_format;
-		this->open_col = format.open_col;
-		this->close_col = format.close_col;
+
+		this->open_col_bid = format.open_col_bid;
+		this->open_col_ask = format.open_col_ask;
+		this->close_col_bid = format.close_col_bid;
+		this->close_col_ask = format.close_col_ask;
+
 		this->format = format;
 		this->exchange_id = exchange_id;
 	}
@@ -156,7 +175,11 @@ extern "C" {
 	ASSET_API size_t rows(void *ptr);
 	ASSET_API size_t columns(void *ptr);
 
-	ASSET_API void set_format(void *ptr, const char * dformat = "%d-%d-%d", size_t open = 0, size_t close = 1);
+	ASSET_API void set_format(void *ptr, const char * dformat = "%d-%d-%d", 
+			size_t open_col_bid = 0, 
+			size_t open_col_asl = 0,
+			size_t close_col_bid = 1,
+			size_t close_col_ask = 1);
 	ASSET_API void set_asset_slippage(void *ptr, double slippage);
 	ASSET_API void set_asset_warmup(void *ptr, unsigned int minimum_warmup);
 	

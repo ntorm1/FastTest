@@ -92,7 +92,7 @@ class Exchange():
         return self.id_map[asset_id]
 
     # -----------------------------------------------------------------------------
-    def get_market_price(self, asset_name : str, on_close = True):
+    def get_market_price(self, asset_name : str, units : float, on_close = True):
         """Get the current market price of an asset
 
         Args:
@@ -106,6 +106,7 @@ class Exchange():
         return Wrapper._get_market_price(
             self.ptr, 
             asset_id,
+            units,
             c_bool(on_close)
         )
        
@@ -246,7 +247,12 @@ class Asset():
         self.headers = columns
         
     # -----------------------------------------------------------------------------            
-    def set_format(self, digit_format : str, open_col : int, close_col : int):
+    def set_format(self, digit_format : str, 
+                open_col_bid : int,
+                open_col_ask : int,
+                close_col_bid : int,
+                close_col_ask : int
+                ):
         """Set the format of the asset to be loaded, describes the format of the datetime as 
         well as sets the column indicies used to get market prices at every time step
 
@@ -254,25 +260,18 @@ class Asset():
             digit_format (str): string like "%d-%d-%d" describing the format of the datetime string
             open_col (int): the column index of the open price of the asset
             close_col (int): the column index of the close price of the asset
-
-        Raises:
-            AttributeError: _description_
-            AttributeError: _description_
-            RuntimeError: _description_
         """
 
-        if open_col < 0:
-            raise AttributeError(f"invalid open column index passed: {open_col}")
-        if close_col < 0:
-            raise AttributeError(f"invalid open column index passed: {close_col}")
         if not self.registered:
             raise RuntimeError("Asset must be registered before setting asset format")
         
         Wrapper._set_asset_format(
             self.ptr,
             c_char_p(digit_format.encode("utf-8")),
-            open_col,
-            close_col
+            open_col_bid,
+            open_col_ask,
+            close_col_bid,
+            close_col_ask
         )
         self.formatted = True
         

@@ -452,7 +452,7 @@ ORDER_CHECK __Broker::check_market_order(const MarketOrder* market_order) {
 	__Exchange *exchange = this->exchanges[market_order->exchange_id];
 	auto &account = this->accounts[market_order->account_id];
 
-	double market_price = exchange->_get_market_price(asset_id);
+	double market_price = exchange->_get_market_price(asset_id, units);
 
 	if(!this->_position_exists(asset_id)){
 		auto & account = this->accounts[market_order->account_id];

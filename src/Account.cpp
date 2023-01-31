@@ -37,7 +37,7 @@ void __Account::evaluate_account(bool on_close){
 
         unsigned int exchange_id = position.exchange_id;
         exchange = this->broker->exchanges[exchange_id];
-        market_price = exchange->_get_market_price(asset_id, on_close);
+        market_price = exchange->_get_market_price(asset_id, position.units, on_close);
 
 
         //if no market price is available at the time then position cannot be evaluated

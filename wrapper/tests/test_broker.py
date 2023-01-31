@@ -25,7 +25,7 @@ class BrokerTestMethods(unittest.TestCase):
         ft.add_account("default", 100000)
          
         new_asset = ft.register_asset(asset_name="1")
-        new_asset.set_format("%d-%d-%d", 0, 1)
+        new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
         new_asset.load_from_csv(file_name_2)
             
         ft.build()

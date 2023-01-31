@@ -21,6 +21,12 @@
 #include <vector>
 #include <algorithm>
 
+enum MarketSide {
+	BID,
+	ASK,
+	MID
+};
+
 template<typename map_iter_t>
 struct compare_map_iters_by_value
 {
@@ -248,18 +254,49 @@ public:
 	 *@param asset_name A referece to the name of the Asset for which to get the market price.
 	 *@param on_close Wether or not to return the market price on close or open for the current market view.
 	*/
-	inline double _get_market_price(unsigned int &asset_id, bool on_close = false) noexcept {
+	inline double _get_market_price(unsigned int &asset_id, double &units, bool on_close = false) noexcept {
+
+	MarketSide market_side;
+	if(units > 0){market_side = ASK;}
+	else if(units < 0){market_side = BID;}
+	else{market_side = MID;}
+
+	//see if asset is in the current market view
 	if (this->market_view.count(asset_id) == 0) {
 		return NAN;
 	}
 	this->asset = this->market_view[asset_id];
-	if (on_close) {
-		return asset->get(asset->close_col);
+
+	//get the appropriate column and return market price
+	size_t column_index;
+	switch (market_side){
+		case BID:
+			if(on_close){
+				column_index = asset->close_col_bid;
+			}
+			else{
+				column_index = asset->open_col_bid;
+			}
+			return asset->get(column_index);
+		case ASK:
+			if(on_close){
+				column_index = asset->close_col_ask;
+			}
+			else{
+				column_index = asset->open_col_ask;
+			}
+			return asset->get(column_index);
+		case MID:
+			if(on_close){
+				double mid = (asset->get(asset->close_col_bid) + asset->get(asset->close_col_ask)) / 2;
+				return mid;
+			}
+			else{
+				double mid = (asset->get(asset->open_col_bid) + asset->get(asset->open_col_ask)) / 2;
+				return mid;
+			}
+		}
 	}
-	else {
-		return asset->get(asset->open_col);
-	}
-}
 
 private:
 	/**
@@ -297,7 +334,7 @@ extern "C" {
 	EXCHANGE_API size_t get_exchange_index_length(void *exchange_ptr);
 
 	EXCHANGE_API void get_market_view(void *exchange_ptr);
-	EXCHANGE_API double get_market_price(void *exchange_ptr, unsigned int asset_id, bool on_close = false);
+	EXCHANGE_API double get_market_price(void *exchange_ptr, unsigned int asset_id, double units, bool on_close = false);
 	EXCHANGE_API double get_market_feature(void *exchange_ptr, unsigned int asset_id, const char *column, int index = 0);
 	EXCHANGE_API void get_id_max_market_feature(void *exchange_ptr, const char *column, unsigned int *res_ids, unsigned int count = 0, bool max = true);
 

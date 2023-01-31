@@ -249,7 +249,7 @@ _register_header = FastTest.register_header
 _register_header.argtypes = [c_void_p, c_char_p, c_uint]
 
 _set_asset_format = FastTest.set_format 
-_set_asset_format.argtypes = [c_void_p,c_char_p, c_size_t, c_size_t]
+_set_asset_format.argtypes = [c_void_p,c_char_p, c_size_t, c_size_t, c_size_t, c_size_t]
 
 _columns = FastTest.columns
 _columns.argtypes = [c_void_p]
@@ -414,7 +414,7 @@ _register_asset = FastTest.register_asset
 _register_asset.argtypes = [c_void_p,c_void_p]
 
 _get_market_price = FastTest.get_market_price
-_get_market_price.argtypes = [c_void_p,c_uint,c_bool]
+_get_market_price.argtypes = [c_void_p, c_uint, c_double, c_bool]
 _get_market_price.restype = c_double
 
 _get_market_feature = FastTest.get_market_feature

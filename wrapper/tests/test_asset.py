@@ -19,7 +19,7 @@ class AssetTestMethods(unittest.TestCase):
         
         ft.register_exchange(exchange) 
         new_asset = ft.register_asset("test1")
-        new_asset.set_format("%d-%d-%d", 0, 1)
+        new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
         new_asset.load_from_csv(file_name_1)
         assert(True)
         
@@ -32,7 +32,7 @@ class AssetTestMethods(unittest.TestCase):
     
         for index, df in enumerate([df1,df2]):
             new_asset = ft.register_asset("test1")
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset.load_from_df(df)
             asset_index = new_asset.index()
             asset_data = new_asset.data()
@@ -57,7 +57,7 @@ class AssetTestMethods(unittest.TestCase):
         ft.register_exchange(exchange) 
         for index, file_name in enumerate([file_name_1,file_name_2]):
             new_asset = ft.register_asset("test1")
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset.load_from_csv(file_name)
             asset_index = new_asset.index()
             for i, date in enumerate(asset_index):
@@ -75,7 +75,7 @@ class AssetTestMethods(unittest.TestCase):
         ft.register_exchange(exchange) 
         for index, file_name in enumerate([file_name_1,file_name_2]):
             new_asset = ft.register_asset("test1")
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset.load_from_csv(file_name)
             asset_data = new_asset.data()
             if index == 0:
@@ -96,7 +96,7 @@ class AssetTestMethods(unittest.TestCase):
 
         for i, file_name in enumerate([file_name_1,file_name_2]):
             new_asset = ft.register_asset(str(i+1))
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset.load_from_csv(file_name)
             if i == 1:
                 new_asset.set_warmup(2)
@@ -131,7 +131,7 @@ class AssetTestMethods(unittest.TestCase):
         
         for i in range(0,5):
             new_asset = ft.register_asset(str(i))
-            new_asset.set_format("%d-%d-%d", 0, 0)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset_df = new_asset.generate_random(step_size = .01, num_steps = 1000)
             new_asset.load_from_df(new_asset_df, nano = True)
             

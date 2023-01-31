@@ -34,6 +34,14 @@ void __Asset::_set_asset_warmup(unsigned int minimum_warmup){
 	this->minimum_warmup = minimum_warmup;
 }
 
+void __Asset::_load_format(__AssetDataFormat &format){
+	this->open_col_bid = format.open_col_bid;
+	this->open_col_ask = format.open_col_ask;
+	this->close_col_bid = format.close_col_bid;
+	this->close_col_ask = format.close_col_ask;
+	this->digit_datetime_format = format.digit_datetime_format;
+}
+
 void __Asset::_load_from_pointer(double *datetime_index, double *data, size_t rows, size_t columns) {
 	size_t size = rows * columns;
 
@@ -170,13 +178,14 @@ size_t columns(void *ptr) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(ptr);
 	return __asset_ref->AM.M;
 }
-void set_format(void *ptr, const char * dformat, size_t open_col, size_t close_col) {
+void set_format(void *ptr, const char * dformat, size_t _open_col_bid, size_t _open_col_ask, size_t _close_col_bid, size_t _close_col_ask) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(ptr);
-	__AssetDataFormat format(dformat, open_col, close_col);
-	__asset_ref->digit_datetime_format = format.digit_datetime_format;
-	__asset_ref->open_col = open_col;
-	__asset_ref->close_col = close_col;
-	__asset_ref->format = format;
+	__AssetDataFormat format(dformat, 
+		_open_col_bid, 
+		_open_col_ask,
+		_close_col_bid,
+		_close_col_ask);
+	__asset_ref->_load_format(format);
 }
 void set_asset_slippage(void *asset_ptr, double slippage) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(asset_ptr);

@@ -83,7 +83,7 @@ void __FastTest::copy_positions_on_end(){
 			Position position =  it->second;	
 			unsigned int exchange_id = position.exchange_id;
         	__Exchange *exchange = this->broker->exchanges[exchange_id];
-        	double market_price = exchange->_get_market_price(position.asset_id, true);	
+        	double market_price = exchange->_get_market_price(position.asset_id,position.units,true);	
 
 			position.evaluate(market_price, true);
 			this->portfolio[position.asset_id] = position;

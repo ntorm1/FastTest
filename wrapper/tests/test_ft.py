@@ -99,7 +99,7 @@ class FTTestMethods(unittest.TestCase):
             df.dropna(inplace = True)
             
             new_asset = ft.register_asset(str(i+1))
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0, 0, 1, 1)
             new_asset.load_from_df(df)
             
         ft.build()
@@ -112,7 +112,7 @@ class FTTestMethods(unittest.TestCase):
         
         benchmark = Asset(exchange.exchange_id, asset_name=str("Benchmark"))
         ft.register_benchmark(benchmark)
-        benchmark.set_format("%d-%d-%d", 0, 1)
+        benchmark.set_format("%d-%d-%d", 0, 0, 1, 1)
         benchmark.load_from_csv(file_name_2)
         
         benchmark = ft.benchmark.df()
