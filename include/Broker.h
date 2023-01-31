@@ -15,6 +15,7 @@
 #include "Position.h"
 #include "Asset.h"
 #include "Exchange.h"
+#include "Risk.h"
 
 #define REG_T_REQ .5
 #define REG_T_SHORT_REQ 1.5
