@@ -1,11 +1,20 @@
 #pragma once
 #ifndef POSITION_H // include guard
 #define POSITION_H
+#ifdef _WIN32
+#define POSITION_API __declspec(dllexport)
+#else
+#define POSITION_API
+#endif 
 #include "pch.h"
 #include <ctime>
 #include <vector>
 #include "utils_time.h"
 #include "Asset.h"
+#include "Risk.h"
+
+
+class Position;
 
 struct PositionStruct {
 	double average_price;
@@ -33,6 +42,10 @@ struct PositionArray {
 	unsigned int number_positions;
 	PositionStruct **POSITION_ARRAY;
 };
+struct ChildPosition {
+	Position * child_position; //pointer to the child position 
+	double units; 			   //how many units of the child position is linked to the parent
+};
 
 class Position
 {
@@ -59,7 +72,8 @@ public:
 	timeval position_create_time;           /**<the datetime that the position was created*/
 	timeval position_close_time = MAX_TIME; /**<the datetime that the position was closed*/
 
-	std::vector<unsigned int> child_order_ids; /**<container for child order ids for the positions*/
+	std::vector<unsigned int> child_order_ids;  /**<container for child order ids for the positions*/
+	std::vector<ChildPosition> child_positions; /**<container for child position structs for the position*/
 
 	double unrealized_pl = 0;
 	double realized_pl = 0;
@@ -67,7 +81,9 @@ public:
 	void increase(double market_price, double units);
 	void reduce(double market_price, double units);
 	void close(double close_price, timeval position_close_time);
+
 	double liquidation_value();
+	double beta_dollars(const __Asset *benchmark, unsigned int n);
 
 	void to_struct(PositionStruct &position_struct);
 
@@ -91,5 +107,4 @@ public:
 		return &lhs == &rhs;
 	}
 };
-
 #endif

@@ -95,7 +95,9 @@ public:
     void reset();
     void build(double cash);
 	void set_margin(bool margin = false);
+
     void evaluate_account(bool on_close = false);
+	double _beta_dollars(const __Asset *benchmark, unsigned int n);
 
     __Account(unsigned int _account_id, double cash){
         this->account_id = _account_id;
@@ -285,6 +287,8 @@ extern "C" {
 	BROKER_API void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void *position_ptr, double units, double stop_loss, bool cheat_on_close = false, bool limit_pct = false);
 	BROKER_API void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, unsigned int exchange_id = 0, bool limit_pct = false);
 
+	/******************************************************************************/
+
 	ACCOUNT_API void * CreateAccountPtr(unsigned int account_id, double cash);
 	ACCOUNT_API void DeleteAccountPtr(void *ptr);
     ACCOUNT_API void* GetAccountPtr(void * broker_ptr, unsigned int account_id);
@@ -292,6 +296,8 @@ extern "C" {
 	ACCOUNT_API size_t account_get_history_length(void *account_ptr);
 	ACCOUNT_API double* account_get_nlv_history(void *account_ptr);
 	ACCOUNT_API double* account_get_cash_history(void *account_ptr);
+
+	ACCOUNT_API double get_beta_dollars(void *account_ptr, void *benchmark_ptr, unsigned int lookback);
 }
 
 #endif

@@ -21,6 +21,15 @@ void __Account::set_margin(bool margin){
     this->margin = margin;
 }
 
+double __Account::_beta_dollars(const __Asset *benchmark, unsigned int n){
+    double _sum = 0;
+    for(auto & pair : this->portfolio){
+        Position &position = pair.second;
+        _sum += position.beta_dollars(benchmark, n);
+    }
+    return _sum;
+}
+
 void __Account::evaluate_account(bool on_close){
     double nlv = 0;
     double collateral = 0;
@@ -119,4 +128,9 @@ double * account_get_nlv_history(void *account_ptr) {
 double * account_get_cash_history(void *account_ptr) {
 	__Account * __account_ref = static_cast<__Account *>(account_ptr);
 	return __account_ref->cash_history.data();
+}
+double get_beta_dollars(void *account_ptr, void *benchmark_ptr, unsigned int lookback){
+    __Account * __account_ref = static_cast<__Account *>(account_ptr);
+    __Asset * __asset_ref = static_cast<__Asset *>(benchmark_ptr);
+    return __account_ref->_beta_dollars(__asset_ref, lookback);
 }

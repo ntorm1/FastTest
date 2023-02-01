@@ -283,7 +283,20 @@ void __Broker::close_position(Position &existing_position, double order_fill_pri
 	for(auto & order_id : existing_position.child_order_ids){
 		this->cancel_order(order_id);
 	}
-
+	//close any child positions:
+	for(auto & child : existing_position.child_positions){
+		Position *child_position = child.child_position;
+		OrderResponse response;
+		this->_place_market_order(
+			&response,
+			child_position->asset_id,
+			child.units,
+			true, //cheat on close
+			child_position->exchange_id,
+			existing_position.strategy_id,
+			child_position->account_id
+		);
+	}
 	if (this->logging) { log_close_position(existing_position); }
 }
 
@@ -610,8 +623,10 @@ void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_respo
 void __Broker::remove_child_order(std::unique_ptr<Order>& child_order){
 	if(child_order->order_type == STOP_LOSS_ORDER){
 		StopLossOrder* stop_loss_order = static_cast <StopLossOrder*>(child_order.get());
+		
 		//parent is a position
 		if(stop_loss_order->order_parent.type == POSITION){
+
 			Position* parent_position = stop_loss_order->order_parent.member.parent_position;
 			auto & ids =  parent_position->child_order_ids;
 			for(unsigned int i = 0; i < ids.size(); i++){

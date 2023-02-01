@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include "Position.h"
+#include "Risk.h"
 
 void Position::to_struct(PositionStruct &position_struct){
 	position_struct.average_price = this->average_price;
@@ -44,17 +45,20 @@ Position::Position(unsigned int position_id, unsigned int asset_id, double units
 	this->account_id = account_id;
 	this->strategy_id = strategy_id;
 }
+
 void Position::increase(double market_price, double _units) {
 	double new_units = abs(this->units) + abs(_units);
 	this->average_price = ((abs(this->units)*this->average_price) + (abs(_units)*market_price)) / new_units;
 	this->units += _units;
 	this->bars_since_change = 0;
 }
+
 void Position::reduce(double market_price, double _units) {
 	this->realized_pl += abs(_units) * (market_price - this->average_price);
 	this->units -= abs(_units);
 	this->bars_since_change = 0;
 }
+
 void Position::close(double close_price, timeval position_close_time) {
 	this->is_open = false;
 	this->close_price = close_price;
@@ -62,6 +66,13 @@ void Position::close(double close_price, timeval position_close_time) {
 	this->realized_pl += this->units * (close_price - this->average_price);
 	this->unrealized_pl = 0;
 }
+
 double Position::liquidation_value() {
 	return this->units * this->last_price;
+}
+
+double Position::beta_dollars(const __Asset *benchmark, unsigned int n){
+	const __Asset * _asset = this->asset;
+    double beta = Risk::beta<double>(_asset, benchmark, n);
+    return beta * this->units;
 }

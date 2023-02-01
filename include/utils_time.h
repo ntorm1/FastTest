@@ -23,13 +23,6 @@ constexpr unsigned int HOUR4 = 14400;
 constexpr unsigned int DAY1 = 86400;
 constexpr unsigned int US_EQUITY_DAY1 = 23400;
 
-enum Frequency {
-	S1, S5, S30,
-	M1, M5, M15, M30,
-	H1, H2, H4,
-	US_E1D, D1
-};
-
 #define MAX_TIME_LONG 2147483647
 constexpr timeval MAX_TIME = { MAX_TIME_LONG,0 };
 

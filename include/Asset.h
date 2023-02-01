@@ -10,11 +10,20 @@
 #include <string>
 #include <unordered_map>
 
+//#define RANGE_CHECK
+
 enum ASSET_TYPE {
 	FOREX,
 	FUTURE,
 	US_EQUITY,
 	INDEX
+};
+
+enum ASSET_FREQUENCY {
+	S1, S5, S30,
+	M1, M5, M15, M30,
+	H1, H2, H4,
+	US_E1D, D1
 };
 
 struct __AssetDataFormat {
@@ -85,7 +94,7 @@ public:
 	__AssetDataFormat format;          //define the format of the asset
 	const char *digit_datetime_format; //the digit sequence used to parse datetime index
 	const char *datetime_format;       //format of the datetime index
-	unsigned int frequency;            //frequency of the datettime index
+	ASSET_FREQUENCY frequency = D1;            //frequency of the datettime index
 	
 	size_t open_col_bid;  //the index of the open bid column
 	size_t open_col_ask;  //the index of the open ask column

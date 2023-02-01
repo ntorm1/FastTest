@@ -274,7 +274,7 @@ std::unique_ptr<Order> __Exchange::cancel_order(std::unique_ptr<Order>& order_ca
 		if ((*this->orders[i]) == *order_cancel) {
 			order = std::move(*(this->orders.begin() + i));
 			this->orders.erase(this->orders.begin() + i);
-			return std::move(order);
+			return order;
 		}
 	}
 	return order;
@@ -283,7 +283,7 @@ std::unique_ptr<Order> __Exchange::cancel_order(std::unique_ptr<Order>& order_ca
 void __Exchange::cancel_orders(std::vector<std::unique_ptr<Order>>& canceled_orders, unsigned int asset_id) {
 	for (auto& order : this->orders) {
 		if (order->asset_id != asset_id) { continue; }
-		canceled_orders.push_back(std::move(this->cancel_order(order)));
+		canceled_orders.push_back(this->cancel_order(order));
 	}
 }
 

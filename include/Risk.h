@@ -1,11 +1,15 @@
+#pragma once
+#ifndef RISK_H // include guard
+#define RISK_H
 #include <vector>
 #include <cmath>
 #include <numeric>
 #include <algorithm>
 #include "Asset.h"
-#include "Position.h"
 
 namespace Risk {
+
+    //template <typename T>
 
     //get the beta of a stock given a vector of market prices and benchmark prices
     template <typename T>
@@ -49,9 +53,15 @@ namespace Risk {
         if(n > asset->datetime_index.size()){
             throw std::runtime_error("beta lookback period greater then number of rows");
         }
+        if(n > (asset->current_index-1) || n > (benchmark->current_index-1)){
+            throw std::runtime_error("beta lookback period greater current index");
+        }
+        if(asset->frequency != benchmark->frequency){
+            throw std::runtime_error("asset and benchmark do not have the same frequency");
+        }
 
-        std::vector<T> &stock_prices = asset->AM.data;
-        std::vector<T> &market_prices = benchmark->AM.data;
+        const std::vector<T> &stock_prices = asset->AM.data;
+        const std::vector<T> &market_prices = benchmark->AM.data;
 
         unsigned int asset_step_size = asset->AM.col_size();
         unsigned int benchmark_step_size = asset->AM.col_size();
@@ -65,8 +75,8 @@ namespace Risk {
         for (unsigned int i = 1; i < n; i++) {
             T market_return = (market_prices[benchmark_index+i] - market_prices[benchmark_index+i - 1]) 
                                 / market_prices[benchmark_index+i - 1];
-            T stock_return = (market_prices[asset_index+i] - market_prices[asset_index+i - 1]) 
-                                / market_prices[asset_index+i - 1];
+            T stock_return = (stock_prices[asset_index+i] - stock_prices[asset_index+i - 1]) 
+                                / stock_prices[asset_index+i - 1];
 
             asset_index += asset_step_size;
             benchmark_index += benchmark_step_size;
@@ -101,14 +111,5 @@ namespace Risk {
         T variance = (sum_square_dev - size * mean * mean) / (size - 1);
         return variance;
     }
-
-    //get beta dollars for a position, defined as the beta of a position multiplied
-    //by the number of units held in the position
-    template <typename T>
-    T beta_dollars(const Position *position, const __Asset *benchmark, unsigned int n){
-        __Asset *asset = position->asset;
-        T beta = beta(asset, benchmark, n);
-        return beta * position->units;
-    }
-
 }
+#endif
