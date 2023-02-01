@@ -404,10 +404,8 @@ ORDER_CHECK __Broker::check_position_open(const std::unique_ptr<Order>& new_orde
 
 	//check to see if this order will open a new position
 	auto &account = this->accounts[new_order->account_id];
-	for(const auto & position_pair : account->portfolio){
-		if(position_pair.second->asset_id == new_position_asset_id){
-				return VALID_ORDER;
-		}
+	if(account->portfolio.count(new_position_asset_id) > 0){
+		return VALID_ORDER;
 	}
 
 	//check to see if there exists a position in a different account with a different direction (short/long)
@@ -420,6 +418,9 @@ ORDER_CHECK __Broker::check_position_open(const std::unique_ptr<Order>& new_orde
 			}
 			if(position_pair.second->units * new_position_units < 0 ){
 				return INVALID_NEW_POSITION_SIDE;
+			}
+			else{
+				return VALID_ORDER;
 			}
 		}
 	}
@@ -496,14 +497,21 @@ ORDER_CHECK __Broker::check_order(const std::unique_ptr<Order>& new_order) {
 
 	//check to see if the asset exsists on the exchange
 	__Exchange *exchange = this->exchanges[new_order->exchange_id];
-	if (exchange->market.count(new_order->asset_id) == 0) { return INVALID_ASSET; }
-	
-	//An order can not have units set to 0
-	if (new_order->units == 0) { return INVALID_ORDER_UNITS; }
+
+	//check to see if exchange contains the asset
+	if (exchange->market.count(new_order->asset_id) == 0){
+		return INVALID_ASSET; 
+	}
+	//check to see if the order has valid units
+	if (new_order->units == 0){
+		return INVALID_ORDER_UNITS; 
+	}
 
 	//if order opens new position make sure it is valid new position side
 	order_code = check_position_open(new_order);
-	if(order_code!= VALID_ORDER){return order_code;}
+	if(order_code!= VALID_ORDER){
+		return order_code;
+	}
 
 	switch (new_order->order_type) {
 		case MARKET_ORDER: {
@@ -552,8 +560,8 @@ void __Broker::send_order(std::unique_ptr<Order> new_order,OrderResponse *order_
 	order_response->order_state = ACCEPETED;
 
 	this->order_counter++;
-	
 }
+
 void __Broker::_place_market_order(OrderResponse *order_response, unsigned int asset_id, double units, bool cheat_on_close, unsigned int exchange_id, unsigned int strategy_id, unsigned int account_id) {
 	
 	if(this->debug){
@@ -581,6 +589,7 @@ void __Broker::_place_market_order(OrderResponse *order_response, unsigned int a
 #endif
 	this->send_order(std::move(order), order_response);
 }
+
 void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int asset_id, double units, double limit, bool cheat_on_close, unsigned int exchange_id, unsigned int strategy_id, unsigned int account_id) {
 	std::unique_ptr<Order> order(new LimitOrder(
 		asset_id,

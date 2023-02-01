@@ -17,13 +17,13 @@
 #include <vector>
 
 enum OrderState {
-	ACCEPETED,
-	OPEN,
-	FILLED,
-	CANCELED,
-	BROKER_REJECTED,
-	FAILED_TO_PLACE,
-	INVALID_PARENT_ORDER_ID
+	ACCEPETED,				 //order has been accepted by broker
+	OPEN,					 //order is open on the exchange
+	FILLED,					 //order has been filled by the exchange
+	CANCELED,				 //order has been canceled by strategy
+	BROKER_REJECTED,		 //order has been rejected by the broker
+	INVALID_PARENT_ORDER_ID, //parent order failed to be found
+	BROKER_MERGED			 //broker has merged the order with another 
 };
 
 enum OrderType {
@@ -31,11 +31,6 @@ enum OrderType {
 	LIMIT_ORDER,
 	STOP_LOSS_ORDER,
 	TAKE_PROFIT_ORDER
-};
-
-enum OrderParentType {
-	POSITION = 0,
-	ORDER = 1
 };
 
 struct OrderResponse {
@@ -144,6 +139,12 @@ public:
 		this->limit = limit;
 	}
 };
+
+enum OrderParentType {
+	POSITION = 0,
+	ORDER = 1
+};
+
 struct OrderParent {
 	OrderParentType type;
 	union {
