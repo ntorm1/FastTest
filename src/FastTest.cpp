@@ -80,13 +80,14 @@ void __FastTest::copy_positions_on_end(){
 	for (auto & pair : this->broker->accounts){
 		auto & account = pair.second;
 		for (auto it = account->portfolio.begin(); it != account->portfolio.end();) {
-			Position position =  it->second;	
-			unsigned int exchange_id = position.exchange_id;
+			std::unique_ptr<Position> &position =  it->second;	
+			std::unique_ptr<Position> position_copy = std::make_unique<Position>(*position);
+			unsigned int exchange_id = position->exchange_id;
         	__Exchange *exchange = this->broker->exchanges[exchange_id];
-        	double market_price = exchange->_get_market_price(position.asset_id,position.units,true);	
+        	double market_price = exchange->_get_market_price(position_copy->asset_id,position_copy->units,true);	
 
-			position.evaluate(market_price, true);
-			this->portfolio[position.asset_id] = position;
+			position_copy->evaluate(market_price, true);
+			this->portfolio[position->asset_id] = std::move(position_copy);
 			it++;
 		}
 	}
@@ -288,7 +289,7 @@ void get_last_positions(void *fastTest_ptr, PositionArray *position_history) {
 	int i = 0;
 	for (auto &kvp : __fastTest_ref->portfolio){
 		PositionStruct &position_struct_ref = *position_history->POSITION_ARRAY[i];
-		__fastTest_ref->portfolio[kvp.first].to_struct(position_struct_ref);
+		__fastTest_ref->portfolio[kvp.first]->to_struct(position_struct_ref);
 		i++;
 	}
 }

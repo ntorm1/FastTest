@@ -22,7 +22,7 @@ public:
 	bool debug = false;
 
 	bool save_last_portfolio = false;
-	std::unordered_map<unsigned int, Position> portfolio; 
+	std::unordered_map<unsigned int, std::unique_ptr<Position>> portfolio; 
 
 	unsigned int      current_index = 0;
 	std::vector<long> epoch_index;

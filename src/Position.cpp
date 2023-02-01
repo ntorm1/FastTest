@@ -74,5 +74,5 @@ double Position::liquidation_value() {
 double Position::beta_dollars(const __Asset *benchmark, unsigned int n){
 	const __Asset * _asset = this->asset;
     double beta = Risk::beta<double>(_asset, benchmark, n);
-    return beta * this->units;
+    return beta * this->units * this->last_price;
 }

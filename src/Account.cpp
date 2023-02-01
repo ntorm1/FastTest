@@ -24,8 +24,8 @@ void __Account::set_margin(bool margin){
 double __Account::_beta_dollars(const __Asset *benchmark, unsigned int n){
     double _sum = 0;
     for(auto & pair : this->portfolio){
-        Position &position = pair.second;
-        _sum += position.beta_dollars(benchmark, n);
+        std::unique_ptr<Position> &position = pair.second;
+        _sum += position->beta_dollars(benchmark, n);
     }
     return _sum;
 }
@@ -42,11 +42,11 @@ void __Account::evaluate_account(bool on_close){
         //update portfolio net liquidation value
 
         asset_id = it->first;
-        Position& position =  it->second;
+        std::unique_ptr<Position>& position =  it->second;
 
-        unsigned int exchange_id = position.exchange_id;
+        unsigned int exchange_id = position->exchange_id;
         exchange = this->broker->exchanges[exchange_id];
-        market_price = exchange->_get_market_price(asset_id, position.units, on_close);
+        market_price = exchange->_get_market_price(asset_id, position->units, on_close);
 
 
         //if no market price is available at the time then position cannot be evaluated
@@ -58,47 +58,47 @@ void __Account::evaluate_account(bool on_close){
         //if so we have to close the current position on close of the current step
         if (exchange->market[asset_id].is_last_view() & on_close) {
             if(this->margin){
-                if(position.units < 0){
+                if(position->units < 0){
                     margin_req_mid = this->broker->short_margin_req;
                 }
                 else{
                     margin_req_mid = this->broker->margin_req;
                 }
-                double new_collateral = abs(margin_req_mid * position.units*market_price);
-                double adjustment = (new_collateral - position.collateral);
+                double new_collateral = abs(margin_req_mid * position->units*market_price);
+                double adjustment = (new_collateral - position->collateral);
                 
-                if(position.units > 0){
+                if(position->units > 0){
                     this->cash += adjustment;
                 }
                 else{
                     this->cash -= adjustment;
                 }
-                position.collateral = new_collateral;
+                position->collateral = new_collateral;
             }
             this->broker->close_position(position, market_price, exchange->current_time);
             it = this->portfolio.erase(it);
         }
         else {
-            position.evaluate(market_price, on_close);
-            nlv += position.liquidation_value();
+            position->evaluate(market_price, on_close);
+            nlv += position->liquidation_value();
 
             if(this->margin){
-                double old_collateral = position.collateral;
+                double old_collateral = position->collateral;
                 this->broker->margin_adjustment(position, market_price);
 
                 //update the margin required to maintain the position. 
-                double adjustment = (position.collateral - old_collateral);
+                double adjustment = (position->collateral - old_collateral);
 
                 //if long position, add collateral to subtract off later to prevent double counting the
                 //value of the security 
-                if(position.units > 0){
+                if(position->units > 0){
                     this->cash += adjustment;
-                    collateral += position.collateral;
+                    collateral += position->collateral;
                 }
                 //if short position, add the collateral back into nlv to maintain balanced counting
                 else{
                     this->cash -= adjustment;
-                    nlv += position.collateral;
+                    nlv += position->collateral;
                 }
             }
             it++;

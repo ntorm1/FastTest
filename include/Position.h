@@ -11,10 +11,6 @@
 #include <vector>
 #include "utils_time.h"
 #include "Asset.h"
-#include "Risk.h"
-
-
-class Position;
 
 struct PositionStruct {
 	double average_price;
@@ -42,9 +38,15 @@ struct PositionArray {
 	unsigned int number_positions;
 	PositionStruct **POSITION_ARRAY;
 };
+
+//forward declaration of position class
+class Position;
+
+//struct containing information about a child position for a parent position
 struct ChildPosition {
 	Position * child_position; //pointer to the child position 
 	double units; 			   //how many units of the child position is linked to the parent
+	bool close_on_close;       //close the child position out when the parent position is close?
 };
 
 class Position
@@ -54,12 +56,12 @@ public:
 	bool is_open;
 	double units;
 	unsigned int bars_held = 0;
-	unsigned int bars_since_change;
+	unsigned int bars_since_change = 0;
 
 	double collateral = 0;  /**<collateral broker is holding for the position*/
 	double margin_loan = 0; /**<margin loan being provided by broker to maintain the position*/
 	double average_price;   /**<average price per unit of the position*/
-	double close_price;     /**<the closing price of the position*/
+	double close_price = 0;     /**<the closing price of the position*/
 	double last_price;      /**<the last price the the position as evaluated at*/
 
 	__Asset *asset;			  /**<underlying asset of the position*/
@@ -91,6 +93,7 @@ public:
 			unsigned int exchange_id,
 			unsigned int account_id,
 			unsigned int strategy_id);
+
 	Position() = default;
 
 	inline void evaluate(double market_price, bool update_bars = false) noexcept {
@@ -107,4 +110,18 @@ public:
 		return &lhs == &rhs;
 	}
 };
+
+class Hedge : public Position{
+public:
+	//map between positions pointers and units of the hedge allocated to that account
+	std::unordered_map<Position*, double> allocations;
+	
+	//initilize the Hedge as a regular position
+	Hedge(unsigned int position_id, unsigned int asset_id, double units, double average_price, timeval position_create_time,
+			unsigned int exchange_id,
+			unsigned int account_id,
+			unsigned int strategy_id)
+		:Position(position_id,asset_id,units,average_price,position_create_time,exchange_id,account_id,strategy_id){}
+};
+
 #endif

@@ -76,6 +76,7 @@ class FTTestMethods(unittest.TestCase):
         assert((broker.get_nlv_history()==np.array([100000,  99750,  99750, 100400, 100500,  99950])).all())
     """
     def test_ma_cross(self):
+        print("TESTING test_ma_cross...")
         COLUMNS = ['OPEN','CLOSE']
         CANDLES = 2000
         STOCKS = 10
@@ -106,8 +107,10 @@ class FTTestMethods(unittest.TestCase):
         strategy = MA_Cross(broker, exchange, 10, 50)
         ft.add_strategy(strategy)
         ft.run()
+        print("TESTING: test_ma_cross passed")
         
     def test_benchmark_asset(self):
+        print("TESTING test_benchmark_asset...")
         exchange, broker, ft = setup_multi(False)
         
         benchmark = Asset(exchange.exchange_id, asset_name=str("Benchmark"))
@@ -117,8 +120,10 @@ class FTTestMethods(unittest.TestCase):
         
         benchmark = ft.benchmark.df()
         assert((benchmark["CLOSE"].values == test2_close).all())
-        
+        print("TESTING: test_benchmark_asset passed")
+
     def test_get_last_positions(self):
+        print("TESTING test_get_last_positions...")
         orders = [
                 OrderSchedule(
                     order_type = OrderType.MARKET_ORDER,
@@ -139,7 +144,7 @@ class FTTestMethods(unittest.TestCase):
         assert(abs(last_positions.POSITION_ARRAY[0].contents.close_price) < .0000000001)
         assert(last_positions.POSITION_ARRAY[0].contents.realized_pl == 0)
         assert(last_positions.POSITION_ARRAY[0].contents.unrealized_pl == -400)
-            
+        print("TESTING test_get_last_positions...")
 if __name__ == '__main__':
     unittest.main()
 

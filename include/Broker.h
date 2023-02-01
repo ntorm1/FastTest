@@ -90,7 +90,7 @@ public:
 	std::vector<double> nlv_history;  /**<net liquidation value of the account at each timestep of the test*/
 
 	//Account's current portfolio, map between asset id and a position object with that asset
-	std::unordered_map<unsigned int, Position> portfolio; 
+	std::unordered_map<unsigned int, std::unique_ptr<Position>> portfolio; 
 
     void reset();
     void build(double cash);
@@ -115,7 +115,7 @@ public:
 
 	PerformanceStruct perfomance;
 	std::vector<std::unique_ptr<Order>> order_history;
-	std::vector<Position> position_history;
+	std::vector<std::unique_ptr<Position>> position_history;
 
 	unsigned int current_index = 0;
 	std::vector<double> cash_history;
@@ -157,15 +157,11 @@ public:
 	char time[28]{};
 	bool logging;
 	bool debug;
-	void log_open_position(Position &position);
-	void log_close_position(Position &position);
+	void log_open_position(std::unique_ptr<Position> &position);
+	void log_close_position(std::unique_ptr<Position> &position);
 
 	//set commissions
 	void set_commission(double commission);
-
-	//functions for managing margin balance 
-	void margin_on_reduce(Position &existing_position, double order_fill_price, double units);
-	void margin_on_increase(Position &new_position,std::unique_ptr<Order>& order);
 
 	//functions for managing which exchanges are visable to the broker
 	void _broker_register_exchange(__Exchange* exchange_ptr);
@@ -195,14 +191,17 @@ public:
 	//functions for managing margin 
 	#ifdef MARGIN
 	MARGIN_CHECK check_margin() noexcept;
-	void margin_adjustment(Position &new_position, double market_price);
+	void margin_adjustment(std::unique_ptr<Position> &new_position, double market_price);
+	void margin_on_reduce(std::unique_ptr<Position> &existing_position, double order_fill_price, double units);
+	void margin_on_increase(std::unique_ptr<Position> &new_position,std::unique_ptr<Order>& order);
+
 	#endif
 
 	//functions for managing positions
-	void increase_position(Position &existing_position, std::unique_ptr<Order>& order);
-	void reduce_position(Position &existing_position, std::unique_ptr<Order>& order);
+	void increase_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
+	void reduce_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
 	void open_position(std::unique_ptr<Order>& order_filled);
-	void close_position(Position &existing_position, double fill_price, timeval order_fill_time);
+	void close_position(std::unique_ptr<Position>& existing_position, double fill_price, timeval order_fill_time);
 
 
 	//order wrapers exposed to strategy
