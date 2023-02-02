@@ -75,7 +75,22 @@ void __Account::evaluate_account(bool on_close){
                 }
                 position->collateral = new_collateral;
             }
-            this->broker->close_position(position, market_price, exchange->current_time);
+
+            std::unique_ptr<Order> order(new MarketOrder(
+                asset_id,
+                -1*position->units,
+                true,
+                position->exchange_id,
+                this->account_id
+            ));
+            order->strategy_id = position->strategy_id;
+            order->order_id = this->broker->order_counter;
+
+            //fill the order at the last price 
+            order->fill_price = market_price;
+            order->order_fill_time = exchange->current_time;
+
+            this->broker->close_position(position, order);
             it = this->portfolio.erase(it);
         }
         else {

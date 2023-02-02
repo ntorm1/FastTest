@@ -118,6 +118,7 @@ public:
 	unsigned int broker_id;
 
 	PerformanceStruct perfomance;
+	std::vector<Trade> trade_history;
 	std::vector<std::unique_ptr<Order>> order_history;
 	std::vector<std::unique_ptr<Position>> position_history;
 
@@ -201,25 +202,28 @@ public:
 	#endif
 
 	//functions for managing positions
+	void open_position(std::unique_ptr<Order>& order_filled);
 	void increase_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
 	void reduce_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
-	void open_position(std::unique_ptr<Order>& order_filled);
-	void close_position(std::unique_ptr<Position>& existing_position, double fill_price, timeval order_fill_time);
+	void close_position(std::unique_ptr<Position>& existing_position, std::unique_ptr<Order>& order);
 
 	//order wrapers exposed to strategy
 	void _place_market_order(OrderResponse *order_response, unsigned int asset_id, double units,
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
-			unsigned int account_id = 0);
+			unsigned int account_id = 0,
+			unsigned int trade_id = 0);
 	void _place_limit_order(OrderResponse *order_response, unsigned int asset_id, double units, double limit,
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
-			unsigned int account_id = 0);
+			unsigned int account_id = 0,
+			unsigned int trade_id = 0);
 	void place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss,
 			bool cheat_on_close = false,
-			bool limit_pct = false
+			bool limit_pct = false,
+			unsigned int trade_id = 0
 			);
 	//functions for managing positions
 	double get_net_liquidation_value();

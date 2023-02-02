@@ -44,27 +44,39 @@ Position::Position(unsigned int position_id, unsigned int asset_id, double units
 	this->exchange_id = exchange_id;
 	this->account_id = account_id;
 	this->strategy_id = strategy_id;
+
+	this->child_trades[this->trade_counter] = Trade(this, this->trade_counter, units, average_price, position_create_time);
+	this->trade_counter++;
 }
 
-void Position::increase(double market_price, double _units) {
+void Position::increase(double market_price, double _units, unsigned int trade_id) {
 	double new_units = abs(this->units) + abs(_units);
 	this->average_price = ((abs(this->units)*this->average_price) + (abs(_units)*market_price)) / new_units;
 	this->units += _units;
 	this->bars_since_change = 0;
+
+	Trade& existing_trade = this->child_trades[trade_id];
+	existing_trade.increase(market_price, units);
 }
 
-void Position::reduce(double market_price, double _units) {
+void Position::reduce(double market_price, double _units, unsigned int trade_id) {
 	this->realized_pl += abs(_units) * (market_price - this->average_price);
 	this->units -= abs(_units);
 	this->bars_since_change = 0;
+
+	Trade& existing_trade = this->child_trades[trade_id];
+	existing_trade.reduce(market_price, units);
 }
 
-void Position::close(double close_price, timeval position_close_time) {
+void Position::close(double close_price, timeval position_close_time, unsigned int trade_id) {
 	this->is_open = false;
 	this->close_price = close_price;
 	this->position_close_time = position_close_time;
 	this->realized_pl += this->units * (close_price - this->average_price);
 	this->unrealized_pl = 0;
+
+	Trade& existing_trade = this->child_trades[trade_id];
+	existing_trade.close(close_price, position_close_time);
 }
 
 double Position::liquidation_value() {
@@ -75,4 +87,25 @@ double Position::beta_dollars(const __Asset *benchmark, unsigned int n){
 	const __Asset * _asset = this->asset;
     double beta = Risk::beta<double>(_asset, benchmark, n);
     return beta * this->units * this->last_price;
+}
+
+void Trade::increase(double market_price, double _units) {
+	double new_units = abs(this->units) + abs(_units);
+	this->average_price = ((abs(this->units)*this->average_price) + (abs(_units)*market_price)) / new_units;
+	this->units += _units;
+	this->bars_since_change = 0;
+}
+
+void Trade::reduce(double market_price, double _units) {
+	this->realized_pl += abs(_units) * (market_price - this->average_price);
+	this->units -= abs(_units);
+	this->bars_since_change = 0;
+}
+
+void Trade::close(double close_price, timeval position_close_time) {
+	this->is_open = false;
+	this->close_price = close_price;
+	this->trade_close_time = position_close_time;
+	this->realized_pl += this->units * (close_price - this->average_price);
+	this->unrealized_pl = 0;
 }

@@ -252,14 +252,15 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 	account->portfolio[order->asset_id] = std::move(new_position);
 }
 
-void __Broker::close_position(std::unique_ptr<Position> &existing_position, double order_fill_price, timeval order_fill_time) {
+void __Broker::close_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order_filled) {
 	//note: this function does not remove the position from the portfolio so this should not
 	//be called directly in order to close a position. Close position through a appropriate order.
 	
+	double order_fill_price = order_filled->fill_price;
+	timeval order_fill_time = order_filled->order_fill_time;
 	//close the position at the order fill price and order fill time
 	existing_position->close(order_fill_price, order_fill_time);
 	
-
 	//calculate stats from the position 
 	__Account* account = this->accounts[existing_position->account_id];
 	account->realized_pl += existing_position->realized_pl;
@@ -299,7 +300,7 @@ void __Broker::reduce_position(std::unique_ptr<Position> &existing_position, std
 		auto & account = this->accounts[existing_position->account_id];
 		account->cash += abs(order->units) * order->fill_price;
 	}
-	existing_position->reduce(order->fill_price, order->units);
+	existing_position->reduce(order->fill_price, order->units, order->trade_id);
 }
 
 void __Broker::increase_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order) {
@@ -310,7 +311,7 @@ void __Broker::increase_position(std::unique_ptr<Position> &existing_position, s
 		auto & account = this->accounts[existing_position->account_id];
 		account->cash -= order->units * order->fill_price;
 	}
-	existing_position->increase(order->fill_price, order->units);
+	existing_position->increase(order->fill_price, order->units, order->trade_id);
 }
 
 void __Broker::log_canceled_orders(std::vector<std::unique_ptr<Order>> cleared_orders) {
@@ -550,7 +551,11 @@ void __Broker::send_order(std::unique_ptr<Order> new_order,OrderResponse *order_
 	this->order_counter++;
 }
 
-void __Broker::_place_market_order(OrderResponse *order_response, unsigned int asset_id, double units, bool cheat_on_close, unsigned int exchange_id, unsigned int strategy_id, unsigned int account_id) {
+void __Broker::_place_market_order(OrderResponse *order_response, unsigned int asset_id, double units, bool cheat_on_close,
+				unsigned int exchange_id,
+				unsigned int strategy_id,
+				unsigned int account_id,
+				unsigned int trade_id) {
 	
 	if(this->debug){
 		printf("PLACING MARKER ORDER, ASSET_ID: %i TO EXCHANGE_ID: %i\n",asset_id, exchange_id);
@@ -579,7 +584,11 @@ void __Broker::_place_market_order(OrderResponse *order_response, unsigned int a
 	this->send_order(std::move(order), order_response);
 }
 
-void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int asset_id, double units, double limit, bool cheat_on_close, unsigned int exchange_id, unsigned int strategy_id, unsigned int account_id) {
+void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int asset_id, double units, double limit, bool cheat_on_close,
+				unsigned int exchange_id, 
+				unsigned int strategy_id, 
+				unsigned int account_id,
+				unsigned int trade_id) {
 	std::unique_ptr<Order> order(new LimitOrder(
 		asset_id,
 		units,
@@ -604,13 +613,18 @@ void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int as
 	this->send_order(std::move(order), order_response);
 }
 
-void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss, bool cheat_on_close, bool limit_pct) {
+void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss, 
+				bool cheat_on_close,
+				bool limit_pct,
+				unsigned int trade_id) {
 	std::unique_ptr<Order> order(new StopLossOrder(
 		parent,
 		units,
 		stop_loss,
 		cheat_on_close,
-		limit_pct
+		limit_pct,
+		parent->account_id,
+		trade_id
 	));
 	order->order_id = this->order_counter;
 
@@ -673,7 +687,7 @@ void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_
 			std::unique_ptr<Position> &existing_position = account->portfolio[order->asset_id];
 			//sum of existing position units and order units is 0. Close existing position
 			if (existing_position->units + order->units == 0) {
-				this->close_position(existing_position, order->fill_price, order->order_fill_time);
+				this->close_position(existing_position, order);
 				account->portfolio.erase(order->asset_id);
 			}
 			//order is same direction as existing position. Increase existing position
@@ -687,7 +701,7 @@ void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_
 				}
 				else{
 					order->units = order->units + existing_position->units;
-					this->close_position(existing_position, order->fill_price, order->order_fill_time);
+					this->close_position(existing_position, order);
 					account->portfolio.erase(order->asset_id);
 					this->open_position(order);
 				}

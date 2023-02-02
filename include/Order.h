@@ -79,6 +79,7 @@ public:
 	unsigned int exchange_id; //id of the exchange the order was placed on
 	unsigned int strategy_id; //id of the strategy that placed the order
 	unsigned int account_id;  //id of the account the order was placed for
+	unsigned int trade_id;    //id of the trade that the order was placed for
 
 	timeval order_create_time; //the time the order was placed on the exchange
 	timeval order_fill_time;   //the time that the order was filled by the exchange
@@ -95,13 +96,16 @@ public:
 	Order(OrderType _OrderType, unsigned int asset_id, double units,
 				bool cheat_on_close = false,
 				unsigned int exchange_id = 0,
-				unsigned int account_id = 0) {
+				unsigned int account_id = 0,
+				unsigned int trade_id = 0) {
 		this->order_type = _OrderType;
-		this->asset_id = asset_id;
 		this->units = units;
 		this->cheat_on_close = cheat_on_close;
+
+		this->asset_id = asset_id;
 		this->exchange_id = exchange_id;
 		this->account_id = account_id;
+		this->trade_id = trade_id;
 	}
 	Order() = default;
 	virtual ~Order() {};
@@ -123,8 +127,12 @@ public:
 	MarketOrder(unsigned int asset_id, double units,
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
-			unsigned int account_id = 0)
-		: Order(MARKET_ORDER, asset_id, units, cheat_on_close, exchange_id, account_id)
+			unsigned int account_id = 0,
+			unsigned int trade_id = 0)
+		: Order(MARKET_ORDER, asset_id, units, cheat_on_close,
+			exchange_id,
+			account_id,
+			trade_id)
 	{}
 };
 class LimitOrder : public Order
@@ -134,8 +142,12 @@ public:
 	LimitOrder(unsigned int asset_id, double units, double limit,
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
-			unsigned int account_id = 0)
-		: Order(LIMIT_ORDER, asset_id, units, cheat_on_close, exchange_id, account_id) {
+			unsigned int account_id = 0,
+			unsigned int trade_id = 0)
+		: Order(LIMIT_ORDER, asset_id, units, cheat_on_close,
+			exchange_id,
+			account_id,
+			trade_id) {
 		this->limit = limit;
 	}
 };
@@ -162,8 +174,12 @@ public:
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
 			bool limit_pct = false,
-			unsigned int account_id = 0)
-		: Order(STOP_LOSS_ORDER, parent_order->asset_id, units, cheat_on_close, exchange_id, account_id) {
+			unsigned int account_id = 0,
+			unsigned int trade_id = 0)
+		: Order(STOP_LOSS_ORDER, parent_order->asset_id, units, cheat_on_close,
+			exchange_id, 
+			account_id,
+			trade_id) {
 		this->order_parent.member.parent_order = parent_order;
 		this->order_parent.type = ORDER;
 		this->stop_loss = stop_loss;
@@ -172,8 +188,12 @@ public:
 	StopLossOrder(Position *parent_position, double units, double stop_loss,
 			bool cheat_on_close = false,
 			bool limit_pct = false,
-			unsigned int account_id = 0)
-		: Order(STOP_LOSS_ORDER, parent_position->asset_id, units, cheat_on_close, parent_position->exchange_id, account_id) {
+			unsigned int account_id = 0,
+			unsigned int trade_id = 0)
+		: Order(STOP_LOSS_ORDER, parent_position->asset_id, units, cheat_on_close,
+			parent_position->exchange_id,
+			account_id,
+			trade_id) {
 		this->order_parent.member.parent_position = parent_position;
 		this->order_parent.type = POSITION;
 		this->stop_loss = stop_loss;
