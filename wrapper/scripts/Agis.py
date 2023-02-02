@@ -54,13 +54,13 @@ class Agis_Strategy(Strategy):
         if _avg_predicted_return > 0:
             for index, asset_name in enumerate(keys):
                 #if self.broker.position_exists(asset_name): continue
-                market_price = self.exchange.get_market_price(asset_name)
+                market_price = self.exchange.get_market_price(asset_name, 1.1)
                 units = position_size / market_price
-                self.broker.place_market_order(asset_name, units,
+                res = self.broker.place_market_order(asset_name, units,
                                             strategy_id=self.strategy_id,
                                             account_name="agis",
                                             exchange_name="sp500",
-                                        )
+                                        )                
                 counts += 1
                 if counts == self.position_count: break
         
@@ -68,7 +68,7 @@ class Agis_Strategy(Strategy):
         if _avg_predicted_return < 0: 
             for index, asset_name in enumerate(keys[::-1]):
                 #if self.broker.position_exists(asset_name): continue
-                market_price = self.exchange.get_market_price(asset_name)
+                market_price = self.exchange.get_market_price(asset_name, -1.1)
                 units = -1 * (position_size / market_price)
                 self.broker.place_market_order(asset_name, units,
                                             strategy_id=self.strategy_id,
@@ -94,7 +94,7 @@ class Agis_Strategy(Strategy):
             
             asset_name = asset_names[index]
             new_asset = self.ft.register_asset(asset_name, "sp500")
-            new_asset.set_format("%d-%d-%d", 0, 1)
+            new_asset.set_format("%d-%d-%d", 0,0,1,1)
             new_asset.load_from_df(df, nano=True)
             self.count += df.shape[0]
             
@@ -108,12 +108,12 @@ class Agis_Strategy(Strategy):
                 
 if __name__ == "__main__":
 
-    ft = FastTest(logging=False, debug=False, save_last_positions=True)
+    ft = FastTest(logging=True, debug=False, save_last_positions=True)
     
     exchange = Exchange(exchange_name="sp500")
     ft.register_exchange(exchange)
     
-    broker = Broker(exchange, margin=True, logging=False)
+    broker = Broker(exchange, margin=True, logging=False, debug=False)
     ft.register_broker(broker)
     ft.add_account("agis", 100000)
     
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     
     benchmark = Asset(exchange.exchange_id, asset_name=str("Benchmark"))
     ft.register_benchmark(benchmark)
-    benchmark.set_format("%d-%d-%d", 0, 1)
+    benchmark.set_format("%d-%d-%d", 0,0,1,1)
     benchmark.load_from_df(strategy.load_benchmark(), nano=True)
 
     ft.add_strategy(strategy)
@@ -138,5 +138,5 @@ if __name__ == "__main__":
     
     last_positions = ft.get_last_positions(to_df=True)
     print(last_positions)
-    #ft.plot(benchmark.df())
+    ft.plot(benchmark.df())
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")

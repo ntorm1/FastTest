@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "Asset.h"
 
-#define BETA_REBALANCE_THRESHOLD 0.001
+#define BETA_REBALANCE_THRESHOLD 1  //minimum order value to trigger beta rebalance 
 
 namespace Risk {
     //get the beta of a stock given a vector of market prices and benchmark prices
@@ -72,10 +72,10 @@ namespace Risk {
         unsigned int benchmark_index = benchmark_step_size * (asset->current_index - n - 1) + benchmark_col;
 
         for (unsigned int i = 1; i < n; i++) {
-            T market_return = (market_prices[benchmark_index+i] - market_prices[benchmark_index+i - 1]) 
-                                / market_prices[benchmark_index+i - 1];
-            T stock_return = (stock_prices[asset_index+i] - stock_prices[asset_index+i - 1]) 
-                                / stock_prices[asset_index+i - 1];
+            T market_return = (market_prices[benchmark_index] - market_prices[benchmark_index - 1]) 
+                                / market_prices[benchmark_index - 1];
+            T stock_return = (stock_prices[asset_index] - stock_prices[asset_index - 1]) 
+                                / stock_prices[asset_index - 1];
 
             asset_index += asset_step_size;
             benchmark_index += benchmark_step_size;

@@ -200,6 +200,9 @@ void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, do
 }
 
 void __Broker::open_position(std::unique_ptr<Order> &order) {
+	if (this->logging) {
+		printf("BROKER: OPENING NEW POSITION: POSITION_ID: %u\n", this->position_counter);
+	}
 	double order_fill_price = order->fill_price;
 
 	//build new position from the order informtion
@@ -234,9 +237,6 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 
 	this->position_counter++;
 
-	//insert the new postion into the account's portfolio
-	account->portfolio[order->asset_id] = std::move(new_position);
-
 	#ifdef CHECK_POSITION_OPEN
 	POSITION_CHECK_OPEN position_check = this->check_position_open(new_position);
 	if(position_check != VALID_POSITION){
@@ -247,6 +247,9 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 	if (this->logging) {
 		log_open_position(new_position);
 	}
+
+	//insert the new postion into the account's portfolio
+	account->portfolio[order->asset_id] = std::move(new_position);
 }
 
 void __Broker::close_position(std::unique_ptr<Position> &existing_position, double order_fill_price, timeval order_fill_time) {
@@ -477,13 +480,13 @@ ORDER_CHECK __Broker::check_market_order(const MarketOrder* market_order) {
 ORDER_CHECK __Broker::check_order(const std::unique_ptr<Order>& new_order) {
 
 	if(this->debug){
-		printf("CHECKING ORDER, ORDER_ID: %i, EXCHANGE_ID: %i\n", new_order->order_id, new_order->exchange_id);
+		printf("CHECKING ORDER, ORDER_ID: %u, EXCHANGE_ID: %u\n", new_order->order_id, new_order->exchange_id);
 	}
 	ORDER_CHECK order_code;
 
 	//check to see if the asset exsists on the exchange
 	__Exchange *exchange = this->exchanges[new_order->exchange_id];
-
+ 
 	//check to see if exchange contains the asset
 	if (exchange->market.count(new_order->asset_id) == 0){
 		return INVALID_ASSET; 
@@ -525,7 +528,7 @@ ORDER_CHECK __Broker::check_order(const std::unique_ptr<Order>& new_order) {
 		this->check_order(order_on_fill);
 	}
 	if(this->debug){
-		printf("CHECKING ORDER STATE, ORDER_ID: %i, ORDER_CHECK: %u\n", new_order->order_id, order_code);
+		printf("CHECKING ORDER STATE, ORDER_ID: %u, ORDER_CHECK: %u\n", new_order->order_id, order_code);
 	}
 	return order_code;
 }
@@ -539,7 +542,6 @@ void __Broker::send_order(std::unique_ptr<Order> new_order,OrderResponse *order_
 	new_order->order_state = ACCEPETED;
 	__Exchange* exchange = this->exchanges[new_order->exchange_id];
 	new_order->order_create_time = exchange->current_time;
-	new_order->order_id = this->order_counter;
 	exchange->place_order(std::move(new_order));
 
 	order_response->order_id = this->order_counter;
@@ -562,6 +564,7 @@ void __Broker::_place_market_order(OrderResponse *order_response, unsigned int a
 		account_id
 	));
 	order->strategy_id = strategy_id;
+	order->order_id = this->order_counter;
 
 #ifdef CHECK_ORDER
 	ORDER_CHECK order_check = check_order(order);
@@ -586,6 +589,7 @@ void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int as
 		account_id
 	));
 	order->strategy_id = strategy_id;
+	order->order_id = this->order_counter;
 
 #ifdef CHECK_ORDER
 	ORDER_CHECK order_check = check_order(order);
@@ -608,6 +612,8 @@ void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_respo
 		cheat_on_close,
 		limit_pct
 	));
+	order->order_id = this->order_counter;
+
 #ifdef CHECK_ORDER
 	if (check_order(order) != VALID_ORDER) {
 		order->order_state = BROKER_REJECTED;
@@ -651,7 +657,7 @@ void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_
 		auto & account = this->accounts[order->account_id];
 
 		if(this->debug){
-			printf("ORDER_ID: %i FILLED\n", order->order_id);
+			printf("BROKER: ORDER_ID: %i FILLED\n", order->order_id);
 		}
 
 		auto order_type = order->order_type;
@@ -680,9 +686,9 @@ void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_
 					this->reduce_position(existing_position, order);
 				}
 				else{
+					order->units = order->units + existing_position->units;
 					this->close_position(existing_position, order->fill_price, order->order_fill_time);
 					account->portfolio.erase(order->asset_id);
-					order->units = order->units + existing_position->units;
 					this->open_position(order);
 				}
 			}
@@ -721,7 +727,7 @@ void __Broker::set_cash(double cash, unsigned int account_id) {
 void __Broker::log_open_position(std::unique_ptr<Position> &position) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&position->position_create_time, this->time, sizeof(this->time));
-	printf("%s: OPENING POSITION: asset_id: %i, units: %f, avg_price: %f\n",
+	printf("BROKER: %s: POSITION OPENED: asset_id: %i, units: %f, avg_price: %f\n",
 		this->time,
 		position->asset_id,
 		position->units,
@@ -731,7 +737,7 @@ void __Broker::log_open_position(std::unique_ptr<Position> &position) {
 void __Broker::log_close_position(std::unique_ptr<Position> &position) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&position->position_close_time, this->time, sizeof(this->time));
-	printf("%s: CLOSING POSITION: asset_id: %i, units: %f, close_price: %f\n",
+	printf("BROKER: %s: POSITION CLOSED: asset_id: %i, units: %f, close_price: %f\n",
 		this->time,
 		position->asset_id,
 		position->units,
