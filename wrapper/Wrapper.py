@@ -366,7 +366,7 @@ _order_place_stoploss_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint
 
 """ACCOUNT WRAPPER"""
 _new_account_ptr = FastTest.CreateAccountPtr
-_new_account_ptr.argtypes = [c_uint, c_double]
+_new_account_ptr.argtypes = [c_uint, c_double, c_void_p]
 _new_account_ptr.restype = c_void_p
 
 _free_account_ptr = FastTest.DeleteAccountPtr

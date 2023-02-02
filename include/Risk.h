@@ -7,10 +7,9 @@
 #include <algorithm>
 #include "Asset.h"
 
+#define BETA_REBALANCE_THRESHOLD 0.001
+
 namespace Risk {
-
-    //template <typename T>
-
     //get the beta of a stock given a vector of market prices and benchmark prices
     template <typename T>
     T beta(const std::vector<T> &market_prices, const std::vector<T> &stock_prices) {

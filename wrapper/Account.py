@@ -9,13 +9,19 @@ from wrapper import Wrapper
 
 class Account():
     # -----------------------------------------------------------------------------  
-    def __init__(self, account_id : int, account_name : str, cash : float, debug = False) -> None:
+    def __init__(self, account_id : int, account_name : str, cash : float, 
+                 debug = False,
+                 benchmark_ptr = None) -> None:
         self.account_id = account_id
         self.account_name = account_name
         self.alloc = False
         self.debug = debug
         
-        self.ptr = Wrapper._new_account_ptr(account_id, cash)
+        if benchmark_ptr is None:
+            benchmark_ptr = POINTER(c_int)
+            benchmark_ptr = None
+        
+        self.ptr = Wrapper._new_account_ptr(account_id, cash, benchmark_ptr)
     
     # -----------------------------------------------------------------------------          
     def __del__(self):

@@ -281,21 +281,7 @@ void __Broker::close_position(std::unique_ptr<Position> &existing_position, doub
 	for(auto & order_id : existing_position->child_order_ids){
 		this->cancel_order(order_id);
 	}
-	//close any child positions:
-	for(auto & child : existing_position->child_positions){
-		if(!child.close_on_close){continue;}
-		Position *child_position = child.child_position;
-		OrderResponse response;
-		this->_place_market_order(
-			&response,
-			child_position->asset_id,
-			child.units,
-			true, //cheat on close
-			child_position->exchange_id,
-			existing_position->strategy_id,
-			child_position->account_id
-		);
-	}
+
 	if (this->logging) { log_close_position(existing_position); }
 
 	//move the position to the position history vector to keep track of historical positions

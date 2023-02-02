@@ -39,14 +39,9 @@ struct PositionArray {
 	PositionStruct **POSITION_ARRAY;
 };
 
-//forward declaration of position class
-class Position;
-
-//struct containing information about a child position for a parent position
-struct ChildPosition {
-	Position * child_position; //pointer to the child position 
-	double units; 			   //how many units of the child position is linked to the parent
-	bool close_on_close;       //close the child position out when the parent position is close?
+enum PositionType{
+	MAIN_POSITION,
+	HEDGE_POSITION
 };
 
 class Position
@@ -54,6 +49,7 @@ class Position
 public:
 
 	bool is_open;
+	PositionType position_type = MAIN_POSITION;
 	double units;
 	unsigned int bars_held = 0;
 	unsigned int bars_since_change = 0;
@@ -74,8 +70,8 @@ public:
 	timeval position_create_time;           /**<the datetime that the position was created*/
 	timeval position_close_time = MAX_TIME; /**<the datetime that the position was closed*/
 
-	std::vector<unsigned int> child_order_ids;  /**<container for child order ids for the positions*/
-	std::vector<ChildPosition> child_positions; /**<container for child position structs for the position*/
+	std::vector<unsigned int> child_order_ids;             /**<container for child order ids for the positions*/
+	std::vector<std::unique_ptr<Position>*> child_positions;
 
 	double unrealized_pl = 0;
 	double realized_pl = 0;
@@ -111,17 +107,25 @@ public:
 	}
 };
 
+struct PositionHash {
+  std::size_t operator() (Position *position) const {
+    return std::hash<const Position*>()(position);
+  }
+};
+
 class Hedge : public Position{
 public:
-	//map between positions pointers and units of the hedge allocated to that account
-	std::unordered_map<Position*, double> allocations;
+	//map between position pointers and units of the hedge allocated to that position
+	std::unordered_map<Position*, double, PositionHash> allocations;
 	
 	//initilize the Hedge as a regular position
 	Hedge(unsigned int position_id, unsigned int asset_id, double units, double average_price, timeval position_create_time,
 			unsigned int exchange_id,
 			unsigned int account_id,
 			unsigned int strategy_id)
-		:Position(position_id,asset_id,units,average_price,position_create_time,exchange_id,account_id,strategy_id){}
+		:Position(position_id,asset_id,units,average_price,position_create_time,exchange_id,account_id,strategy_id){
+		this->position_type = HEDGE_POSITION;
+	}
 };
 
 #endif

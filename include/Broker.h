@@ -78,7 +78,9 @@ public:
 	unsigned int account_id; /**<unique id of the account*/
      __Broker *broker;		 /**<pointer to the broker that is the parent of the account*/
 
-    bool margin;
+    bool margin = false;           //is margin enabled for the account
+	const __Asset *beta_benchmark; //beta hedge the account 
+
 	double cash;
 	double net_liquidation_value; /**<net liquidation value of the portfolio*/
 	double starting_cash;         /**<cash that the account started with used for resets*/
@@ -97,13 +99,15 @@ public:
 	void set_margin(bool margin = false);
 
     void evaluate_account(bool on_close = false);
-	double _beta_dollars(const __Asset *benchmark, unsigned int n);
 
-    __Account(unsigned int _account_id, double cash){
+	double _beta_dollars(unsigned int n);
+
+    __Account(unsigned int _account_id, double cash, const __Asset* _beta_benchmark = nullptr){
         this->account_id = _account_id;
         this->cash = cash;
 		this->starting_cash = cash;
         this->net_liquidation_value = cash;
+		this->beta_benchmark = _beta_benchmark;
     }
 };
 
@@ -194,7 +198,6 @@ public:
 	void margin_adjustment(std::unique_ptr<Position> &new_position, double market_price);
 	void margin_on_reduce(std::unique_ptr<Position> &existing_position, double order_fill_price, double units);
 	void margin_on_increase(std::unique_ptr<Position> &new_position,std::unique_ptr<Order>& order);
-
 	#endif
 
 	//functions for managing positions
@@ -202,7 +205,6 @@ public:
 	void reduce_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
 	void open_position(std::unique_ptr<Order>& order_filled);
 	void close_position(std::unique_ptr<Position>& existing_position, double fill_price, timeval order_fill_time);
-
 
 	//order wrapers exposed to strategy
 	void _place_market_order(OrderResponse *order_response, unsigned int asset_id, double units,
@@ -288,7 +290,7 @@ extern "C" {
 
 	/******************************************************************************/
 
-	ACCOUNT_API void * CreateAccountPtr(unsigned int account_id, double cash);
+	ACCOUNT_API void * CreateAccountPtr(unsigned int account_id, double cash, const __Asset* benchmark = nullptr);
 	ACCOUNT_API void DeleteAccountPtr(void *ptr);
     ACCOUNT_API void* GetAccountPtr(void * broker_ptr, unsigned int account_id);
 	
@@ -296,7 +298,7 @@ extern "C" {
 	ACCOUNT_API double* account_get_nlv_history(void *account_ptr);
 	ACCOUNT_API double* account_get_cash_history(void *account_ptr);
 
-	ACCOUNT_API double get_beta_dollars(void *account_ptr, void *benchmark_ptr, unsigned int lookback);
+	ACCOUNT_API double get_beta_dollars(void *account_ptr, unsigned int lookback);
 }
 
 #endif
