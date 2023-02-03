@@ -64,8 +64,15 @@ void __Account::evaluate_account(bool on_close){
                 else{
                     margin_req_mid = this->broker->margin_req;
                 }
-                double new_collateral = abs(margin_req_mid * position->units*market_price);
-                double adjustment = (new_collateral - position->collateral);
+                double new_collateral = 0;
+                double old_collateral = position->collateral;
+                for(auto & trade_pair : position->child_trades){
+                    auto &trade = trade_pair.second;
+                    trade.collateral = abs(margin_req_mid * trade.units * market_price);
+                    new_collateral += trade.collateral;
+                }
+                position->collateral = new_collateral;
+                double adjustment = (new_collateral - old_collateral);
                 
                 if(position->units > 0){
                     this->cash += adjustment;
