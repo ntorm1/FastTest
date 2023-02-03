@@ -134,6 +134,7 @@ class FastTest:
         
     # ----------------------------------------------------------------------------- 
     def register_exchange(self, exchange : Exchange, register = True):
+        #an exchange must only be registered once 
         if(exchange.is_registered()):
             raise Exception("Attempted to register an existing exchange")
         
@@ -144,12 +145,13 @@ class FastTest:
         
     # -----------------------------------------------------------------------------          
     def add_account(self, account_name : str, cash : float):
+        #broker class must be insantiated before adding accounts
         if self.broker == None:
             raise Exception("No broker registered to place the account to")
-        
+        #account name must be unique 
         if self.accounts.get(account_name) != None:
             raise Exception("Account with same name already exists")
-        
+        #acocunts must be registered before the fasttest object is built
         if self.built:
             raise Exception("Account must be registered before FastTest is built")
                 
@@ -160,6 +162,19 @@ class FastTest:
         self.broker.account_map[account_name] = self.account_counter
         Wrapper._broker_register_account(self.broker.ptr, account.ptr)
         self.account_counter += 1
+        
+    # -----------------------------------------------------------------------------  
+    def add_strategy(self, strategy : Strategy):
+        """Register a strategy to the fast test. strategy.next() will now be called everytime
+        the fasttest steps forward in time
+
+        Args:
+            strategy (Strategy): strategy object to register
+        """
+        strategy.broker_ptr = self.broker.ptr
+        strategy.strategy_id = self.strategy_counter
+        self.strategy_counter += 1
+        self.strategies = np.append(self.strategies,(strategy))
         
     # -----------------------------------------------------------------------------  
     def register_broker(self, broker : Broker,
@@ -175,20 +190,16 @@ class FastTest:
     def get_benchmark_ptr(self):
         #return a pointer to a c++ asset class of the fasttest benchmark
         return Wrapper._get_benchmark_ptr(self.ptr)
-    
+
     # -----------------------------------------------------------------------------  
-    def add_strategy(self, strategy : Strategy):
-        """Register a strategy to the fast test. strategy.next() will now be called everytime
-        the fasttest steps forward in time
-
-        Args:
-            strategy (Strategy): strategy object to register
-        """
-        strategy.broker_ptr = self.broker.ptr
-        strategy.strategy_id = self.strategy_counter
-        self.strategy_counter += 1
-        self.strategies = np.append(self.strategies,(strategy))
-
+    def step(self):
+        if not Wrapper._fastTest_forward_pass(self.ptr):
+            return False
+        for strategy in self.strategies:
+            strategy.next()
+        Wrapper._fastTest_backward_pass(self.ptr)
+        return True
+    
     # -----------------------------------------------------------------------------  
     def run(self):
         """
@@ -210,21 +221,13 @@ class FastTest:
         #profiler.stop()
         #profiler.print()
         
-    # -----------------------------------------------------------------------------  
-    def step(self):
-        if not Wrapper._fastTest_forward_pass(self.ptr):
-            return False
-        for strategy in self.strategies:
-            strategy.next()
-        Wrapper._fastTest_backward_pass(self.ptr)
-        return True
-    
     def asset_id_to_name(self, asset_id):
         #assed_id -> asset_name
         return self.id_map[asset_id]
     
     # -----------------------------------------------------------------------------  
-    def get_portfolio_size(self):
+    def ft_get_portfolio_size(self):
+        #used for returning the last portfolio of the fasttest (not current portfolio size, used broker class for that)
         return Wrapper._fastTest_get_portfolio_size(self.ptr)
     
     # -----------------------------------------------------------------------------  
@@ -232,7 +235,7 @@ class FastTest:
         if not self.save_last_positions:
             raise AttributeError("can't load last positions, save_last_positions set to false")
         
-        position_count = self.get_portfolio_size()
+        position_count = self.ft_get_portfolio_size()
         last_positions = Wrapper.PositionArrayStruct(position_count)
         position_struct_pointer = pointer(last_positions)
         Wrapper._get_last_positions(self.ptr, position_struct_pointer)
@@ -261,12 +264,13 @@ class FastTest:
     # -----------------------------------------------------------------------------    
     def get_sharpe(self, nlvs, N = 252, rf = .01):
         returns = np.diff(nlvs) / nlvs[:-1]
-        sharpe = returns.mean() / returns.std()
+        sharpe = (returns.mean()) / returns.std()
         sharpe = (N**.5)*sharpe
         return round(sharpe,3)
     
     # -----------------------------------------------------------------------------    
     def plot_monthly_returns(self):
+        #function for plotting the monthly returns of the combined strategies as a heat map
         nlv = self.broker.get_nlv_history()        
         datetime_epoch_index = self.get_datetime_index()
         datetime_index = pd.to_datetime(datetime_epoch_index, unit = "s")
@@ -327,6 +331,7 @@ class FastTest:
         
         asset_df = pd.merge(asset_df, asset_orders,left_index=True, right_index=True, how = "left")
         
+        #set bounds on data to match dates passed (plot shorter intervals)
         if _from is not None:
             asset_df = asset_df[asset_df.index > _from]
             opens = opens[opens.index > _from]
@@ -341,7 +346,7 @@ class FastTest:
         
         fig, ax = plt.subplots(figsize=(10.5, 6.5))
         
-        #plot asset close price agaisnt time
+        #plot asset close price against time
         ax.plot(asset_df.index, asset_df[close_column], color = "black", label = asset_name)  
         
         for overlay in overlays:
@@ -367,6 +372,13 @@ class FastTest:
             benchmark_df = pd.DataFrame(),
             _from = None,
             _to = None):
+        """plot the value of the accounts with respect to time
+
+        Args:
+            benchmark_df (_type_, optional): A dataframe of a benchmark asset to use as benchmark values. Defaults to pd.DataFrame().
+            _from (_type_, optional): start datetime of plot. Defaults to first datetime.
+            _to (_type_, optional): end datetime of plot. Defaults to last datetime.
+        """
         nlv = self.broker.get_nlv_history()
         roll_max = np.maximum.accumulate(nlv)
         daily_drawdown = nlv / roll_max - 1.0

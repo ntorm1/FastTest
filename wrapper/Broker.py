@@ -74,16 +74,17 @@ class Broker():
     def get_open_order_count(self):
         #get total mumber of open orders taken across the fasttest
         return Wrapper._get_open_order_count(self.ptr)
+    
+    # -----------------------------------------------------------------------------
+    def get_open_position_count(self):
+        #get the number of open positions currently
+        return Wrapper._get_open_position_count(self.ptr)
         
     # -----------------------------------------------------------------------------
     def get_total_position_count(self):
         #get the total number positions taken across the fasttest
         return Wrapper._get_position_count(self.ptr)
     
-    # -----------------------------------------------------------------------------
-    def get_open_position_count(self):
-        #get the number of open positions currently
-        return Wrapper._get_open_position_count(self.ptr)
     
     # -----------------------------------------------------------------------------
     def position_exists(self, asset_name,

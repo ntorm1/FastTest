@@ -12,6 +12,8 @@
 #include "utils_time.h"
 #include "Asset.h"
 
+
+//C style struct for passing positions between c++ and python
 struct PositionStruct {
 	double average_price;
 	double close_price;
@@ -34,9 +36,10 @@ struct PositionStruct {
 	double unrealized_pl;
 };
 
+//C style struct for passing positions between c++ and python 
 struct PositionArray {
-	unsigned int number_positions;
-	PositionStruct **POSITION_ARRAY;
+	unsigned int number_positions;   //count of positions in the position array
+	PositionStruct **POSITION_ARRAY; //a pointer to pointer to position struct (i.e. 2d array of position structs)
 };
 
 enum PositionType{
@@ -57,10 +60,10 @@ public:
 	double close_price;
     double last_price;
 
-    unsigned int trade_id;
-	Position* parent_position;
-	unsigned int bars_held = 0;
-	unsigned int bars_since_change = 0;
+    unsigned int trade_id;				/**<unique id of the trade in the position*/
+	Position* parent_position;			/**<pointer to the parent position of the trade*/
+	unsigned int bars_held = 0;			/**<how many bars as the trade by on*/
+	unsigned int bars_since_change = 0;	/**<how many bars since the last change to the trade (reduce or increase units)*/
 
 	timeval trade_create_time;           /**<the datetime that the trade was created*/
 	timeval trade_close_time = MAX_TIME; /**<the datetime that the trade was closed*/
@@ -81,6 +84,7 @@ public:
 	void reduce(double market_price, double units);
 	void close(double close_price, timeval position_close_time);
 
+	//evaluate the trade at the current market price
 	inline void evaluate(double market_price, bool update_bars = false) noexcept {
 		this->last_price = market_price;
 		this->unrealized_pl = this->units * (market_price - this->average_price);
@@ -107,7 +111,7 @@ public:
 	double collateral = 0;  /**<collateral broker is holding for the position*/
 	double margin_loan = 0; /**<margin loan being provided by broker to maintain the position*/
 	double average_price;   /**<average price per unit of the position*/
-	double close_price = 0;     /**<the closing price of the position*/
+	double close_price = 0; /**<the closing price of the position*/
 	double last_price;      /**<the last price the the position as evaluated at*/
 
 	__Asset *asset;			  /**<underlying asset of the position*/
@@ -141,6 +145,7 @@ public:
 			unsigned int account_id,
 			unsigned int strategy_id);
 
+	//evaluate a position at the current market price
 	inline void evaluate(double market_price, bool update_bars = false) noexcept {
 		this->last_price = market_price;
 		this->unrealized_pl = this->units * (market_price - this->average_price);
@@ -148,6 +153,7 @@ public:
 			this->bars_held++;
 			this->bars_since_change++;
 		}
+		//evaluate the child trades of the position at the current market price
 		for(auto & trade_pair : this->child_trades){
 			auto &trade = trade_pair.second;
 			trade.evaluate(market_price, update_bars);
