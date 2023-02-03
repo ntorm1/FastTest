@@ -55,8 +55,16 @@ void Position::increase(double market_price, double _units, unsigned int trade_i
 	this->units += _units;
 	this->bars_since_change = 0;
 
-	Trade& existing_trade = this->child_trades[trade_id];
-	existing_trade.increase(market_price, units);
+	//test to see if position is new
+	if(this->child_trades.count(trade_id) == 0){
+		this->child_trades[this->trade_counter] = Trade(this, this->trade_counter, _units, average_price, position_create_time);
+		this->trade_counter++;
+
+	}
+	else{
+		Trade& existing_trade = this->child_trades[trade_id];
+		existing_trade.increase(market_price, _units);
+	}
 }
 
 void Position::reduce(double market_price, double _units, unsigned int trade_id) {
@@ -64,8 +72,15 @@ void Position::reduce(double market_price, double _units, unsigned int trade_id)
 	this->units -= abs(_units);
 	this->bars_since_change = 0;
 
-	Trade& existing_trade = this->child_trades[trade_id];
-	existing_trade.reduce(market_price, units);
+	//test to see if position is new
+	if(this->child_trades.count(trade_id) == 0){
+		this->child_trades[this->trade_counter] = Trade(this, this->trade_counter, _units, average_price, position_create_time);
+		this->trade_counter++;
+	}
+	else{
+		Trade& existing_trade = this->child_trades[trade_id];
+		existing_trade.reduce(market_price, _units);
+	}
 }
 
 void Position::close(double close_price, timeval position_close_time, unsigned int trade_id) {

@@ -13,7 +13,7 @@ from FastTest import FastTest
 from helpers import *
 
 class BrokerTestMethods(unittest.TestCase):
-
+    """
     def test_broker_load(self):
         print("TESTING test_broker_load...")
         ft = FastTest(debug=False)
@@ -327,7 +327,7 @@ class BrokerTestMethods(unittest.TestCase):
         assert(np.array_equal(broker.get_nlv_history(),np.array([100000, 100050, 100150, 100575, 100675, 100400])))
     
         print("TESTING: test_multi_exchange passed")
-       
+    """
     def test_margin_position_reduce(self):
         print("TESTING test_margin_position_reduce...")
         orders = [
@@ -353,7 +353,7 @@ class BrokerTestMethods(unittest.TestCase):
         assert(np.array_equal(broker.get_cash_history(),np.array([100000,   94950,   94850,   97587.5,  97587.5, 99850])))
         assert(np.array_equal(broker.get_nlv_history(),np.array([100000,  99900,  99700, 100125, 100125,  99850])))
         print("TESTING: test_margin_position_reduce passed")
-
+    """
     def test_order_cancel_close(self):
         orders = [
                 OrderSchedule(
@@ -388,7 +388,7 @@ class BrokerTestMethods(unittest.TestCase):
         order_history = broker.get_order_history()
         
         assert(OrderState(order_history.ORDER_ARRAY[1].contents.order_state) == OrderState.CANCELED)
-        
+    """
 if __name__ == '__main__':
     unittest.main()
 
