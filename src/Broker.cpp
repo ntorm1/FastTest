@@ -890,29 +890,37 @@ bool position_exists(void *broker_ptr, unsigned int asset_id, int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->_position_exists(asset_id, account_id);
 }
-void place_market_order(void *broker_ptr, OrderResponse *order_response, unsigned int asset_id, double units, bool cheat_on_close, unsigned int exchange_id, unsigned int strategy_id, unsigned int account_id) {
+void place_market_order(void *broker_ptr, OrderResponse *order_response, unsigned int asset_id, double units, bool cheat_on_close,
+			unsigned int exchange_id,
+			unsigned int strategy_id,
+			unsigned int account_id,
+			unsigned int trade_id) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	try{
-		__broker_ref->_place_market_order(order_response, asset_id, units, cheat_on_close, exchange_id, strategy_id, account_id);
+		__broker_ref->_place_market_order(order_response, asset_id, units, cheat_on_close, exchange_id, strategy_id, account_id, trade_id);
 	}
 	catch (std::runtime_error& e){
 		if(__broker_ref->debug){std::cerr << e.what() << std::endl;}
 	}
 }
-void place_limit_order(void *broker_ptr, OrderResponse *order_response,  unsigned int asset_id, double units, double limit, bool cheat_on_close, unsigned int exchange_id, unsigned int strategy_id, unsigned int account_id){
+void place_limit_order(void *broker_ptr, OrderResponse *order_response,  unsigned int asset_id, double units, double limit, bool cheat_on_close,
+			unsigned int exchange_id,
+			unsigned int strategy_id,
+			unsigned int account_id,
+			unsigned int trade_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	try{
-		__broker_ref->_place_limit_order(order_response, asset_id, units, limit, cheat_on_close, exchange_id, strategy_id, account_id);
+		__broker_ref->_place_limit_order(order_response, asset_id, units, limit, cheat_on_close, exchange_id, strategy_id, account_id, trade_id);
 	}
 	catch (std::runtime_error& e){
 		if(__broker_ref->debug){std::cerr << e.what() << std::endl;}
 	}
 }
-void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void * position_ptr, double units, double stop_loss, bool cheat_on_close, bool limit_pct){
+void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void * position_ptr, double units, double stop_loss, bool cheat_on_close, bool limit_pct, unsigned int trade_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	Position * __position_ref = static_cast<Position *>(position_ptr);
 	__broker_ref->place_stoploss_order(
-		__position_ref, order_response, units, stop_loss, cheat_on_close, limit_pct
+		__position_ref, order_response, units, stop_loss, cheat_on_close, limit_pct, trade_id
 	);
 }
 void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, unsigned int exchange_id, bool limit_pct){

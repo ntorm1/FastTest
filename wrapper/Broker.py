@@ -244,7 +244,8 @@ class Broker():
                            cheat_on_close = False, 
                            exchange_name = "default",
                            account_name = "default",
-                           strategy_id = 0):
+                           strategy_id = 0,
+                           trade_id = 0):
         """_summary_
 
         Args:
@@ -280,7 +281,8 @@ class Broker():
             cheat_on_close,
             exchange_id,
             strategy_id,
-            account_id
+            account_id,
+            trade_id
             )
         
         if(stop_loss_on_fill > 0):
@@ -290,7 +292,8 @@ class Broker():
                 stop_loss = stop_loss_on_fill,
                 limit_pct = stop_loss_limit_pct,
                 exchange_name=exchange_name,
-                account_name = account_name
+                account_name = account_name,
+                trade_id = trade_id
             )
         
         return order_response
@@ -301,7 +304,8 @@ class Broker():
                         cheat_on_close = False,
                         exchange_name = "default",
                         account_name = "default",
-                        strategy_id = 0):
+                        strategy_id = 0,
+                        trade_id = 0):
         
         exchange = self.exchange_map[exchange_name]
         
@@ -320,7 +324,8 @@ class Broker():
             cheat_on_close,
             exchange_id,
             strategy_id,
-            account_id
+            account_id,
+            trade_id
             )
         
         if(stop_loss_on_fill > 0):
@@ -329,7 +334,8 @@ class Broker():
                 order_id = order_response.order_id,
                 stop_loss = stop_loss_on_fill,
                 limit_pct = stop_loss_limit_pct,
-                account_id = account_id
+                account_id = account_id,
+                trade_id = trade_id
             )
             
         return order_response
@@ -341,7 +347,8 @@ class Broker():
                              cheat_on_close = False,
                              exchange_name = "default",
                              account_name = "default",
-                             strategy_id = 0):
+                             strategy_id = 0,
+                             trade_id = 0):
         
         exchange = self.exchange_map[exchange_name]
         exchange_id = exchange.exchange_id
@@ -362,7 +369,8 @@ class Broker():
                 stop_loss,
                 cheat_on_close,
                 exchange_id,
-                limit_pct
+                limit_pct,
+                trade_id
                 )
     
         elif order_id is not None:

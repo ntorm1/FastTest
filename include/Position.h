@@ -81,6 +81,15 @@ public:
 	void reduce(double market_price, double units);
 	void close(double close_price, timeval position_close_time);
 
+	inline void evaluate(double market_price, bool update_bars = false) noexcept {
+		this->last_price = market_price;
+		this->unrealized_pl = this->units * (market_price - this->average_price);
+		if(update_bars){
+			this->bars_held++;
+			this->bars_since_change++;
+		}
+	}
+
 };
 
 class Position
@@ -138,6 +147,10 @@ public:
 		if(update_bars){
 			this->bars_held++;
 			this->bars_since_change++;
+		}
+		for(auto & trade_pair : this->child_trades){
+			auto &trade = trade_pair.second;
+			trade.evaluate(market_price, update_bars);
 		}
 	}
 
