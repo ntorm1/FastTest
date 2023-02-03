@@ -114,13 +114,11 @@ void __Account::evaluate_account(bool on_close){
                 //if long position, add collateral to subtract off later to prevent double counting the
                 //value of the security 
                 if(position->units > 0){
-                    printf("evaluate_account adjusting cash: %f, adjust: %f\n", this->cash, adjustment);
                     this->cash += adjustment;
                     collateral += position->collateral;
                 }
                 //if short position, add the collateral back into nlv to maintain balanced counting
                 else{
-                    printf("evaluate_account adjusting cash: %f, adjust: %f\n", this->cash, adjustment);
                     this->cash -= adjustment;
                     nlv += position->collateral;
                 }
@@ -129,7 +127,6 @@ void __Account::evaluate_account(bool on_close){
         }
     }
     this->net_liquidation_value = nlv + this->cash - collateral;
-    if(on_close){printf("NAV: %f, NLV: %f, CASH: %f, COLLATERAL: %f\n\n", this->net_liquidation_value, nlv, this->cash, collateral);}
 }
 
 void beta_hedge(__Account * account, unsigned int n){

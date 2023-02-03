@@ -156,9 +156,7 @@ void __Broker::margin_adjustment(std::unique_ptr<Position> &position, double mar
 		trade.collateral = abs(margin_req_mid * trade.units * market_price);
 		collateral += trade.collateral;
 		child_units += trade.units;
-		printf("trade units: %f, collateral: %f\n", trade.units, trade.collateral);
 	}
-	printf("position units: %f, trade units: %f, collateral: %f\n", position->units, child_units, collateral);
 	position->collateral = collateral;
 }
 
@@ -179,7 +177,6 @@ void __Broker::margin_on_increase(std::unique_ptr<Position> &new_position, std::
 
 		auto & account = this->accounts[new_position->account_id];
 		//remove collateral required for the position from the cash in the account
-		printf("margin_on_increase adjusting cash: %f, adjust: %f\n", account->cash, collateral);
 		account->cash -= collateral;
 
 		//if the position is short, credit the account with the cash from the sale of borrowd securities
@@ -202,7 +199,6 @@ void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, do
 	auto & account = this->accounts[existing_position->account_id];
 
 	//free the collateral from the position and remove the margin loan
-	printf("margin_on_reduce adjusting cash: %f, adjust: %f\n", account->cash, collateral_free);
 	account->cash += collateral_free;
 	existing_position->collateral -= collateral_free;
 	
@@ -210,7 +206,6 @@ void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, do
 
 	//if closing a short position have to buy back the position at the filled price
 	if(existing_position->units < 0){
-		printf("margin_on_reduce adjusting cash: %f, adjust: %f\n", account->cash, -1*units * order_fill_price);
 		account->cash += units * order_fill_price;
 	}
 }
