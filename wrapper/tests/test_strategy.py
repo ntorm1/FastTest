@@ -60,7 +60,6 @@ class StrategyTestMethods(unittest.TestCase):
         assert(order_history.ORDER_ARRAY[2].contents.strategy_id == 0)
         assert(order_history.ORDER_ARRAY[3].contents.strategy_id == 1)
         
-        print(broker.get_nlv_history())
         assert(np.array_equal(broker.get_nlv_history(),np.array([100000,  99900,  99650, 100300, 100275,  100000])))
         assert(np.array_equal(broker.get_cash_history(),np.array([100000,   94950,   92375,   95225,   97737.5, 100000])))
     

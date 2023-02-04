@@ -94,16 +94,16 @@ double Position::beta_dollars(const __Asset *benchmark, unsigned int n){
 void Trade::increase(double market_price, double _units) {
 	double new_units = abs(this->units) + abs(_units);
 	this->average_price = ((abs(this->units)*this->average_price) + (abs(_units)*market_price)) / new_units;
-	this->units += _units;
 	this->bars_since_change = 0;
 	if((this->units + _units) == 0){this->is_open = false;}
+	this->units += _units;
 }
 
 void Trade::reduce(double market_price, double _units) {
 	this->realized_pl += abs(_units) * (market_price - this->average_price);
-	this->units -= abs(_units);
 	this->bars_since_change = 0;
 	if((this->units + _units) == 0){this->is_open = false;}
+	this->units -= abs(_units);
 }
 
 void Trade::close(double close_price, timeval position_close_time) {
