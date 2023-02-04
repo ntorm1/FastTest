@@ -147,6 +147,57 @@ class PositionStruct(Structure):
             self.realized_pl,
             self.unrealized_pl
         ]
+        
+class TradeStruct(Structure):
+    
+    _fields_ = [
+        ('average_price', c_double),
+        ('close_price', c_double),
+        ('last_price', c_double),
+        ('units',c_double),
+        
+        ('bars_held', c_uint),
+        ('bars_since_change', c_uint),
+        
+        ('position_id',c_uint),
+        ('asset_id',c_uint),
+        ('exchange_id',c_uint),
+        ('account_id',c_uint),
+        ('strategy_id',c_uint),
+        ('trade_id', c_uint),
+        
+        ('trade_create_time',c_long),
+        ('trade_close_time',c_long),
+        
+        ('realized_pl', c_double),
+        ('unrealized_pl', c_double)
+    ]
+    
+    asset_name = ""
+    
+    def to_list(self):
+        return [
+            self.position_id,
+            self.asset_id,
+            self.exchange_id,
+            self.account_id,
+            self.strategy_id,
+            self.trade_id,
+            
+            self.trade_create_time,
+            self.trade_close_time,
+            
+            self.average_price,
+            self.close_price,
+            self.last_price,
+            self.units,
+            
+            self.bars_held,
+            self.bars_since_change,
+            
+            self.realized_pl,
+            self.unrealized_pl
+        ]
 
 class PositionArrayStruct(Structure):
     _fields_ = [
@@ -177,6 +228,37 @@ class PositionArrayStruct(Structure):
         df["position_create_time"]= df["position_create_time"].astype('datetime64[ns]')
         df["position_close_time"]= df["position_close_time"].astype('datetime64[ns]')
         return df
+
+class TradeArrayStruct(Structure):
+    _fields_ = [
+        ('number_trades',c_uint),
+        ('TRADE_ARRAY',POINTER(POINTER(TradeStruct)))
+    ]
+    def __init__(self,number_trades):
+        elements = (POINTER(TradeStruct)*number_trades)()
+        self.TRADE_ARRAY = cast(elements,POINTER(POINTER(TradeStruct)))
+        self.number_trades = number_trades
+
+        for num in range(0,number_trades):
+            self.TRADE_ARRAY[num] = pointer(TradeStruct())
+            
+    def __len__(self):
+        return self.number_trades
+    
+    def to_df(self):
+        trades = [self.TRADE_ARRAY[i].contents.to_list() for i in range(self.number_trades)]
+        df = pd.DataFrame(trades, columns = [
+            "position_id","asset_id","exchange_id","account_id","strategy_id","trade_id",
+            "trade_create_time","trade_close_time",
+            "average_price","close_price","last_price","units",
+            "bars_held","bars_since_change",
+            "realized_pl","unrealized_pl"])
+        df["trade_create_time"] = df["trade_create_time"]  * 1e9
+        df["trade_close_time"] = df["trade_close_time"]  * 1e9
+        df["trade_create_time"]= df["trade_create_time"].astype('datetime64[ns]')
+        df["trade_close_time"]= df["trade_close_time"].astype('datetime64[ns]')
+        return df
+
 
 """FastTest wrapper"""
 _new_fastTest_ptr = FastTest.CreateFastTestPtr
@@ -304,6 +386,10 @@ _get_position_count = FastTest.get_position_count
 _get_position_count.argtypes = [c_void_p]
 _get_position_count.restype = c_int
 
+_get_trade_count = FastTest.get_trade_count
+_get_trade_count.argtypes = [c_void_p]
+_get_trade_count.restype = c_int
+
 _get_open_position_count = FastTest.get_open_position_count
 _get_open_position_count.argtypes = [c_void_p]
 _get_open_position_count.restype = c_int
@@ -342,11 +428,14 @@ _get_order_history.argtypes = [c_void_p,POINTER(OrderHistoryStruct)]
 _get_position_history = FastTest.get_position_history
 _get_position_history.argtypes = [c_void_p,POINTER(PositionArrayStruct)]
 
+_get_trade_history = FastTest.get_trade_history
+_get_trade_history.argtypes = [c_void_p,POINTER(TradeArrayStruct)]
+
 _place_market_order = FastTest.place_market_order
-_place_market_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint, c_double, c_bool, c_uint, c_uint, c_uint, c_uint]
+_place_market_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint, c_double, c_bool, c_uint, c_uint, c_uint, c_int]
 
 _place_limit_order = FastTest.place_limit_order
-_place_limit_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint, c_double, c_double, c_bool, c_uint, c_uint, c_uint, c_uint]
+_place_limit_order.argtypes = [c_void_p, POINTER(OrderResponse), c_uint, c_double, c_double, c_bool, c_uint, c_uint, c_uint, c_int]
 
 _get_position_ptr = FastTest.get_position_ptr
 _get_position_ptr.argtypes = [c_void_p, c_uint, c_uint]

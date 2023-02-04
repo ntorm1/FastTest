@@ -213,17 +213,17 @@ public:
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
 			unsigned int account_id = 0,
-			unsigned int trade_id = 0);
+			int trade_id = 0);
 	void _place_limit_order(OrderResponse *order_response, unsigned int asset_id, double units, double limit,
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
 			unsigned int account_id = 0,
-			unsigned int trade_id = 0);
+			int trade_id = 0);
 	void place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss,
 			bool cheat_on_close = false,
 			bool limit_pct = false,
-			unsigned int trade_id = 0
+			int trade_id = 0
 			);
 	//functions for managing positions
 	double get_net_liquidation_value();
@@ -262,10 +262,13 @@ extern "C" {
 
 	BROKER_API int get_order_count(void *broker_ptr);
 	BROKER_API int get_position_count(void *broker_ptr);
+	BROKER_API int get_trade_count(void *broker_ptr);
 	BROKER_API int get_open_position_count(void *broker_ptr);
 	BROKER_API int get_open_order_count(void *broker_ptr);
+
 	BROKER_API void get_order_history(void *broker_ptr, OrderArray *order_history);
 	BROKER_API void get_position_history(void *broker_ptr, PositionArray *position_history);
+	BROKER_API void get_trade_history(void *broker_ptr, TradeArray *trade_history);
 	
 	BROKER_API bool position_exists(void *broker_ptr, unsigned int asset_id, int account_id = -1);
 	BROKER_API void get_positions(void *broker_ptr, PositionArray *positions, unsigned int account_id = 0);
@@ -283,18 +286,18 @@ extern "C" {
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
 			unsigned int account_id = 0,
-			unsigned int trade_id = 0);
+			int trade_id = 0);
 	BROKER_API void place_limit_order(void *broker_ptr, OrderResponse *order_response, unsigned int asset_id, double units, double limit,
 			bool cheat_on_close = false,
 			unsigned int exchange_id = 0,
 			unsigned int strategy_id = 0,
 			unsigned int account_id = 0,
-			unsigned int trade_id = 0);
+			int trade_id = 0);
 
 	BROKER_API void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void *position_ptr, double units, double stop_loss,
 			bool cheat_on_close = false,
 			bool limit_pct = false,
-			unsigned int trade_id = 0);
+			int trade_id = 0);
 	BROKER_API void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigned int order_id, double units, double stop_loss, unsigned int exchange_id = 0, bool limit_pct = false);
 
 	/******************************************************************************/

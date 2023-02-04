@@ -18,6 +18,8 @@
 void __Broker::reset() {
 	this->order_history.clear();
 	this->position_history.clear();
+	this->trade_history.clear();
+
 	memset(&this->cash_history[0], 0, this->cash_history.size() * sizeof this->cash_history[0]);
 	memset(&this->nlv_history[0], 0, this->nlv_history.size() * sizeof this->nlv_history[0]);
 	this->position_counter = 0;
@@ -150,12 +152,10 @@ void __Broker::margin_adjustment(std::unique_ptr<Position> &position, double mar
 		margin_req_mid = this->margin_req;
 	}
 	double collateral = 0;
-	double child_units = 0;
 	for(auto & trade_pair : position->child_trades){
 		auto &trade = trade_pair.second;
 		trade.collateral = abs(margin_req_mid * trade.units * market_price);
 		collateral += trade.collateral;
-		child_units += trade.units;
 	}
 	position->collateral = collateral;
 }
@@ -179,7 +179,7 @@ void __Broker::margin_on_increase(std::unique_ptr<Position> &new_position, std::
 		//remove collateral required for the position from the cash in the account
 		account->cash -= collateral;
 
-		//if the position is short, credit the account with the cash from the sale of borrowd securities
+		//if the position is short, credit the account with the cash from the sale of borrowed securities
 		if(new_position->units < 0){
 			account->cash -= order->units*order_fill_price;
 		}
@@ -193,8 +193,8 @@ void __Broker::margin_on_increase(std::unique_ptr<Position> &new_position, std::
 		trade.margin_loan += loan;
 }
 
-void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, double order_fill_price, double units){
-	double pct_reduce = abs(units/existing_position->units);
+void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, double order_fill_price, double _units){
+	double pct_reduce = abs(_units/existing_position->units);
 	double collateral_free = existing_position->collateral*pct_reduce;
 	auto & account = this->accounts[existing_position->account_id];
 
@@ -206,7 +206,7 @@ void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, do
 
 	//if closing a short position have to buy back the position at the filled price
 	if(existing_position->units < 0){
-		account->cash += units * order_fill_price;
+		account->cash += _units * order_fill_price;
 	}
 }
 
@@ -299,6 +299,15 @@ void __Broker::close_position(std::unique_ptr<Position> &existing_position, std:
 
 	if (this->logging) { log_close_position(existing_position); }
 
+	//move child trades to the trade history to keep track of historical trades
+	for (auto it = existing_position->child_trades.begin(); it != existing_position->child_trades.end();) {
+		Trade &trade_ref =  it->second;
+
+		auto trade = std::move(existing_position->child_trades[trade_ref.trade_id]);
+		this->trade_history.push_back(trade);
+		it = existing_position->child_trades.erase(it);
+	}
+
 	//move the position to the position history vector to keep track of historical positions
 	this->position_history.push_back(std::move(existing_position));
 }
@@ -311,7 +320,13 @@ void __Broker::reduce_position(std::unique_ptr<Position> &existing_position, std
 		auto & account = this->accounts[existing_position->account_id];
 		account->cash += abs(order->units) * order->fill_price;
 	}
-	existing_position->reduce(order->fill_price, order->units, order->trade_id);
+
+	Trade &trade_ref = existing_position->reduce(order->fill_price, order->units,order->order_fill_time,order->trade_id);
+	//if trade has been closed by the order move it to history
+	if(trade_ref.is_open == false){
+		this->trade_history.push_back(std::move(existing_position->child_trades[trade_ref.trade_id]));
+		existing_position->child_trades.erase(trade_ref.trade_id);
+	}
 }
 
 void __Broker::increase_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order) {
@@ -322,7 +337,13 @@ void __Broker::increase_position(std::unique_ptr<Position> &existing_position, s
 		auto & account = this->accounts[existing_position->account_id];
 		account->cash -= order->units * order->fill_price;
 	}
-	existing_position->increase(order->fill_price, order->units, order->trade_id);
+
+	Trade &trade_ref = existing_position->increase(order->fill_price, order->units,order->order_fill_time,order->trade_id);
+	//if trade has been closed by the order move it to history
+	if(trade_ref.is_open == false){
+		this->trade_history.push_back(std::move(existing_position->child_trades[trade_ref.trade_id]));
+		existing_position->child_trades.erase(trade_ref.trade_id);
+	}
 }
 
 void __Broker::log_canceled_orders(std::vector<std::unique_ptr<Order>> cleared_orders) {
@@ -566,7 +587,7 @@ void __Broker::_place_market_order(OrderResponse *order_response, unsigned int a
 				unsigned int exchange_id,
 				unsigned int strategy_id,
 				unsigned int account_id,
-				unsigned int trade_id) {
+				int trade_id) {
 	
 	if(this->debug){
 		printf("PLACING MARKER ORDER, ASSET_ID: %i TO EXCHANGE_ID: %i\n",asset_id, exchange_id);
@@ -600,7 +621,7 @@ void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int as
 				unsigned int exchange_id, 
 				unsigned int strategy_id, 
 				unsigned int account_id,
-				unsigned int trade_id) {
+				int trade_id) {
 	std::unique_ptr<Order> order(new LimitOrder(
 		asset_id,
 		units,
@@ -629,7 +650,7 @@ void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int as
 void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_response, double units, double stop_loss, 
 				bool cheat_on_close,
 				bool limit_pct,
-				unsigned int trade_id) {
+				int trade_id) {
 	std::unique_ptr<Order> order(new StopLossOrder(
 		parent,
 		units,
@@ -857,14 +878,7 @@ double get_realized_pl(void *broker_ptr, int account_id){
 		return __broker_ref->accounts[uid]->realized_pl;
 	}
 }
-int get_order_count(void *broker_ptr) {
-	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
-	return __broker_ref->order_history.size();
-}
-int get_position_count(void *broker_ptr) {
-	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
-	return __broker_ref->position_history.size();
-}
+
 int get_open_order_count(void *broker_ptr){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	int count = 0;
@@ -889,7 +903,7 @@ void place_market_order(void *broker_ptr, OrderResponse *order_response, unsigne
 			unsigned int exchange_id,
 			unsigned int strategy_id,
 			unsigned int account_id,
-			unsigned int trade_id) {
+			int trade_id) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	try{
 		__broker_ref->_place_market_order(order_response, asset_id, units, cheat_on_close, exchange_id, strategy_id, account_id, trade_id);
@@ -902,7 +916,7 @@ void place_limit_order(void *broker_ptr, OrderResponse *order_response,  unsigne
 			unsigned int exchange_id,
 			unsigned int strategy_id,
 			unsigned int account_id,
-			unsigned int trade_id){
+			int trade_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	try{
 		__broker_ref->_place_limit_order(order_response, asset_id, units, limit, cheat_on_close, exchange_id, strategy_id, account_id, trade_id);
@@ -911,7 +925,7 @@ void place_limit_order(void *broker_ptr, OrderResponse *order_response,  unsigne
 		if(__broker_ref->debug){std::cerr << e.what() << std::endl;}
 	}
 }
-void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void * position_ptr, double units, double stop_loss, bool cheat_on_close, bool limit_pct, unsigned int trade_id){
+void position_add_stoploss(void *broker_ptr, OrderResponse *order_response, void * position_ptr, double units, double stop_loss, bool cheat_on_close, bool limit_pct, int trade_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	Position * __position_ref = static_cast<Position *>(position_ptr);
 	__broker_ref->place_stoploss_order(
@@ -931,22 +945,42 @@ void order_add_stoploss(void *broker_ptr, OrderResponse *order_response, unsigne
 	}
 	order_response->order_state = INVALID_PARENT_ORDER_ID;
 }
+
+int get_order_count(void *broker_ptr) {
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	return __broker_ref->order_history.size();
+}
+
+int get_position_count(void *broker_ptr) {
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	return __broker_ref->position_history.size();
+}
+
+int get_trade_count(void *broker_ptr) {
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	return __broker_ref->trade_history.size();
+}
+
 size_t broker_get_history_length(void *broker_ptr){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->nlv_history.size();
 }
+
 double * broker_get_nlv_history(void *broker_ptr) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->nlv_history.data();
 }
+
 double * broker_get_cash_history(void *broker_ptr) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->cash_history.data();
 }
+
 double * broker_get_margin_history(void *broker_ptr) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->margin_history.data();
 }
+
 void get_order_history(void *broker_ptr, OrderArray *order_history) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	int number_orders = order_history->number_orders;
@@ -955,6 +989,7 @@ void get_order_history(void *broker_ptr, OrderArray *order_history) {
 		__broker_ref->order_history[i]->to_struct(order_struct_ref);
 	}
 }
+
 void get_position_history(void *broker_ptr, PositionArray *position_history) {
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	int number_positions = position_history->number_positions;
@@ -963,6 +998,16 @@ void get_position_history(void *broker_ptr, PositionArray *position_history) {
 		__broker_ref->position_history[i]->to_struct(position_struct_ref);
 	}
 }
+
+void get_trade_history(void *broker_ptr, TradeArray *trade_history) {
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	int number_trades = trade_history->number_trades;
+	for (int i = 0; i < number_trades; i++) {
+		TradeStruct &trade_struct_ref = *trade_history->TRADE_ARRAY[i];
+		__broker_ref->trade_history[i].to_struct(trade_struct_ref);
+	}
+}
+
 void get_positions(void *broker_ptr, PositionArray *positions, unsigned int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	auto & account = __broker_ref->accounts[account_id];
@@ -973,12 +1018,14 @@ void get_positions(void *broker_ptr, PositionArray *positions, unsigned int acco
 		i++;
 	}
 }
+
 void get_position(void *broker_ptr, unsigned int assset_id, PositionStruct *position, unsigned int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	auto & account = __broker_ref->accounts[account_id];
 	if(account->portfolio.count(assset_id) == 0){return;}
 	account->portfolio[assset_id]->to_struct(*position);
 }
+
 void get_orders(void *broker_ptr, OrderArray *orders, unsigned int exchange_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	__Exchange *exchange = __broker_ref->exchanges[exchange_id];
@@ -989,6 +1036,7 @@ void get_orders(void *broker_ptr, OrderArray *orders, unsigned int exchange_id){
 		order_ptr_to_struct(open_order, order_struct_ref);
 	}
 }
+
 void * get_position_ptr(void *broker_ptr, unsigned int asset_id, unsigned int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	auto & account = __broker_ref->accounts[account_id];

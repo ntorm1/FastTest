@@ -19,6 +19,9 @@ class OrderSchedule():
         self.account_name = kwargs.get("account_name")
         if self.account_name == None: self.account_name = "default"
         
+        self.trade_id = kwargs.get("trade_id")
+        if self.trade_id == None: self.trade_id = 0
+        
         self.stop_loss_on_fill = kwargs.get("stop_loss_on_fill")
         if self.stop_loss_on_fill == None: self.stop_loss_on_fill = 0
         

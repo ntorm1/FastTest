@@ -66,11 +66,7 @@ class Broker():
         self.exchange_map[exchange.exchange_name] = exchange
         Wrapper._broker_register_exchange(self.ptr, exchange.ptr)
     
-    # -----------------------------------------------------------------------------                 
-    def get_order_count(self):
-        #get total mumber of orders taken across the fasttest
-        return Wrapper._get_order_count(self.ptr)
-    
+    # -----------------------------------------------------------------------------                  
     def get_open_order_count(self):
         #get total mumber of open orders taken across the fasttest
         return Wrapper._get_open_order_count(self.ptr)
@@ -80,12 +76,6 @@ class Broker():
         #get the number of open positions currently
         return Wrapper._get_open_position_count(self.ptr)
         
-    # -----------------------------------------------------------------------------
-    def get_total_position_count(self):
-        #get the total number positions taken across the fasttest
-        return Wrapper._get_position_count(self.ptr)
-    
-    
     # -----------------------------------------------------------------------------
     def position_exists(self, asset_name,
                         exchange_name = "default",
@@ -220,24 +210,6 @@ class Broker():
         cash_ptr = Wrapper._broker_get_margin_history(self.ptr)
         return np.ctypeslib.as_array(cash_ptr, shape=(self.get_history_length(),))
     
-    # -----------------------------------------------------------------------------  
-    def get_order_history(self):
-        #get a OrderHistoryStruct with information regarding all the orders placed
-        order_count = self.get_order_count()
-        order_history = Wrapper.OrderHistoryStruct(order_count)
-        order_struct_pointer = pointer(order_history)
-        Wrapper._get_order_history(self.ptr, order_struct_pointer)
-        return order_history
-    
-    # -----------------------------------------------------------------------------
-    def get_position_history(self):
-        #get a PositionArrayStruct with information regarding all the positions taken
-        position_count = self.get_total_position_count()
-        position_history = Wrapper.PositionArrayStruct(position_count)
-        position_struct_pointer = pointer(position_history)
-        Wrapper._get_position_history(self.ptr, position_struct_pointer)
-        return position_history
-
     # -----------------------------------------------------------------------------
     def place_market_order(self, asset_name : str, units : float, 
                            stop_loss_on_fill = 0,
@@ -257,12 +229,12 @@ class Broker():
             cheat_on_close (bool, optional): = allow position to be execute at end of current candle. Defaults to False.
             exchange_name (str, optional): name of the exchange to place the order to. Defaults to "default".
             strategy_id (int, optional): id of the strategy placing the trade. Defaults to 0.
-            account_id (int, optional): id of the account the order was placed for. Defaults to 0.
+            account_name (str, optional): name of the account the order was placed for. Defaults to "default".
+            trade_id (int, optional): the id of the trade to place order to (-1 for new trade, 0 for default trade, else specific trade)
 
         Returns:
             OrderResponse: brokers response to the order containing the order id and state
-        """
-        
+        """        
         if math.isnan(units):
             raise RuntimeError("NAN units passed to place_market_order")
         
@@ -389,3 +361,44 @@ class Broker():
             raise Exception("Must pass in order id or asset name")
 
         return order_response
+    
+    # -----------------------------------------------------------------------------
+    def get_total_position_count(self):
+        #get the total number positions taken across the fasttest
+        return Wrapper._get_position_count(self.ptr)
+    
+    # -----------------------------------------------------------------------------
+    def get_total_trade_count(self):
+        #get the total number trades taken across the fasttest
+        return Wrapper._get_trade_count(self.ptr)
+    
+    def get_order_count(self):
+        #get total mumber of orders taken across the fasttest
+        return Wrapper._get_order_count(self.ptr)
+    
+    # -----------------------------------------------------------------------------  
+    def get_order_history(self):
+        #get a OrderHistoryStruct with information regarding all the orders placed
+        order_count = self.get_order_count()
+        order_history = Wrapper.OrderHistoryStruct(order_count)
+        order_struct_pointer = pointer(order_history)
+        Wrapper._get_order_history(self.ptr, order_struct_pointer)
+        return order_history
+    
+    # -----------------------------------------------------------------------------
+    def get_position_history(self):
+        #get a PositionArrayStruct with information regarding all the positions taken
+        position_count = self.get_total_position_count()
+        position_history = Wrapper.PositionArrayStruct(position_count)
+        position_struct_pointer = pointer(position_history)
+        Wrapper._get_position_history(self.ptr, position_struct_pointer)
+        return position_history
+    
+    # -----------------------------------------------------------------------------
+    def get_trade_history(self):
+        #get a PositionArrayStruct with information regarding all the positions taken
+        trade_count = self.get_total_trade_count()
+        trade_history = Wrapper.TradeArrayStruct(trade_count)
+        trade_struct_pointer = pointer(trade_history)
+        Wrapper._get_trade_history(self.ptr, trade_struct_pointer)
+        return trade_history

@@ -12,42 +12,15 @@
 #include "utils_time.h"
 #include "Asset.h"
 
-
-//C style struct for passing positions between c++ and python
-struct PositionStruct {
-	double average_price;
-	double close_price;
-	double last_price;
-	double units;
-
-	unsigned int bars_held;
-	unsigned int bars_since_change;
-
-	unsigned int position_id;
-	unsigned int asset_id;
-	unsigned int exchange_id;
-	unsigned int account_id;
-	unsigned int strategy_id;
-
-	long position_create_time;
-	long position_close_time;
-
-	double realized_pl;
-	double unrealized_pl;
-};
-
-//C style struct for passing positions between c++ and python 
-struct PositionArray {
-	unsigned int number_positions;   //count of positions in the position array
-	PositionStruct **POSITION_ARRAY; //a pointer to pointer to position struct (i.e. 2d array of position structs)
-};
+class Position;
+struct PositionStruct;
+struct TradeStruct;
 
 enum PositionType{
 	MAIN_POSITION,
 	HEDGE_POSITION
 };
 
-class Position;
 
 class Trade 
 {
@@ -83,6 +56,8 @@ public:
 	void increase(double market_price, double units);
 	void reduce(double market_price, double units);
 	void close(double close_price, timeval position_close_time);
+
+	void to_struct(TradeStruct &trade_struct);
 
 	//evaluate the trade at the current market price
 	inline void evaluate(double market_price, bool update_bars = false) noexcept {
@@ -131,9 +106,9 @@ public:
 	double unrealized_pl = 0;
 	double realized_pl = 0;
 
-	void increase(double market_price, double units, unsigned int trade_id = 0);
-	void reduce(double market_price, double units, unsigned int trade_id = 0);
-	void close(double close_price, timeval position_close_time, unsigned int trade_id = 0);
+	Trade& increase(double market_price, double units, timeval position_change_time, int trade_id = 0);
+	Trade& reduce(double market_price, double units, timeval position_change_time, int trade_id = 0);
+	void close(double close_price, timeval position_close_time);
 
 	double liquidation_value();
 	double beta_dollars(const __Asset *benchmark, unsigned int n);
@@ -186,5 +161,66 @@ public:
 		this->position_type = HEDGE_POSITION;
 	}
 };
+
+//C style struct for passing positions between c++ and python
+struct PositionStruct {
+	double average_price;
+	double close_price;
+	double last_price;
+	double units;
+
+	unsigned int bars_held;
+	unsigned int bars_since_change;
+
+	unsigned int position_id;
+	unsigned int asset_id;
+	unsigned int exchange_id;
+	unsigned int account_id;
+	unsigned int strategy_id;
+
+	long position_create_time;
+	long position_close_time;
+
+	double realized_pl;
+	double unrealized_pl;
+};
+
+//C style struct for passing trades between c++ and python
+struct TradeStruct {
+	double average_price;
+	double close_price;
+	double last_price;
+	double units;
+
+	unsigned int bars_held;
+	unsigned int bars_since_change;
+
+	unsigned int position_id;
+	unsigned int asset_id;
+	unsigned int exchange_id;
+	unsigned int account_id;
+	unsigned int strategy_id;
+	unsigned int trade_id;
+
+	long trade_create_time;
+	long trade_close_time;
+
+	double realized_pl;
+	double unrealized_pl;
+};
+
+
+//C style struct for passing positions between c++ and python 
+struct PositionArray {
+	unsigned int number_positions;   //count of positions in the position array
+	PositionStruct **POSITION_ARRAY; //a pointer to pointer to position struct (i.e. 2d array of position structs)
+};
+
+//C style struct for passing trades between c++ and python 
+struct TradeArray {
+	unsigned int number_trades;   //count of trades in the trade array
+	TradeStruct **TRADE_ARRAY; //a pointer to pointer to trade struct (i.e. 2d array of position structs)
+};
+
 
 #endif
