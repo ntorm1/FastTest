@@ -56,6 +56,37 @@ class TradeTestMethods(unittest.TestCase):
         assert(broker.get_nlv_history()[-1] == 100050)
         
         print("TESTING: test_seperate_trades passed")
+        
+    def test_trade_increase(self):
+        print("TESTING test_trade_increase...")
+        orders = [
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 1,
+                    units = 100
+                ),
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 2,
+                    units = 100,
+                    trade_id = -1
+                )
+            ]
+        exchange, broker, ft = setup_multi(logging=False)
+        strategy = TestStrategy(orders, broker, exchange)
+        ft.add_strategy(strategy)
+        ft.run()
+        
+        trade_history = broker.get_trade_history()
+        order_history = broker.get_order_history()
+        position_history = broker.get_position_history()
+        
+        assert(trade_history.TRADE_ARRAY[0].contents.realized_pl == -500)
+        assert(trade_history.TRADE_ARRAY[1].contents.realized_pl == -200)
+        assert(broker.get_nlv_history()[-1] == (100000-700))
 
+        print("TESTING: test_trade_increase passed")
 if __name__ == '__main__':
     unittest.main()

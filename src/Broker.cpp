@@ -577,9 +577,7 @@ void __Broker::send_order(std::unique_ptr<Order> new_order,OrderResponse *order_
 	new_order->order_create_time = exchange->current_time;
 	exchange->place_order(std::move(new_order));
 
-	order_response->order_id = this->order_counter;
 	order_response->order_state = ACCEPETED;
-
 	this->order_counter++;
 }
 
@@ -887,6 +885,7 @@ int get_open_order_count(void *broker_ptr){
 	}
 	return count;
 }
+
 int get_open_position_count(void *broker_ptr){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	int count = 0;
@@ -895,6 +894,19 @@ int get_open_position_count(void *broker_ptr){
 	}
 	return count;
 }
+
+int get_open_trade_count(void *broker_ptr){
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	int count = 0;
+	for (const auto & pair : __broker_ref->accounts){
+		const __Account *account = pair.second;
+		for(const auto &position_pair : account->portfolio){
+			count += position_pair.second->child_trades.size();
+		}
+	}
+	return count;
+}
+
 bool position_exists(void *broker_ptr, unsigned int asset_id, int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	return __broker_ref->_position_exists(asset_id, account_id);
@@ -1016,6 +1028,21 @@ void get_positions(void *broker_ptr, PositionArray *positions, unsigned int acco
 		PositionStruct &position_struct_ref = *positions->POSITION_ARRAY[i];
 		account->portfolio[kvp.first]->to_struct(position_struct_ref);
 		i++;
+	}
+}
+
+void get_trades(void *broker_ptr, TradeArray *trades, int account_id){
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	int i = 0;
+	for (const auto & pair : __broker_ref->accounts){
+		for(const auto &position_pair :  pair.second->portfolio){
+			for(const auto &trade_pair : position_pair.second->child_trades){
+				TradeStruct &trade_struct_ref = *trades->TRADE_ARRAY[i];
+				const Trade &trade = trade_pair.second;
+				trade.to_struct(trade_struct_ref);
+				i++;
+			}
+		}
 	}
 }
 

@@ -57,7 +57,7 @@ public:
 	void reduce(double market_price, double units);
 	void close(double close_price, timeval position_close_time);
 
-	void to_struct(TradeStruct &trade_struct);
+	void to_struct(TradeStruct &trade_struct) const;
 
 	//evaluate the trade at the current market price
 	inline void evaluate(double market_price, bool update_bars = false) noexcept {

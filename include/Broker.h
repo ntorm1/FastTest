@@ -263,18 +263,22 @@ extern "C" {
 	BROKER_API int get_order_count(void *broker_ptr);
 	BROKER_API int get_position_count(void *broker_ptr);
 	BROKER_API int get_trade_count(void *broker_ptr);
+
 	BROKER_API int get_open_position_count(void *broker_ptr);
 	BROKER_API int get_open_order_count(void *broker_ptr);
+	BROKER_API int get_open_trade_count(void *broker_ptr);
 
 	BROKER_API void get_order_history(void *broker_ptr, OrderArray *order_history);
 	BROKER_API void get_position_history(void *broker_ptr, PositionArray *position_history);
 	BROKER_API void get_trade_history(void *broker_ptr, TradeArray *trade_history);
 	
 	BROKER_API bool position_exists(void *broker_ptr, unsigned int asset_id, int account_id = -1);
-	BROKER_API void get_positions(void *broker_ptr, PositionArray *positions, unsigned int account_id = 0);
 	BROKER_API void get_position(void *broker_ptr, unsigned int asset_id, PositionStruct *position, unsigned int account_id = 0);
 	BROKER_API void * get_position_ptr(void *broker_ptr, unsigned int asset_id, unsigned int account_id = 0);
+
+	BROKER_API void get_positions(void *broker_ptr, PositionArray *positions, unsigned int account_id = 0);
 	BROKER_API void get_orders(void *broker_ptr, OrderArray *orders, unsigned int exchange_id = 0);
+	BROKER_API void get_trades(void *broker_ptr, TradeArray *trades,int account_id = 0);
 
 	BROKER_API double get_cash(void *broker_ptr, int account_id = -1);
 	BROKER_API double get_nlv(void *broker_ptr, int account_id = -1);

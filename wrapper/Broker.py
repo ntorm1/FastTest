@@ -65,6 +65,32 @@ class Broker():
         
         self.exchange_map[exchange.exchange_name] = exchange
         Wrapper._broker_register_exchange(self.ptr, exchange.ptr)
+        
+    # -----------------------------------------------------------------------------
+    def get_nlv(self, account_name = None):
+        """Get the net liquidation value of either the entire portfolio or a specific account
+        Args:
+            account_name (str, optional): name of the account to get nlv for. Defaults to none (entire portfolio)
+        Returns:
+            _type_: _description_
+        """
+        if account_name is None:
+            return Wrapper._get_nlv(self.ptr, -1)
+        
+        if self.account_map.get(account_name) is None:
+            raise RuntimeError("Invalid acccount name passed")
+        
+        return Wrapper._get_nlv(self.ptr, self.account_map[account_name])
+    
+    # -----------------------------------------------------------------------------
+    def get_cash(self, account_id = -1):
+        """_summary_
+        Args:
+            account_id (int, optional): account id of the account to get cash, -1 for all accounts combined
+        Returns:
+            double: amount of cash available in a given account
+        """
+        return Wrapper._get_cash(self.ptr, account_id)
     
     # -----------------------------------------------------------------------------                  
     def get_open_order_count(self):
@@ -75,6 +101,11 @@ class Broker():
     def get_open_position_count(self):
         #get the number of open positions currently
         return Wrapper._get_open_position_count(self.ptr)
+    
+    # -----------------------------------------------------------------------------
+    def get_open_trade_count(self):
+        #get the number of open positions currently
+        return Wrapper._get_open_trade_count(self.ptr)
         
     # -----------------------------------------------------------------------------
     def position_exists(self, asset_name,
@@ -95,36 +126,6 @@ class Broker():
         return Wrapper._position_exists(self.ptr, asset_id, account_id)
     
     # -----------------------------------------------------------------------------
-    def get_nlv(self, account_name = None):
-        """Get the net liquidation value of either the entire portfolio or a specific account
-
-        Args:
-            account_name (str, optional): name of the account to get nlv for. Defaults to none (entire portfolio)
-
-        Returns:
-            _type_: _description_
-        """
-        if account_name is None:
-            return Wrapper._get_nlv(self.ptr, -1)
-        
-        if self.account_map.get(account_name) is None:
-            raise RuntimeError("Invalid acccount name passed")
-        
-        return Wrapper._get_nlv(self.ptr, self.account_map[account_name])
-    
-    # -----------------------------------------------------------------------------
-    def get_cash(self, account_id = -1):
-        """_summary_
-
-        Args:
-            account_id (int, optional): account id of the account to get cash, -1 for all accounts combined
-
-        Returns:
-            double: amount of cash available in a given account
-        """
-        return Wrapper._get_cash(self.ptr, account_id)
-    
-    # -----------------------------------------------------------------------------
     def get_positions(self, account_id = 0):
         """_summary_
 
@@ -138,8 +139,23 @@ class Broker():
         open_positions = Wrapper.PositionArrayStruct(position_count)
         position_struct_pointer = pointer(open_positions)
         Wrapper._get_positions(self.ptr, position_struct_pointer, account_id)
-        
         return open_positions
+    
+    # -----------------------------------------------------------------------------
+    def get_trades(self, account_id = 0):
+        """_summary_
+
+        Args:
+            account_id (int, optional): the account id of the account to retrieve the positions of
+
+        Returns:
+            PositionArrayStruct: an array of PositionStructs
+        """
+        trade_count = self.get_open_trade_count()
+        open_trades = Wrapper.TradeArrayStruct(trade_count)
+        trade_struct_pointer = pointer(open_trades)
+        Wrapper._get_positions(self.ptr, trade_struct_pointer, account_id)
+        return open_trades
        
     # -----------------------------------------------------------------------------     
     def get_position(self, asset_name : str,

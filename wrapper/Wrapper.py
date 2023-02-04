@@ -394,6 +394,10 @@ _get_open_position_count = FastTest.get_open_position_count
 _get_open_position_count.argtypes = [c_void_p]
 _get_open_position_count.restype = c_int
 
+_get_open_trade_count = FastTest.get_open_trade_count
+_get_open_trade_count.argtypes = [c_void_p]
+_get_open_trade_count.restype = c_int
+
 _get_nlv = FastTest.get_nlv
 _get_nlv.argtypes = [c_void_p, c_int]
 _get_nlv.restype = c_double
@@ -443,6 +447,9 @@ _get_position_ptr.restype = c_void_p
 
 _get_positions = FastTest.get_positions
 _get_positions.argtypes = [c_void_p,POINTER(PositionArrayStruct), c_uint]
+
+_get_trades = FastTest.get_trades
+_get_trades.argtypes = [c_void_p,POINTER(TradeArrayStruct), c_int]
 
 _get_position = FastTest.get_position
 _get_position.argtypes = [c_void_p,c_uint,POINTER(PositionStruct), c_uint]

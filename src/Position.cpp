@@ -136,7 +136,7 @@ void Position::to_struct(PositionStruct &position_struct){
 	position_struct.unrealized_pl = this->unrealized_pl;
 }
 
-void Trade::to_struct(TradeStruct &position_struct){
+void Trade::to_struct(TradeStruct &position_struct) const {
 	position_struct.average_price = this->average_price;
 	position_struct.close_price = this->close_price;
 	position_struct.last_price = this->last_price;
