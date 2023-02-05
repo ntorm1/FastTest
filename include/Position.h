@@ -9,6 +9,7 @@
 #include "pch.h"
 #include <ctime>
 #include <vector>
+#include <memory>
 #include "utils_time.h"
 #include "Asset.h"
 

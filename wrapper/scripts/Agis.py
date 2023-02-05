@@ -22,7 +22,7 @@ class Agis_Strategy(Strategy):
         self.i = 0
         self.lookahead = lookahead
         self.position_size = .025
-        self.position_count = 2
+        self.position_count = 5
         
     def build(self):
         self.asset_names = self.exchange.id_map.values()

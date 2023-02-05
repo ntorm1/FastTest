@@ -296,6 +296,7 @@ public:
 				return mid;
 			}
 		}
+		return NAN;
 	}
 
 private:
