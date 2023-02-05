@@ -34,7 +34,6 @@ class Agis_Strategy(Strategy):
             trade = trades.TRADE_ARRAY[i].contents
             if trade.bars_held == self.lookahead:
                 asset_name = self.exchange.id_map[trade.asset_id]
-                print(f"asset_id: {trade.asset_id}, bars_held: {trade.bars_held}, existing units: {trade.units}")        
                 self.broker.place_market_order(asset_name, -1*trade.units,
                                             exchange_name="sp500",
                                             account_name="agis",
@@ -115,10 +114,10 @@ if __name__ == "__main__":
 
     ft = FastTest(logging=False, debug=False, save_last_positions=True)
     
-    exchange = Exchange(exchange_name="sp500", logging=True)
+    exchange = Exchange(exchange_name="sp500", logging=False)
     ft.register_exchange(exchange)
     
-    broker = Broker(exchange, margin=True, logging=True, debug=False)
+    broker = Broker(exchange, margin=True, logging=False, debug=False)
     ft.register_broker(broker)
     ft.add_account("agis", 100000)
     
@@ -143,5 +142,5 @@ if __name__ == "__main__":
     
     last_positions = ft.get_last_positions(to_df=True)
     print(last_positions)
-    #ft.plot(benchmark.df())
+    ft.plot(benchmark.df())
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")

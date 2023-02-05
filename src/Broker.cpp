@@ -725,7 +725,7 @@ void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_
 		else {
 			std::unique_ptr<Position> &existing_position = account->portfolio[order->asset_id];
 			//sum of existing position units and order units is 0. Close existing position
-			if (existing_position->units + order->units == 0) {
+			if (abs(existing_position->units + order->units) < POSITION_REVERSE_TOL) {
 				this->close_position(existing_position, order);
 				account->portfolio.erase(order->asset_id);
 			}
@@ -745,6 +745,9 @@ void __Broker::process_filled_orders(std::vector<std::unique_ptr<Order>> orders_
 					this->open_position(order);
 				}
 			}
+			//if(existing_position->units < .0001){
+			//	throw std::runtime_error("EXIST POSTION MIN UNITS ERROR\n");
+			//}
 		}
 		this->order_history.push_back(std::move(order));
 	}
@@ -800,10 +803,10 @@ void __Broker::log_close_position(std::unique_ptr<Position> &position) {
 void __Broker::log_close_trade(Trade &trade) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&trade.trade_close_time, this->time, sizeof(this->time));
-	printf("BROKER:  %s: TRADE CLOSED: asset_id: %i, parent position id: %i, units: %f, close_price: %f\n",
+	printf("BROKER:  %s: TRADE CLOSED: trade_id: %i, asset_id: %i, units: %f, close_price: %f\n",
 		this->time,
+		trade.trade_id,
 		trade.parent_position->asset_id,
-		trade.parent_position->position_id,
 		trade.units,
 		trade.close_price
 	);
@@ -811,10 +814,10 @@ void __Broker::log_close_trade(Trade &trade) {
 void __Broker::log_open_trade(Trade &trade) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&trade.trade_create_time, this->time, sizeof(this->time));
-	printf("BROKER:  %s: TRADE OPENED: asset_id: %i, parent position id: %i, units: %f, close_price: %f\n",
+	printf("BROKER:  %s: TRADE OPENED: trade_id: %i, asset_id: %i, units: %f, close_price: %f\n",
 		this->time,
+		trade.trade_id,
 		trade.parent_position->asset_id,
-		trade.parent_position->position_id,
 		trade.units,
 		trade.average_price
 	);

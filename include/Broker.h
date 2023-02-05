@@ -21,6 +21,7 @@
 #define REG_T_SHORT_REQ 1.5
 #define CHECK_ORDER
 #define MARGIN
+#define POSITION_REVERSE_TOL .00000001f
 
 #ifdef CHECK_ORDER
 enum ORDER_CHECK {
