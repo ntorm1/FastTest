@@ -187,10 +187,6 @@ void __Broker::margin_on_increase(std::unique_ptr<Position> &new_position, std::
 
 		new_position->collateral += collateral;
 		new_position->margin_loan += loan;
-
-		auto &trade = new_position->child_trades[order->trade_id];
-		trade.collateral += collateral;
-		trade.margin_loan += loan;
 }
 
 void __Broker::margin_on_reduce(std::unique_ptr<Position> &existing_position, double order_fill_price, double _units){
@@ -227,10 +223,11 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 		order->account_id,
 		order->strategy_id
 	));
+	order->trade_id = 0;
 
 	__Exchange *exchange = this->exchanges[order->exchange_id];
 	 new_position->asset = &exchange->market[order->asset_id];
-	
+
 	//adjust account's cash and margin balance accoringly
 	__Account* account = this->accounts[order->account_id];
 	if(!this->margin){
@@ -245,7 +242,6 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 		account->cash -= this->commission;
 		this->total_commission += this->commission;
 	}
-
 	this->position_counter++;
 
 	#ifdef CHECK_POSITION_OPEN
@@ -322,6 +318,8 @@ void __Broker::reduce_position(std::unique_ptr<Position> &existing_position, std
 	}
 
 	Trade &trade_ref = existing_position->reduce(order->fill_price, order->units,order->order_fill_time,order->trade_id);
+	order->trade_id = trade_ref.trade_id;
+
 	//if trade has been closed by the order move it to history
 	if(trade_ref.is_open == false){
 		this->trade_history.push_back(std::move(existing_position->child_trades[trade_ref.trade_id]));
@@ -339,6 +337,8 @@ void __Broker::increase_position(std::unique_ptr<Position> &existing_position, s
 	}
 
 	Trade &trade_ref = existing_position->increase(order->fill_price, order->units,order->order_fill_time,order->trade_id);
+	order->trade_id = trade_ref.trade_id;
+
 	//if trade has been closed by the order move it to history
 	if(trade_ref.is_open == false){
 		this->trade_history.push_back(std::move(existing_position->child_trades[trade_ref.trade_id]));

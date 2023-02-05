@@ -33,7 +33,7 @@ Trade& Position::increase(double market_price, double _units, timeval position_c
 	this->units += _units;
 	this->bars_since_change = 0;
 
-	//test to see if position is new
+	//test to see if trade is new
 	unsigned int u_trade_id = unsigned(trade_id);
 	if(this->child_trades.count(u_trade_id) == 0 || trade_id == -1){
 		this->child_trades[this->trade_counter] = Trade(this, this->trade_counter, _units, market_price, position_change_time);
@@ -53,7 +53,7 @@ Trade& Position::reduce(double market_price, double _units,timeval position_chan
 	this->units -= abs(_units);
 	this->bars_since_change = 0;
 
-	//test to see if position is new
+	//test to see if trade is new
 	unsigned int u_trade_id = unsigned(trade_id);
 	if(this->child_trades.count(u_trade_id) == 0 || trade_id == -1){
 		this->child_trades[this->trade_counter] = Trade(this, this->trade_counter, _units, market_price, position_change_time);

@@ -29,14 +29,16 @@ class Agis_Strategy(Strategy):
         self.asset_ids = self.exchange.asset_map.values()
     
     def check_positions(self):
-        positions = self.broker.get_positions()
-        for i in range(positions.number_positions):
-            position = positions.POSITION_ARRAY[i].contents
-            if position.bars_held == self.lookahead:
-                asset_name = self.exchange.id_map[position.asset_id]
-                self.broker.place_market_order(asset_name, -1*position.units,
+        trades = self.broker.get_trades()
+        for i in range(trades.number_trades):
+            trade = trades.TRADE_ARRAY[i].contents
+            if trade.bars_held == self.lookahead:
+                print(f"asset id: {trade.asset_id}, bars_held: {trade.bars_held}")                
+                asset_name = self.exchange.id_map[trade.asset_id]
+                self.broker.place_market_order(asset_name, -1*trade.units,
                                             exchange_name="sp500",
-                                            account_name="agis")
+                                            account_name="agis",
+                                            trade_id=trade.trade_id)
        
     def next(self):
         self.check_positions()
@@ -47,7 +49,7 @@ class Agis_Strategy(Strategy):
         _avg_predicted_return = sum(predicted_returns.values()) / len(predicted_returns)
         
         nlv = self.broker.get_nlv(account_name="agis")
-        position_size = (nlv) / (self.position_count * self.lookahead) * .9
+        position_size = (nlv) / (self.position_count * self.lookahead) * .5
         
         keys = list(predicted_returns.keys())
         counts = 0
@@ -60,6 +62,7 @@ class Agis_Strategy(Strategy):
                                             strategy_id=self.strategy_id,
                                             account_name="agis",
                                             exchange_name="sp500",
+                                            trade_id=0
                                         )                
                 counts += 1
                 if counts == self.position_count: break
@@ -73,7 +76,9 @@ class Agis_Strategy(Strategy):
                 self.broker.place_market_order(asset_name, units,
                                             strategy_id=self.strategy_id,
                                             account_name="agis",
-                                            exchange_name="sp500")
+                                            exchange_name="sp500",
+                                            trade_id=0
+                                            )
                 counts += 1
                 if counts == self.position_count: break
            
@@ -108,12 +113,12 @@ class Agis_Strategy(Strategy):
                 
 if __name__ == "__main__":
 
-    ft = FastTest(logging=True, debug=False, save_last_positions=True)
+    ft = FastTest(logging=False, debug=False, save_last_positions=True)
     
     exchange = Exchange(exchange_name="sp500")
     ft.register_exchange(exchange)
     
-    broker = Broker(exchange, margin=True, logging=False, debug=False)
+    broker = Broker(exchange, margin=True, logging=True, debug=False)
     ft.register_broker(broker)
     ft.add_account("agis", 100000)
     

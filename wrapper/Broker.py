@@ -127,7 +127,7 @@ class Broker():
     
     # -----------------------------------------------------------------------------
     def get_positions(self, account_id = 0):
-        """_summary_
+        """get open positions
 
         Args:
             account_id (int, optional): the account id of the account to retrieve the positions of
@@ -143,18 +143,16 @@ class Broker():
     
     # -----------------------------------------------------------------------------
     def get_trades(self, account_id = 0):
-        """_summary_
-
+        """get open trades
         Args:
-            account_id (int, optional): the account id of the account to retrieve the positions of
-
+            account_id (int, optional): the account id of the account to retrieve the trades of
         Returns:
-            PositionArrayStruct: an array of PositionStructs
+            TradeArrayStruct: an array of TradeStructs
         """
         trade_count = self.get_open_trade_count()
         open_trades = Wrapper.TradeArrayStruct(trade_count)
         trade_struct_pointer = pointer(open_trades)
-        Wrapper._get_positions(self.ptr, trade_struct_pointer, account_id)
+        Wrapper._get_trades(self.ptr, trade_struct_pointer, account_id)
         return open_trades
        
     # -----------------------------------------------------------------------------     
