@@ -6,6 +6,7 @@
 #endif 
 #include <iostream>
 #include <string>
+#include <memory>
 #include "Position.h"
 #include "Risk.h"
 
