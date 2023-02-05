@@ -253,6 +253,7 @@ void __Broker::open_position(std::unique_ptr<Order> &order) {
 
 	if (this->logging) {
 		log_open_position(new_position);
+		log_open_trade(new_position->child_trades[order->trade_id]);
 	}
 
 	//insert the new postion into the account's portfolio
@@ -299,6 +300,8 @@ void __Broker::close_position(std::unique_ptr<Position> &existing_position, std:
 	for (auto it = existing_position->child_trades.begin(); it != existing_position->child_trades.end();) {
 		Trade &trade_ref =  it->second;
 
+		if(this->logging){log_close_trade(trade_ref);}
+
 		auto trade = std::move(existing_position->child_trades[trade_ref.trade_id]);
 		this->trade_history.push_back(trade);
 		it = existing_position->child_trades.erase(it);
@@ -317,14 +320,17 @@ void __Broker::reduce_position(std::unique_ptr<Position> &existing_position, std
 		account->cash += abs(order->units) * order->fill_price;
 	}
 
-	Trade &trade_ref = existing_position->reduce(order->fill_price, order->units,order->order_fill_time,order->trade_id);
+	Trade &trade_ref = existing_position->reduce(order->fill_price,order->units,order->order_fill_time,order->trade_id);
 	order->trade_id = trade_ref.trade_id;
 
 	//if trade has been closed by the order move it to history
 	if(trade_ref.is_open == false){
-		this->trade_history.push_back(std::move(existing_position->child_trades[trade_ref.trade_id]));
+		if(this->logging){log_close_trade(trade_ref);}
+		//push trade to history
+		this->trade_history.push_back(std::move(trade_ref));
 		existing_position->child_trades.erase(trade_ref.trade_id);
 	}
+	else if(trade_ref.bars_held == 0 && this->logging){log_open_trade(trade_ref);}
 }
 
 void __Broker::increase_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order) {
@@ -336,14 +342,18 @@ void __Broker::increase_position(std::unique_ptr<Position> &existing_position, s
 		account->cash -= order->units * order->fill_price;
 	}
 
-	Trade &trade_ref = existing_position->increase(order->fill_price, order->units,order->order_fill_time,order->trade_id);
+	Trade &trade_ref = existing_position->increase(order->fill_price,order->units,order->order_fill_time,order->trade_id);
 	order->trade_id = trade_ref.trade_id;
 
 	//if trade has been closed by the order move it to history
 	if(trade_ref.is_open == false){
+		if(this->logging){log_close_trade(trade_ref);}
+		
+		//push trade to history
 		this->trade_history.push_back(std::move(existing_position->child_trades[trade_ref.trade_id]));
 		existing_position->child_trades.erase(trade_ref.trade_id);
 	}
+	else if(trade_ref.bars_held == 0 && this->logging){log_open_trade(trade_ref);}
 }
 
 void __Broker::log_canceled_orders(std::vector<std::unique_ptr<Order>> cleared_orders) {
@@ -773,7 +783,7 @@ void __Broker::set_cash(double cash, unsigned int account_id) {
 void __Broker::log_open_position(std::unique_ptr<Position> &position) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&position->position_create_time, this->time, sizeof(this->time));
-	printf("BROKER: %s: POSITION OPENED: asset_id: %i, units: %f, avg_price: %f\n",
+	printf("BROKER:  %s: POSITION OPENED: asset_id: %i, units: %f, avg_price: %f\n",
 		this->time,
 		position->asset_id,
 		position->units,
@@ -783,13 +793,36 @@ void __Broker::log_open_position(std::unique_ptr<Position> &position) {
 void __Broker::log_close_position(std::unique_ptr<Position> &position) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&position->position_close_time, this->time, sizeof(this->time));
-	printf("BROKER: %s: POSITION CLOSED: asset_id: %i, units: %f, close_price: %f\n",
+	printf("BROKER:  %s: POSITION CLOSED: asset_id: %i, units: %f, close_price: %f\n",
 		this->time,
 		position->asset_id,
 		position->units,
 		position->close_price
 	);
 }
+void __Broker::log_close_trade(Trade &trade) {
+	memset(this->time, 0, sizeof this->time);
+	timeval_to_char_array(&trade.trade_close_time, this->time, sizeof(this->time));
+	printf("BROKER:  %s: TRADE CLOSED: asset_id: %i, parent position id: %i, units: %f, close_price: %f\n",
+		this->time,
+		trade.parent_position->asset_id,
+		trade.parent_position->position_id,
+		trade.units,
+		trade.close_price
+	);
+}
+void __Broker::log_open_trade(Trade &trade) {
+	memset(this->time, 0, sizeof this->time);
+	timeval_to_char_array(&trade.trade_close_time, this->time, sizeof(this->time));
+	printf("BROKER:  %s: TRADE OPENED: asset_id: %i, parent position id: %i, units: %f, close_price: %f\n",
+		this->time,
+		trade.parent_position->asset_id,
+		trade.parent_position->position_id,
+		trade.units,
+		trade.average_price
+	);
+}
+
 void * CreateBrokerPtr(void *exchange_ptr,bool logging, bool margin, bool debug) {
 	__Exchange *__exchange_ref = static_cast<__Exchange *>(exchange_ptr);
 	return new __Broker(__exchange_ref, logging, margin, debug);

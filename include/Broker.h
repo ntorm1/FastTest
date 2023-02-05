@@ -164,6 +164,8 @@ public:
 	bool debug;
 	void log_open_position(std::unique_ptr<Position> &position);
 	void log_close_position(std::unique_ptr<Position> &position);
+	void log_open_trade(Trade &position);
+	void log_close_trade(Trade &position);
 
 	//set commissions
 	void set_commission(double commission);

@@ -290,7 +290,7 @@ void __Exchange::cancel_orders(std::vector<std::unique_ptr<Order>>& canceled_ord
 void __Exchange::log_order_placed(std::unique_ptr<Order>& order) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&order->order_create_time, this->time, sizeof(this->time));
-	printf("%s: %s PLACED: strategy_id: %i, exchange_id: %i, asset_id: %i, units: %f\n",
+	printf("EXCHANGE %s: %s PLACED: strategy_id: %i, exchange_id: %i, asset_id: %i, units: %f\n",
 		this->time,
 		order->get_order_type(),
 		order->strategy_id,
@@ -299,10 +299,11 @@ void __Exchange::log_order_placed(std::unique_ptr<Order>& order) {
 		order->units
 	);
 }
+
 void __Exchange::log_order_filled(std::unique_ptr<Order>& order) {
 	memset(this->time, 0, sizeof this->time);
 	timeval_to_char_array(&order->order_fill_time, this->time, sizeof(this->time));
-	printf("%s: %s FILLED: strategy_id: %i, exchange_id: %i, asset_id: %i, units: %f, fill_price: %f\n",
+	printf("EXCHANGE %s: %s FILLED: strategy_id: %i, exchange_id: %i, asset_id: %i, units: %f, fill_price: %f\n",
 		this->time,
 		order->get_order_type(),
 		order->strategy_id,
