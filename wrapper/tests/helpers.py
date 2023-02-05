@@ -45,9 +45,9 @@ def setup_simple(logging = False):
     ft.build()
     return exchange, broker, ft
 
-def setup_multi(logging = False, margin = False, debug = False):
+def setup_multi(logging = False, margin = False, debug = False, save_last_positions = False):
     
-    ft = FastTest(logging=logging, debug=debug)
+    ft = FastTest(logging=logging, debug=debug, save_last_positions=save_last_positions)
     exchange = Exchange(logging = logging)
     ft.register_exchange(exchange)
     

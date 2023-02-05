@@ -53,8 +53,8 @@ public:
 	}
 	Trade() = default;
 
-	void increase(double market_price, double units);
-	void reduce(double market_price, double units);
+	void increase(double market_price, double units, timeval position_change_time);
+	void reduce(double market_price, double units, timeval position_change_time);
 	void close(double close_price, timeval position_close_time);
 
 	void to_struct(TradeStruct &trade_struct) const;

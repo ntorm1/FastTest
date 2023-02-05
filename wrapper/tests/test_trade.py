@@ -123,6 +123,46 @@ class TradeTestMethods(unittest.TestCase):
 
         print("TESTING: test_get_open_trades passed")
         del ft, exchange, broker
-
+        
+    def test_close_trade(self):
+        print("TESTING test_close_trade...")
+        orders = [
+            OrderSchedule(
+                order_type = OrderType.MARKET_ORDER,asset_name = "2",
+                i = 0,units = -100
+            ),
+            OrderSchedule(
+                order_type = OrderType.MARKET_ORDER,asset_name = "2",
+                i = 1,units = -100,trade_id = -1
+            ),
+            OrderSchedule(
+                order_type = OrderType.MARKET_ORDER,asset_name = "2",
+                i = 2,units = 100,trade_id = 0
+            ),
+            OrderSchedule(
+                order_type = OrderType.MARKET_ORDER,asset_name = "2",
+                i = 4,units = 100,trade_id = 1
+            )
+        ]
+        exchange, broker, ft = setup_multi(logging=False, save_last_positions = True, margin=True)
+        strategy = TestStrategy(orders, broker, exchange)
+        ft.add_strategy(strategy)
+        
+        ft.run()
+        
+        trade_history = broker.get_trade_history()
+        position_history = broker.get_position_history()
+        
+        assert(len((ft.get_last_positions().to_df()))==0)
+        assert(len((position_history.to_df()))==1)
+        assert(len(trade_history)==2)
+        
+        assert(trade_history.TRADE_ARRAY[0].contents.average_price == 100)
+        assert(trade_history.TRADE_ARRAY[1].contents.average_price == 98)
+        assert(trade_history.TRADE_ARRAY[0].contents.close_price == 101)
+        assert(trade_history.TRADE_ARRAY[1].contents.close_price == 103)
+    
+        print("TESTING: test_close_trade passed")
+ 
 if __name__ == '__main__':
     unittest.main()

@@ -43,17 +43,17 @@ Trade& Position::increase(double market_price, double _units, timeval position_c
 	}
 	else{
 		Trade& existing_trade = this->child_trades[trade_id];
-		existing_trade.increase(market_price, _units);
+		existing_trade.increase(market_price, _units, position_change_time);
 		return existing_trade;
 	}
 }
 
 Trade& Position::reduce(double market_price, double _units,timeval position_change_time, int trade_id) {
 	this->realized_pl += abs(_units) * (market_price - this->average_price);
-	this->units -= abs(_units);
+	this->units += _units;
 	this->bars_since_change = 0;
 
-	//test to see if trade is new
+	//test to see if position is new
 	unsigned int u_trade_id = unsigned(trade_id);
 	if(this->child_trades.count(u_trade_id) == 0 || trade_id == -1){
 		this->child_trades[this->trade_counter] = Trade(this, this->trade_counter, _units, market_price, position_change_time);
@@ -63,7 +63,7 @@ Trade& Position::reduce(double market_price, double _units,timeval position_chan
 	}
 	else{
 		Trade& existing_trade = this->child_trades[trade_id];
-		existing_trade.reduce(market_price, _units);
+		existing_trade.reduce(market_price, _units, position_change_time);
 		return existing_trade;
 	}
 }
@@ -91,19 +91,27 @@ double Position::beta_dollars(const __Asset *benchmark, unsigned int n){
     return beta * this->units * this->last_price;
 }
 
-void Trade::increase(double market_price, double _units) {
+void Trade::increase(double market_price, double _units, timeval position_change_time) {
 	double new_units = abs(this->units) + abs(_units);
 	this->average_price = ((abs(this->units)*this->average_price) + (abs(_units)*market_price)) / new_units;
 	this->bars_since_change = 0;
-	if((this->units + _units) == 0){this->is_open = false;}
+	if((this->units + _units) == 0){
+		this->is_open = false;
+		this->trade_close_time = position_change_time;
+		this->close_price = market_price;
+	}
 	this->units += _units;
 }
 
-void Trade::reduce(double market_price, double _units) {
+void Trade::reduce(double market_price, double _units, timeval position_change_time) {
 	this->realized_pl += abs(_units) * (market_price - this->average_price);
 	this->bars_since_change = 0;
-	if((this->units + _units) == 0){this->is_open = false;}
-	this->units -= abs(_units);
+	if((this->units + _units) == 0){
+		this->is_open = false;
+		this->trade_close_time = position_change_time;
+		this->close_price = market_price;
+	}
+	this->units += _units;
 }
 
 void Trade::close(double close_price, timeval position_close_time) {
