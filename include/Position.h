@@ -10,6 +10,8 @@
 #include <ctime>
 #include <vector>
 #include <memory>
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/document.h"
 #include "utils_time.h"
 #include "Asset.h"
 
@@ -22,7 +24,6 @@ enum PositionType{
 	HEDGE_POSITION
 };
 
-
 class Trade 
 {
 public: 
@@ -31,8 +32,8 @@ public:
     double collateral = 0;
     double margin_loan = 0;
     double average_price = 0;
-	double close_price;
-    double last_price;
+	double close_price = 0;
+    double last_price = 0;
 
     unsigned int trade_id;				/**<unique id of the trade in the position*/
 	Position* parent_position;			/**<pointer to the parent position of the trade*/
@@ -58,6 +59,8 @@ public:
 	void reduce(double market_price, double units, timeval position_change_time);
 	void close(double close_price, timeval position_close_time);
 
+	template <typename Writer>
+	void serialize(Writer &writer) const;
 	void to_struct(TradeStruct &trade_struct) const;
 
 	//evaluate the trade at the current market price
@@ -114,6 +117,8 @@ public:
 	double liquidation_value();
 	double beta_dollars(const __Asset *benchmark, unsigned int n);
 
+	template <typename Writer>
+	void serialize(Writer &writer) const;
 	void to_struct(PositionStruct &position_struct);
 
 	Position(unsigned int position_id, unsigned int asset_id, double units, double average_price, timeval position_create_time,
@@ -209,6 +214,90 @@ struct TradeStruct {
 	double realized_pl;
 	double unrealized_pl;
 };
+
+template <typename Writer>
+void Trade::serialize(Writer &writer) const {
+	writer.StartObject();
+	writer.String("trade_id");
+	writer.Uint(this->trade_id);
+	writer.String("parent_position_id");
+	writer.Uint(this->parent_position->position_id);
+	writer.String("trade_create_time");
+	writer.Double(timeval_to_double(&this->trade_create_time));
+	writer.String("trade_close_time");
+	writer.Double(timeval_to_double(&this->trade_close_time));
+	writer.String("is_open");
+	writer.Bool(this->is_open);
+	writer.String("units");
+	writer.Double(this->units);
+	writer.String("collateral");
+	writer.Double(this->collateral);
+	writer.String("margin_loan");
+	writer.Double(this->margin_loan);
+	writer.String("average_price");
+	writer.Double(this->average_price);
+	writer.String("close_price");
+	writer.Double(this->close_price);
+	writer.String("last_price");
+	writer.Double(this->last_price);
+	writer.String("unrealized_pl");
+	writer.Double(this->unrealized_pl);
+	writer.String("realized_pl");
+	writer.Double(this->realized_pl);
+	writer.String("bars_held");
+	writer.Uint(this->bars_held);
+	writer.String("bars_since_change");
+	writer.Uint(this->bars_since_change);
+	writer.endObject();
+}
+
+template <typename Writer>
+void Position::serialize(Writer &writer) const{
+	writer.StartObject();
+	writer.String("position_id");
+	writer.Uint(this->position_id);
+	writer.String("asset_id");
+	writer.Uint(this->asset_id);
+	writer.String("exchange_id");
+	writer.Uint(this->exchange_id);
+	writer.String("account_id");
+	writer.Uint(this->account_id);
+	writer.String("strategy_id");
+	writer.Uint(this->strategy_id);
+	writer.String("position_create_time");
+	writer.Double(timeval_to_double(&this->position_create_time));
+	writer.String("position_close_time");
+	writer.Double(timeval_to_double(&this->position_close_time));
+	writer.String("units");
+	writer.Double(this->units);
+	writer.String("collateral");
+	writer.Double(this->collateral);
+	writer.String("margin_loan");
+	writer.Double(this->margin_loan);
+	writer.String("average_price");
+	writer.Double(this->average_price);
+	writer.String("close_price");
+	writer.Double(this->close_price);
+	writer.String("last_price");
+	writer.Double(this->last_price);
+	writer.String("unrealized_pl");
+	writer.Double(this->unrealized_pl);
+	writer.String("realized_pl");
+	writer.Double(this->realized_pl);
+	writer.String("bars_held");
+	writer.Uint(this->bars_held);
+	writer.String("bars_since_change");
+	writer.Uint(this->bars_since_change);
+
+	writer.String(("child_trades"));
+    writer.StartArray();
+	for(auto &trade_pair : this->child_trades){
+		auto &trade = trade_pair.second;
+        trade.serialize(writer);
+	}
+    writer.EndArray();
+	writer.StartObject();
+}
 
 
 //C style struct for passing positions between c++ and python 

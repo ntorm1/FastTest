@@ -7,7 +7,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
-include_directories (include ${CMAKE_SOURCE_DIR}/include)
+#include_directories (include ${CMAKE_SOURCE_DIR}/include)
+#include_directories (include ${CMAKE_SOURCE_DIR}/include/rapidjson)
 
 #compile all *.cpp source files under src folder
 file (GLOB SOURCES "src/*.cpp")
@@ -23,6 +24,14 @@ GENERATE_EXPORT_HEADER (FastTest
     EXPORT_FILE_NAME FastTest_EXPORT.h
     STATIC_DEFINE FastTest_BUILT_AS_STATIC
 )
+
+target_include_directories(FastTest
+ PUBLIC
+ ${CMAKE_SOURCE_DIR}/include
+ ${CMAKE_SOURCE_DIR}/include/rapidjson
+ ${CMAKE_SOURCE_DIR}/include/rapidjson/error
+ ${CMAKE_SOURCE_DIR}/include/rapidjson/internal
+ )
 
 IF( NOT CMAKE_BUILD_TYPE )
    SET( CMAKE_BUILD_TYPE Release ... FORCE )

@@ -85,6 +85,13 @@ void string_to_timeval(timeval *tv, std::string input_date, const char *digit_da
 	long tStart = (long)timegm(&datetime_tm);
 	tv->tv_sec = tStart;
 }
+
+double timeval_to_double(const timeval *tv){
+	double fractional = tv->tv_usec / 1e6;
+	double return_time = static_cast<double>(tv->tv_sec + fractional);
+	return return_time;
+}
+
 size_t timeval_to_char_array(timeval *tv, char *buf, size_t sz)
 {
 	size_t written = 0;

@@ -8,7 +8,6 @@ from test_trade import TradeTestMethods
 from test_account import AccountTestMethods
 from test_ft import FTTestMethods
 
-
 from pprint import pprint
 stream = StringIO()
 runner = unittest.TextTestRunner(stream=stream)

@@ -32,6 +32,9 @@ constexpr timeval MAX_TIME = { MAX_TIME_LONG,0 };
 //function to parse a string to a timeval
 void string_to_timeval(timeval *tv, std::string input_date, const char *digit_datetime_format, bool datetime = false);
 
+//function to parse timeval to double 
+double timeval_to_double(const timeval *tv);
+
 //function for parsing a timeval to a string
 size_t timeval_to_char_array(timeval *tv, char *buf, size_t sz);
 
