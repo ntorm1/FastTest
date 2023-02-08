@@ -142,5 +142,6 @@ if __name__ == "__main__":
     
     last_positions = ft.get_last_positions(to_df=True)
     print(last_positions)
-    ft.plot(benchmark.df())
+    #ft.plot(benchmark.df())
+    last_positions.to_csv("positions.csv")
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")

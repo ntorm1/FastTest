@@ -3,7 +3,6 @@ from ctypes import *
 import sys
 import os
 import cProfile
-from pyinstrument import Profiler
 import copy
 
 import numpy as np
