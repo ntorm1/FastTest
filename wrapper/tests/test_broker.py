@@ -354,6 +354,7 @@ class BrokerTestMethods(unittest.TestCase):
         print("TESTING: test_margin_position_reduce passed")
 
     def test_order_cancel_close(self):
+        print("TESTING test_order_cancel_close...")
         orders = [
                 OrderSchedule(
                     order_type = OrderType.MARKET_ORDER,
@@ -387,6 +388,52 @@ class BrokerTestMethods(unittest.TestCase):
         order_history = broker.get_order_history()
         
         assert(OrderState(order_history.ORDER_ARRAY[1].contents.order_state) == OrderState.CANCELED)
+        print("TESTING: test_order_cancel_close passed")
+
+    def test_order_stack(self):
+        print("TESTING test_order_stack...")
+        orders = [
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 0,
+                    units = 100
+                ),
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 2,
+                    units = -100,
+                    cheat_on_close = True
+                ),
+                OrderSchedule(
+                    order_type = OrderType.MARKET_ORDER,
+                    asset_name = "2",
+                    i = 2,
+                    units = -100,
+                    cheat_on_close = True
+                )
+            ]
+        exchange, broker, ft = setup_multi(logging=False, margin=True, debug=False)
+        
+        strategy = TestStrategy(orders, broker, exchange)
+        ft.add_strategy(strategy)
+        ft.run()
+        
+        order_history = broker.get_order_history()
+        position_history = broker.get_position_history()
+        assert(len(position_history) == 2)
+        
+        
+        assert(order_history.ORDER_ARRAY[1].contents.fill_price == 97)
+        assert(order_history.ORDER_ARRAY[2].contents.fill_price == 97)
+        
+        assert(position_history.POSITION_ARRAY[0].contents.average_price == 100)
+        assert(position_history.POSITION_ARRAY[1].contents.average_price == 97)
+        
+        assert(position_history.POSITION_ARRAY[0].contents.realized_pl == -300)
+        assert(position_history.POSITION_ARRAY[1].contents.realized_pl == 100)
+        print("TESTING: test_order_stack passed")
 
 if __name__ == '__main__':
     unittest.main()
