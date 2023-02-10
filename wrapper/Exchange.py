@@ -292,9 +292,9 @@ class Asset():
         Wrapper._set_asset_warmup(self.ptr, warmup)
         
     # -----------------------------------------------------------------------------
-    def set_slippage(self, slippage : float):
+    def set_asset_frictions(self, slippage = 0, spread_commission = 0):
         #see exchange set_slippage. This allows for assets to have indivual slippage settings
-        Wrapper._set_asset_slippage(self.ptr, slippage)
+        Wrapper._set_asset_frictions(self.ptr, slippage, spread_commission)
 
     # -----------------------------------------------------------------------------
     def rows(self):

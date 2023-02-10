@@ -369,6 +369,7 @@ class FastTest:
     # -----------------------------------------------------------------------------  
     def plot(self, 
             benchmark_df = pd.DataFrame(),
+            benchmark_column = "CLOSE",
             _from = None,
             _to = None):
         """plot the value of the accounts with respect to time
@@ -402,8 +403,8 @@ class FastTest:
             backtest_df = backtest_df[backtest_df.index < _to]
                     
         if not benchmark_df.empty:
-            benchmark_df = benchmark_df[["CLOSE"]]
-            benchmark_df.rename(columns={'CLOSE': 'Benchmark'}, inplace=True)
+            benchmark_df = benchmark_df[[benchmark_column]]
+            benchmark_df.rename(columns={benchmark_column: 'Benchmark'}, inplace=True)
             
             benchmark_df.index = pd.to_datetime(benchmark_df.index, unit = "s")
             backtest_df = pd.merge(backtest_df,benchmark_df, how='inner', left_index=True, right_index=True)
@@ -449,7 +450,6 @@ class FastTest:
                 
         plt.show()
         
-    
 class Metrics():
     def __init__(self, ft : FastTest) -> None:
         self.broker = ft.broker

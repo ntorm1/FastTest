@@ -26,8 +26,9 @@ void __Asset::_register_header(std::string header, unsigned int column_index){
 	this->headers[header] = column_index;
 }
 
-void __Asset::_set_asset_slippage(double _slippage){
+void __Asset::_set_asset_frictions(double _slippage, double _spread_commission){
 	this->slippage = _slippage;
+	this->spread_commission = _spread_commission;
 }
 
 void __Asset::_set_asset_warmup(unsigned int minimum_warmup){
@@ -187,9 +188,9 @@ void set_format(void *ptr, const char * dformat, size_t _open_col_bid, size_t _o
 		_close_col_ask);
 	__asset_ref->_load_format(format);
 }
-void set_asset_slippage(void *asset_ptr, double slippage) {
+void set_asset_frictions(void *asset_ptr, double _slippage, double _spread_commission) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(asset_ptr);
-	__asset_ref->_set_asset_slippage(slippage);
+	__asset_ref->_set_asset_frictions(_slippage, _spread_commission);
 }
 void set_asset_warmup(void *asset_ptr, unsigned int minimum_warmup) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(asset_ptr);

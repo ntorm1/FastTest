@@ -86,7 +86,14 @@ public:
 };
 class __Asset {
 public:
-	double slippage = 0;
+	//percentage of the total order value to be subtracted from account value
+	//if slippage is .01, buying 100 shares at 1 dollar each results in $1 fee
+	double slippage = 0; 
+
+	//a fixed spread applied to the number of units in an order
+	//if spread is .01 that means buying 100 untis will result in $1 fee
+	double spread_commission = 0; 
+
 	ASSET_TYPE asset_type;    //type of asset
 	unsigned int asset_id;    // unique identifier of the asset
 	unsigned int exchange_id; //the id of the exchange the asset is listed on
@@ -129,7 +136,7 @@ public:
 	void _load_format(__AssetDataFormat& format);
 
 	//function to set the slippage rate of an asset
-	void _set_asset_slippage(double slippage);
+	void _set_asset_frictions(double slippage = 0, double spread_commission = 0);
 
 	//function to set the minimum warmup period for a asset (allows indicators to load)
 	void _set_asset_warmup(unsigned int minimum_warmup);
@@ -189,7 +196,7 @@ extern "C" {
 			size_t open_col_asl = 0,
 			size_t close_col_bid = 1,
 			size_t close_col_ask = 1);
-	ASSET_API void set_asset_slippage(void *ptr, double slippage);
+	ASSET_API void set_asset_frictions(void *ptr, double slippage = 0, double spread_commission = 0);
 	ASSET_API void set_asset_warmup(void *ptr, unsigned int minimum_warmup);
 	
 	ASSET_API long* get_asset_index(void *ptr);

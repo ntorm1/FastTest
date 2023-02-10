@@ -337,8 +337,8 @@ _columns = FastTest.columns
 _columns.argtypes = [c_void_p]
 _columns.restype = c_size_t
 
-_set_asset_slippage = FastTest.set_asset_slippage
-_set_asset_slippage.argtypes = [c_void_p, c_double]
+_set_asset_frictions = FastTest.set_asset_frictions
+_set_asset_frictions.argtypes = [c_void_p, c_double, c_double]
 
 _set_asset_warmup = FastTest.set_asset_warmup
 _set_asset_warmup.argtypes = [c_void_p, c_uint]
