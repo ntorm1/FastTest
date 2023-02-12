@@ -48,7 +48,7 @@ class Agis_Strategy(Strategy):
         _avg_predicted_return = sum(predicted_returns.values()) / len(predicted_returns)
         
         nlv = self.broker.get_nlv(account_name="agis")
-        position_size = (nlv) / (self.position_count * self.lookahead) * .5
+        position_size = (nlv) / (self.position_count * self.lookahead*2) * .5
         
         keys = list(predicted_returns.keys())
         counts = 0
@@ -65,8 +65,12 @@ class Agis_Strategy(Strategy):
                                         )                
                 counts += 1
                 if counts == self.position_count: break
+        else:
+            self.close_positions(exchange_name="sp500", account_name="agis")
+            return
         
         counts = 0
+
         if _avg_predicted_return < 0: 
             for index, asset_name in enumerate(keys[::-1]):
                 #if self.broker.position_exists(asset_name): continue
@@ -142,6 +146,7 @@ if __name__ == "__main__":
     
     last_positions = ft.get_last_positions(to_df=True)
     print(last_positions)
-    #ft.plot(benchmark.df())
-    last_positions.to_csv("positions.csv")
+    #print(broker.get_position_history().to_df())
+    ft.plot(benchmark.df())
+    #last_positions.to_csv("positions.csv")
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")

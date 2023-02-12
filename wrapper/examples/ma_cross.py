@@ -141,7 +141,7 @@ class MA_Cross_Strategy(Strategy):
                 #check to see if a position with the same asset currently exists
                 if not self.broker.position_exists(key,self.exchange.exchange_name):
                     
-                    market_price = self.exchange.get_market_price(key)
+                    market_price = self.exchange.get_market_price(key, 1)
                     units = self.position_size / market_price
                     
                     if fast_ma_dict[key] < slow_ma_dict[key]:
@@ -169,7 +169,7 @@ class MA_Cross_Strategy(Strategy):
         n_steps = 500
         for i in range(n_assets):
             new_asset = self.ft.register_asset(str(i))
-            new_asset.set_format("%d-%d-%d", 0, 0)
+            new_asset.set_format("%d-%d-%d", 0, 0, 0, 0)
             new_asset_df = new_asset.generate_random(step_size = .1, num_steps = n_steps)
             new_asset_df["slow_ma"] = new_asset_df["CLOSE"].rolling(window = self.slow_ma).mean()
             new_asset_df["fast_ma"] = new_asset_df["CLOSE"].rolling(window = self.fast_ma).mean()

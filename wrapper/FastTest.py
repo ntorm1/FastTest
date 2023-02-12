@@ -368,6 +368,7 @@ class FastTest:
         
     # -----------------------------------------------------------------------------  
     def plot(self, 
+            plot_accounts = False,
             benchmark_df = pd.DataFrame(),
             benchmark_column = "CLOSE",
             _from = None,
@@ -413,7 +414,7 @@ class FastTest:
             backtest_df["Benchmark"] = (backtest_df["Benchmark"] - first) / first
             ax2.plot(backtest_df.index, backtest_df["Benchmark"], color = "black", label = "Benchmark")  
         
-        if len(self.accounts) > 1:
+        if plot_accounts and len(self.accounts) > 1:
             for account_name in list(self.accounts.keys()):
                 first = backtest_df[account_name].values[0]
                 backtest_df[account_name] = (backtest_df[account_name] - first) / first

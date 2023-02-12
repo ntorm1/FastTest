@@ -265,6 +265,7 @@ extern "C" {
 
 	BROKER_API int get_order_count(void *broker_ptr);
 	BROKER_API int get_position_count(void *broker_ptr);
+	BROKER_API int get_position_trade_count(void *broker_ptr, unsigned int account_id, unsigned int asset_id);
 	BROKER_API int get_trade_count(void *broker_ptr);
 
 	BROKER_API int get_open_position_count(void *broker_ptr);
@@ -282,6 +283,8 @@ extern "C" {
 	BROKER_API void get_positions(void *broker_ptr, PositionArray *positions, unsigned int account_id = 0);
 	BROKER_API void get_orders(void *broker_ptr, OrderArray *orders, unsigned int exchange_id = 0);
 	BROKER_API void get_trades(void *broker_ptr, TradeArray *trades,int account_id = 0);
+	BROKER_API void get_position_trades(void *broker_ptr, TradeArray *trades,unsigned int account_id, unsigned int asset_id);
+
 
 	BROKER_API double get_cash(void *broker_ptr, int account_id = -1);
 	BROKER_API double get_nlv(void *broker_ptr, int account_id = -1);

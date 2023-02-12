@@ -1079,6 +1079,27 @@ void get_trades(void *broker_ptr, TradeArray *trades, int account_id){
 	}
 }
 
+int get_position_trade_count(void *broker_ptr, unsigned int account_id, unsigned int asset_id){
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	__Account *__account_ref = __broker_ref->accounts[account_id];
+	std::unique_ptr<Position> &position = __account_ref->portfolio[asset_id];
+	return position->child_trades.size();
+}
+
+void get_position_trades(void *broker_ptr , TradeArray *trades, unsigned int account_id, unsigned int asset_id){
+	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	__Account *__account_ref = __broker_ref->accounts[account_id];
+	std::unique_ptr<Position> &position = __account_ref->portfolio[asset_id];
+
+	int i = 0 ;
+	for(auto &trade_pair : position->child_trades){
+		TradeStruct &trade_struct_ref = *trades->TRADE_ARRAY[i];
+		const Trade &trade = trade_pair.second;
+		trade.to_struct(trade_struct_ref);
+		i++;
+	}
+}
+
 void get_position(void *broker_ptr, unsigned int assset_id, PositionStruct *position, unsigned int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	auto & account = __broker_ref->accounts[account_id];

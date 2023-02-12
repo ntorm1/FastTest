@@ -31,12 +31,14 @@ class Strategy():
     def next(self):
         return 
                      
-    def close_positions(self, exchange_name = "default"):
+    def close_positions(self, exchange_name = "default", account_name = "default"):
         positions = self.broker.get_positions()
         for i in range(positions.number_positions):
             position = positions.POSITION_ARRAY[i].contents
             asset_name = self.exchange.id_map[position.asset_id]
-            self.broker.place_market_order(asset_name, -1*position.units, exchange_name=exchange_name)
+            self.broker.place_market_order(asset_name, -1*position.units,
+                                        exchange_name=exchange_name,
+                                        account_name=account_name)
             
 class TestStrategy(Strategy):
     def __init__(self, order_schedule, broker = None, exchange = None, strategy_name = "default") -> None:
