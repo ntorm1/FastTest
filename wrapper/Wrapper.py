@@ -24,6 +24,15 @@ class OrderType(Enum):
 	STOP_LOSS_ORDER = 2
 	TAKE_PROFIT_ORDER = 3
  
+class OrderCheck(Enum):
+	VALID_ORDER = 0
+	INVALID_ASSET = 1
+	INVALID_ORDER_SIDE = 2
+	INVALID_ORDER_COLLATERAL = 3
+	INVALID_ORDER_UNITS = 4
+	INVALID_PARENT_ORDER = 5
+	INVALID_NEW_POSITION_SIDE = 6
+ 
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 lib_path = os.path.join(parent_dir, "build/build/libFastTest")
 
@@ -41,7 +50,8 @@ FastTest = cdll.LoadLibrary(lib_path)
 class OrderResponse(Structure):
     _fields_ = [
         ("order_id", c_uint),
-        ("order_state", c_uint)
+        ("order_state", c_uint),
+        ("order_check", c_uint)
     ]
 
 class OrderStruct(Structure):

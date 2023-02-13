@@ -15,6 +15,7 @@
 #include "Position.h"
 #include "utils_time.h"
 #include <vector>
+#define CHECK_ORDER
 
 enum OrderState {
 	ACCEPETED,				 //order has been accepted by broker
@@ -26,6 +27,18 @@ enum OrderState {
 	BROKER_MERGED			 //broker has merged the order with another 
 };
 
+#ifdef CHECK_ORDER
+enum OrderCheck {
+	VALID_ORDER,
+	INVALID_ASSET,
+	INVALID_ORDER_SIDE,
+	INVALID_ORDER_COLLATERAL,
+	INVALID_ORDER_UNITS,
+	INVALID_PARENT_ORDER,
+	INVALID_NEW_POSITION_SIDE
+};
+#endif
+
 enum OrderType {
 	MARKET_ORDER,
 	LIMIT_ORDER,
@@ -36,6 +49,7 @@ enum OrderType {
 struct OrderResponse {
 	unsigned int order_id;
 	OrderState order_state;
+	OrderCheck order_check;
 };
 
 struct OrderStruct {

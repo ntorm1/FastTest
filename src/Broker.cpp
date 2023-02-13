@@ -427,7 +427,7 @@ MARGIN_CHECK __Broker::check_margin() noexcept{
 
 #ifdef CHECK_ORDER
 
-ORDER_CHECK __Broker::check_position_open(const std::unique_ptr<Order>& new_order){
+OrderCheck __Broker::check_position_open(const std::unique_ptr<Order>& new_order){
 	double new_position_units = new_order->units;
 	unsigned int new_position_asset_id = new_order->asset_id;
 
@@ -456,7 +456,7 @@ ORDER_CHECK __Broker::check_position_open(const std::unique_ptr<Order>& new_orde
 	return VALID_ORDER;
 }
 
-ORDER_CHECK __Broker::check_stop_loss_order(const StopLossOrder* stop_loss_order) {
+OrderCheck __Broker::check_stop_loss_order(const StopLossOrder* stop_loss_order) {
 	OrderParent parent = stop_loss_order->order_parent;
 	if (parent.type == ORDER) {
 		Order* parent_order = parent.member.parent_order;
@@ -472,7 +472,7 @@ ORDER_CHECK __Broker::check_stop_loss_order(const StopLossOrder* stop_loss_order
 	return VALID_ORDER;
 }
 
-ORDER_CHECK __Broker::check_take_profit_order(const TakeProfitOrder* take_profit_order){
+OrderCheck __Broker::check_take_profit_order(const TakeProfitOrder* take_profit_order){
 	OrderParent parent = take_profit_order->order_parent;
 	if (parent.type == ORDER) {
 		Order* parent_order = parent.member.parent_order;
@@ -488,7 +488,7 @@ ORDER_CHECK __Broker::check_take_profit_order(const TakeProfitOrder* take_profit
 	return VALID_ORDER;
 }
 
-ORDER_CHECK __Broker::check_market_order(const MarketOrder* market_order) {
+OrderCheck __Broker::check_market_order(const MarketOrder* market_order) {
 
 	if(this->debug){
 		printf("CHECKING MARKET ORDER, ORDER_ID: %i\n", market_order->order_id);
@@ -517,12 +517,12 @@ ORDER_CHECK __Broker::check_market_order(const MarketOrder* market_order) {
 	return VALID_ORDER;
 }
 
-ORDER_CHECK __Broker::check_order(const std::unique_ptr<Order>& new_order) {
+OrderCheck __Broker::check_order(const std::unique_ptr<Order>& new_order) {
 
 	if(this->debug){
 		printf("CHECKING ORDER, ORDER_ID: %u, EXCHANGE_ID: %u\n", new_order->order_id, new_order->exchange_id);
 	}
-	ORDER_CHECK order_code;
+	OrderCheck order_code;
 
 	//check to see if the asset exsists on the exchange
 	__Exchange *exchange = this->exchanges[new_order->exchange_id];
@@ -610,11 +610,13 @@ void __Broker::_place_market_order(OrderResponse *order_response, unsigned int a
 	order->order_id = this->order_counter;
 
 #ifdef CHECK_ORDER
-	ORDER_CHECK order_check = check_order(order);
+	OrderCheck order_check = check_order(order);
 	if (order_check!= VALID_ORDER) {
 		order->order_state = BROKER_REJECTED;
 		this->order_history.push_back(std::move(order));
+		
 		order_response->order_state = BROKER_REJECTED;
+		order_response->order_check = order_check;
 
 		throw std::runtime_error("Order check failed: Error code: " + std::to_string(order_check));
 	}
@@ -640,12 +642,13 @@ void __Broker::_place_limit_order(OrderResponse *order_response, unsigned int as
 	order->order_id = this->order_counter;
 
 #ifdef CHECK_ORDER
-	ORDER_CHECK order_check = check_order(order);
+	OrderCheck order_check = check_order(order);
 	if (order_check != VALID_ORDER) {
 		order->order_state = BROKER_REJECTED;
-		order_response->order_state = BROKER_REJECTED;
 		this->order_history.push_back(std::move(order));
-		
+
+		order_response->order_state = BROKER_REJECTED;
+		order_response->order_check = order_check;
 		throw std::runtime_error("Order check failed: Error code: " + std::to_string(order_check));
 	}
 #endif
@@ -668,10 +671,13 @@ void __Broker::place_stoploss_order(Position* parent, OrderResponse *order_respo
 	order->order_id = this->order_counter;
 
 #ifdef CHECK_ORDER
-	if (check_order(order) != VALID_ORDER) {
+	OrderCheck order_check = check_order(order);
+	if (order_check != VALID_ORDER) {
 		order->order_state = BROKER_REJECTED;
 		this->order_history.push_back(std::move(order));
+
 		order_response->order_state = BROKER_REJECTED;
+		order_response->order_check = order_check;
 		return;
 	}
 #endif

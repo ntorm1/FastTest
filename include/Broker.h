@@ -19,21 +19,8 @@
 
 #define REG_T_REQ .5
 #define REG_T_SHORT_REQ 1.5
-#define CHECK_ORDER
 #define MARGIN
 #define POSITION_REVERSE_TOL .00000001f
-
-#ifdef CHECK_ORDER
-enum ORDER_CHECK {
-	VALID_ORDER,
-	INVALID_ASSET,
-	INVALID_ORDER_SIDE,
-	INVALID_ORDER_COLLATERAL,
-	INVALID_ORDER_UNITS,
-	INVALID_PARENT_ORDER,
-	INVALID_NEW_POSITION_SIDE
-};
-#endif
 
 #ifdef MARGIN
 enum MARGIN_CHECK{
@@ -189,11 +176,11 @@ public:
 
 	//functions for order management
 	#ifdef CHECK_ORDER
-	ORDER_CHECK check_order(const std::unique_ptr<Order>& new_order);
-	ORDER_CHECK check_stop_loss_order(const StopLossOrder* new_order);
-	ORDER_CHECK check_take_profit_order(const TakeProfitOrder* new_order);
-	ORDER_CHECK check_market_order(const MarketOrder* new_order);
-	ORDER_CHECK check_position_open(const std::unique_ptr<Order>& new_order);
+	OrderCheck check_order(const std::unique_ptr<Order>& new_order);
+	OrderCheck check_stop_loss_order(const StopLossOrder* new_order);
+	OrderCheck check_take_profit_order(const TakeProfitOrder* new_order);
+	OrderCheck check_market_order(const MarketOrder* new_order);
+	OrderCheck check_position_open(const std::unique_ptr<Order>& new_order);
 	#endif
 	
 	//functions for managing margin 
