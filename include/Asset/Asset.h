@@ -15,7 +15,7 @@
 enum ASSET_TYPE {
 	FOREX,
 	FUTURE,
-	US_EQUITY,
+	STOCK,
 	INDEX
 };
 
@@ -94,9 +94,9 @@ public:
 	//if spread is .01 that means buying 100 untis will result in $1 fee
 	double spread_commission = 0; 
 
-	ASSET_TYPE asset_type;    //type of asset
-	unsigned int asset_id;    // unique identifier of the asset
-	unsigned int exchange_id; //the id of the exchange the asset is listed on
+	ASSET_TYPE asset_type = STOCK; //type of asset
+	unsigned int asset_id;    	   // unique identifier of the asset
+	unsigned int exchange_id; 	   //the id of the exchange the asset is listed on
 
 	__AssetDataFormat format;          //define the format of the asset
 	const char *digit_datetime_format; //the digit sequence used to parse datetime index

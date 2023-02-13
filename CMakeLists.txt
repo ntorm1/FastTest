@@ -7,12 +7,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
 
-#include_directories (include ${CMAKE_SOURCE_DIR}/include)
-#include_directories (include ${CMAKE_SOURCE_DIR}/include/rapidjson)
-
 #compile all *.cpp source files under src folder
-file (GLOB SOURCES "src/*.cpp")
-
+file (GLOB_RECURSE SOURCES "src/*.cpp")
+		
 #output library export file *.lib and
 #output macro definitions include file
 include (GenerateExportHeader)
@@ -28,6 +25,7 @@ GENERATE_EXPORT_HEADER (FastTest
 target_include_directories(FastTest
  PUBLIC
  ${CMAKE_SOURCE_DIR}/include
+ ${CMAKE_SOURCE_DIR}/include/Asset
  ${CMAKE_SOURCE_DIR}/include/rapidjson
  ${CMAKE_SOURCE_DIR}/include/rapidjson/error
  ${CMAKE_SOURCE_DIR}/include/rapidjson/internal

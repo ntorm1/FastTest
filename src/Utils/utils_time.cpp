@@ -7,11 +7,11 @@
 #endif 
 #include <stdio.h>
 #include <ctime>
+#include <cmath>
 #include <string>
 #include <assert.h>
 #include "utils_time.h"
  
-static const unsigned long long  EPOCH = ((unsigned long long)116444736000000000ULL);
 const char *_datetime_format = "%Y-%m-%d %H:%M:%S";
 
 bool operator > (const timeval &tv1, const timeval &tv2) {
@@ -36,6 +36,25 @@ long operator - (const timeval &tv1, const timeval &tv2) {
 	seconds += ((tv1.tv_usec + tv2.tv_usec)/1e6);
 	return seconds;
 }
+timeval operator + (const timeval &tv1, unsigned int seconds) {
+	seconds = tv1.tv_sec + seconds;
+	return timeval{seconds,tv1.tv_usec};
+}
+
+timeval operator + (const timeval &tv1, double seconds) {
+	double whole, fractional;
+	long tv_sec;
+	int tv_usec;
+	
+	fractional = std::modf(seconds, &whole);
+	tv_sec = static_cast<long>(whole);
+	fractional *= 1e6;
+	tv_usec = static_cast<long>(fractional);
+	
+	return timeval{tv1.tv_sec+tv_sec,tv1.tv_usec+tv_usec};
+}
+
+
 /*
 void gettimeofday(timeval *tp)
 {

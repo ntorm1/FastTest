@@ -51,4 +51,6 @@ bool operator > (const timeval &tv1, const timeval &tv2);
 bool operator < (const timeval &tv1, const timeval &tv2);
 bool operator == (const timeval &tv1, const timeval &tv2);
 long operator - (const timeval &tv1, const timeval &tv2);
+timeval operator + (const timeval &tv1, unsigned int seconds);
+timeval operator + (const timeval &tv1, double seconds);
 #endif
