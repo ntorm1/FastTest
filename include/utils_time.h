@@ -23,11 +23,19 @@ constexpr unsigned int HOUR4 = 14400;
 constexpr unsigned int DAY1 = 86400;
 constexpr unsigned int US_EQUITY_DAY1 = 23400;
 
+//open and close time definitions
+constexpr unsigned int EST_US_EQUITY_HR_OPEN = 9;
+constexpr unsigned int EST_US_EQUITY_MIN_OPEN = 30;
+constexpr unsigned int EST_US_EQUITY_HR_CLOSE = 16;
+constexpr unsigned int EST_US_EQUITY_MIN_CLOSE = 0;
+
+constexpr unsigned int UTC_US_EQUITY_HR_OPEN = 14;
+constexpr unsigned int UTC_US_EQUITY_MIN_OPEN = 30;
+constexpr unsigned int UTC_US_EQUITY_HR_CLOSE = 17;
+constexpr unsigned int UTC_US_EQUITY_MIN_CLOSE = 0;
+
 #define MAX_TIME_LONG 2147483647
 constexpr timeval MAX_TIME = { MAX_TIME_LONG,0 };
-
-//function get the current system time 
-//void gettimeofday(timeval * tp);
 
 //function to parse a string to a timeval
 void string_to_timeval(timeval *tv, std::string input_date, const char *digit_datetime_format, bool datetime = false);
@@ -38,6 +46,7 @@ double timeval_to_double(const timeval *tv);
 //function for parsing a timeval to a string
 size_t timeval_to_char_array(timeval *tv, char *buf, size_t sz);
 
+//functions for comparing timevals 
 bool operator > (const timeval &tv1, const timeval &tv2);
 bool operator < (const timeval &tv1, const timeval &tv2);
 bool operator == (const timeval &tv1, const timeval &tv2);
