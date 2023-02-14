@@ -179,13 +179,19 @@ size_t columns(void *ptr) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(ptr);
 	return __asset_ref->AM.M;
 }
-void set_format(void *ptr, const char * dformat, size_t _open_col_bid, size_t _open_col_ask, size_t _close_col_bid, size_t _close_col_ask) {
+void set_format(void *ptr, const char * dformat,
+			size_t _open_col_bid,
+			size_t _open_col_ask,
+			size_t _close_col_bid,
+			size_t _close_col_ask,
+			ASSET_FREQUENCY asset_frequency) {
 	__Asset * __asset_ref = reinterpret_cast<__Asset *>(ptr);
 	__AssetDataFormat format(dformat, 
 		_open_col_bid, 
 		_open_col_ask,
 		_close_col_bid,
-		_close_col_ask);
+		_close_col_ask,
+		asset_frequency);
 	__asset_ref->_load_format(format);
 }
 void set_asset_frictions(void *asset_ptr, double _slippage, double _spread_commission) {

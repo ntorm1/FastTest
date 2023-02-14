@@ -261,6 +261,11 @@ class FastTest:
         return np.ctypeslib.as_array(index_ptr, shape=(self.get_datetime_index_len(),))
     
     # -----------------------------------------------------------------------------    
+    def get_current_datetime(self):
+        datetime = Wrapper._fastTest_get_datetime(self.ptr)
+        return pd.to_datetime(datetime,unit='s')
+
+    # -----------------------------------------------------------------------------    
     def get_sharpe(self, nlvs, N = 252, rf = .01):
         returns = np.diff(nlvs) / nlvs[:-1]
         sharpe = (returns.mean()) / returns.std()

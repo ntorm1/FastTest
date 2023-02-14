@@ -20,18 +20,18 @@ public:
 
 	bool logging = false;
 	bool debug = false;
-
 	bool save_last_portfolio = false;
+
 	std::unordered_map<unsigned int, std::unique_ptr<Position>> portfolio; 
 
 	unsigned int      current_index = 0;
+	long 		      fasttest_time = 0;
 	std::vector<long> epoch_index;
 	unsigned int      step_count = 0;
 
 	std::vector<__Exchange*> __exchanges;
 	__Broker                     *broker;
 	Strategy                   *strategy;
-
 	__Asset benchmark; 
 
 	std::vector<std::unique_ptr<Order>> filled_orders;
@@ -80,6 +80,7 @@ extern "C" {
 	FAST_API void * get_benchmark_ptr(void* fastTest_ptr);
 	FAST_API size_t get_fasttest_index_length(void* fastTest_ptr);
 	FAST_API long * get_fasttest_datetime_index(void* fastTest_ptr);
+	FAST_API long   get_fasttest_time(void *fastTest_ptr);
 
 	FAST_API size_t get_portfolio_size(void* fastTest_ptr);
 	FAST_API void get_last_positions(void *fastTest_ptr, PositionArray *position_array);

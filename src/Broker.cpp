@@ -311,6 +311,10 @@ void __Broker::close_position(std::unique_ptr<Position> &existing_position, std:
 	this->position_history.push_back(std::move(existing_position));
 }
 
+void __Broker::close_positions(int account_id, int asset_id){
+	//TODO
+}
+
 void __Broker::reduce_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order) {
 	if(this->margin){
 		this->margin_on_reduce(existing_position, order->fill_price, order->units);
@@ -614,7 +618,7 @@ void __Broker::_place_market_order(OrderResponse *order_response, unsigned int a
 	if (order_check!= VALID_ORDER) {
 		order->order_state = BROKER_REJECTED;
 		this->order_history.push_back(std::move(order));
-		
+
 		order_response->order_state = BROKER_REJECTED;
 		order_response->order_check = order_check;
 

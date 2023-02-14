@@ -85,9 +85,7 @@ public:
     void reset();
     void build(double cash);
 	void set_margin(bool margin = false);
-
     void evaluate_account(bool on_close = false);
-
 	double _beta_dollars(unsigned int n);
 
     __Account(unsigned int _account_id, double cash, const __Asset* _beta_benchmark = nullptr){
@@ -196,6 +194,7 @@ public:
 	void increase_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
 	void reduce_position(std::unique_ptr<Position> &existing_position, std::unique_ptr<Order>& order);
 	void close_position(std::unique_ptr<Position>& existing_position, std::unique_ptr<Order>& order);
+	void close_positions(int account_id = -1, int asset_id = -1);
 
 	//order wrapers exposed to strategy
 	void _place_market_order(OrderResponse *order_response, unsigned int asset_id, double units,

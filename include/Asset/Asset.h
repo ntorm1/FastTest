@@ -32,17 +32,22 @@ struct __AssetDataFormat {
 	size_t open_col_ask;
 	size_t close_col_bid;
 	size_t close_col_ask;
+	ASSET_FREQUENCY asset_frequency;
 	__AssetDataFormat(const char * dformat = "%d-%d-%d", 
 				size_t open_col_bid = 0,
 				size_t open_col_ask = 1,
 				size_t close_col_bid = 2,
-				size_t close_col_ask = 3
+				size_t close_col_ask = 3,
+				ASSET_FREQUENCY asset_frequency = US_E1D
 				) :
 		digit_datetime_format(dformat),
+
 		open_col_bid(open_col_bid),
 		open_col_ask(open_col_ask),
 		close_col_bid(close_col_bid),
-		close_col_ask(close_col_ask)
+		close_col_ask(close_col_ask),
+
+		asset_frequency(asset_frequency)
 	{}
 };
 
@@ -195,7 +200,8 @@ extern "C" {
 			size_t open_col_bid = 0, 
 			size_t open_col_asl = 0,
 			size_t close_col_bid = 1,
-			size_t close_col_ask = 1);
+			size_t close_col_ask = 1,
+			ASSET_FREQUENCY asset_frequency = US_E1D);
 	ASSET_API void set_asset_frictions(void *ptr, double slippage = 0, double spread_commission = 0);
 	ASSET_API void set_asset_warmup(void *ptr, unsigned int minimum_warmup);
 	

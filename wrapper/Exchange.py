@@ -9,6 +9,7 @@ SCRIPT_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from wrapper import  Wrapper
+from wrapper.Wrapper import ASSET_FREQUENCY
 
 class Exchange():
     # -----------------------------------------------------------------------------
@@ -251,7 +252,8 @@ class Asset():
                 open_col_bid : int,
                 open_col_ask : int,
                 close_col_bid : int,
-                close_col_ask : int
+                close_col_ask : int,
+                asset_frequency : ASSET_FREQUENCY = ASSET_FREQUENCY.US_E1D
                 ):
         """Set the format of the asset to be loaded, describes the format of the datetime as 
         well as sets the column indicies used to get market prices at every time step
@@ -271,7 +273,8 @@ class Asset():
             open_col_bid,
             open_col_ask,
             close_col_bid,
-            close_col_ask
+            close_col_ask,
+            asset_frequency.value
         )
         self.formatted = True
         

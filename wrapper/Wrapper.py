@@ -25,13 +25,28 @@ class OrderType(Enum):
 	TAKE_PROFIT_ORDER = 3
  
 class OrderCheck(Enum):
-	VALID_ORDER = 0
-	INVALID_ASSET = 1
-	INVALID_ORDER_SIDE = 2
-	INVALID_ORDER_COLLATERAL = 3
-	INVALID_ORDER_UNITS = 4
-	INVALID_PARENT_ORDER = 5
+	VALID_ORDER =               0
+	INVALID_ASSET =             1
+	INVALID_ORDER_SIDE =        2
+	INVALID_ORDER_COLLATERAL =  3
+	INVALID_ORDER_UNITS =       4
+	INVALID_PARENT_ORDER =      5
 	INVALID_NEW_POSITION_SIDE = 6
+ 
+class ASSET_FREQUENCY(Enum):
+    S1 =     0
+    S5 =     1
+    S30 =    2
+    M1 =     3
+    M5 =     4
+    M15 =    5
+    M30 =    6
+    H1 =     7
+    H2 =     8
+    H4 =     9
+    US_E1D = 10
+    D1 =     11
+
  
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 lib_path = os.path.join(parent_dir, "build/build/libFastTest")
@@ -312,6 +327,10 @@ _fastTest_get_datetime_index = FastTest.get_fasttest_datetime_index
 _fastTest_get_datetime_index.argtypes = [c_void_p]
 _fastTest_get_datetime_index.restype = POINTER(c_long)
 
+_fastTest_get_datetime = FastTest.get_fasttest_time
+_fastTest_get_datetime.argtypes = [c_void_p]
+_fastTest_get_datetime.restype = c_long
+
 _fastTest_get_portfolio_size = FastTest.get_portfolio_size
 _fastTest_get_portfolio_size.argtypes = [c_void_p]
 _fastTest_get_portfolio_size.restype = c_size_t
@@ -341,7 +360,7 @@ _register_header = FastTest.register_header
 _register_header.argtypes = [c_void_p, c_char_p, c_uint]
 
 _set_asset_format = FastTest.set_format 
-_set_asset_format.argtypes = [c_void_p,c_char_p, c_size_t, c_size_t, c_size_t, c_size_t]
+_set_asset_format.argtypes = [c_void_p,c_char_p, c_size_t, c_size_t, c_size_t, c_size_t, c_size_t]
 
 _columns = FastTest.columns
 _columns.argtypes = [c_void_p]

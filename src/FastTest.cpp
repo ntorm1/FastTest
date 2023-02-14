@@ -141,14 +141,17 @@ void DeleteFastTestPtr(void *ptr){
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(ptr);
 	delete __fastTest_ref;
 }
+
 void reset_fastTest(void *fastTest_ptr) {
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	__fastTest_ref->reset();
 }
+
 void build_fastTest(void *fastTest_ptr) {
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	__fastTest_ref->build();
 }
+
 bool forward_pass(void *fastTest_ptr){
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 
@@ -161,15 +164,15 @@ bool forward_pass(void *fastTest_ptr){
 		return false;
 	}
 
-	long fasttest_time = __fastTest_ref->epoch_index[__fastTest_ref->current_index];
+	__fastTest_ref->fasttest_time = __fastTest_ref->epoch_index[__fastTest_ref->current_index];
 	
 	if(__fastTest_ref->debug){
-		printf("TIME: %ld\n", fasttest_time);
+		printf("TIME: %ld\n", __fastTest_ref->fasttest_time);
 	}
 
 	//set the market view for all exchanges that are at the current time
 	for(__Exchange* exchange : __fastTest_ref->__exchanges){
-		if(!(exchange->epoch_index[exchange->current_index] == fasttest_time)){continue;}
+		if(!(exchange->epoch_index[exchange->current_index] == __fastTest_ref->fasttest_time)){continue;}
 		if(exchange->_get_market_view()){
 		}
 	}
@@ -196,6 +199,7 @@ bool forward_pass(void *fastTest_ptr){
 
 	return true;
 }
+
 void backward_pass(void * fastTest_ptr) {
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 
@@ -243,39 +247,47 @@ void backward_pass(void * fastTest_ptr) {
 		printf("EXITING BACKWARD PASS\n\n\n");
 	}
 }
+
 void register_benchmark(void* fastTest_ptr, void *asset_ptr){
 	__Asset * __asset_ref = static_cast<__Asset *>(asset_ptr);
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	__fastTest_ref->_register_benchmark(*__asset_ref);
 }
+
 void register_exchange(void * fastTest_ptr, void *exchange_ptr, unsigned int exchange_id){
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	__Exchange * __exchange_ref = static_cast<__Exchange *>(exchange_ptr);
 	__exchange_ref->exchange_id = exchange_id;
 	__fastTest_ref->_register_exchange(__exchange_ref);
 }
+
 void register_broker(void * fastTest_ptr, void *broker_ptr, unsigned int broker_id){
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
 	__broker_ref->broker_id = broker_id;
 	__fastTest_ref->_register_broker(__broker_ref);
 }
+
 void* get_benchmark_ptr(void* fastTest_ptr){
 	__FastTest *__fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	return & __fastTest_ref->benchmark;
 }
+
 size_t get_fasttest_index_length(void * fastTest_ptr){
 	__FastTest * __fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	return __fastTest_ref->epoch_index.size();
 }
+
 long * get_fasttest_datetime_index(void *fastTest_ptr){
 	__FastTest * __fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	return __fastTest_ref->epoch_index.data();
 }
+
 size_t get_portfolio_size(void *fastTest_ptr){
 	__FastTest * __fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 	return __fastTest_ref->portfolio.size();
 }
+
 void get_last_positions(void *fastTest_ptr, PositionArray *position_history) {
 	__FastTest * __fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
 
@@ -292,4 +304,9 @@ void get_last_positions(void *fastTest_ptr, PositionArray *position_history) {
 		__fastTest_ref->portfolio[kvp.first]->to_struct(position_struct_ref);
 		i++;
 	}
+}
+
+long get_fasttest_time(void *fastTest_ptr){
+	__FastTest * __fastTest_ref = static_cast<__FastTest *>(fastTest_ptr);
+	return __fastTest_ref->fasttest_time;
 }
