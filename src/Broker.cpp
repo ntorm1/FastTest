@@ -879,17 +879,21 @@ double get_cash(void *broker_ptr, int account_id){
 }
 double get_nlv(void *broker_ptr, int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);
+	double nlv;
 	if(account_id == -1){
-		double nlv = 0;
+		nlv = 0;
 		for (const auto & pair : __broker_ref->accounts){
 			nlv += pair.second->net_liquidation_value;
 		}
-		return nlv;
 	}
 	else{
 		unsigned int uid = abs(account_id);
-		return __broker_ref->accounts[uid]->net_liquidation_value;
+		nlv =  __broker_ref->accounts[uid]->net_liquidation_value;
 	}
+	if(nlv != nlv){
+			throw std::runtime_error("net liquidation value is NAN");
+	}
+	return nlv;
 }
 double get_unrealized_pl(void *broker_ptr, int account_id){
 	__Broker * __broker_ref = static_cast<__Broker *>(broker_ptr);

@@ -101,6 +101,11 @@ void __Account::evaluate_account(bool on_close){
             it = this->portfolio.erase(it);
         }
         else {
+            //if the market_price is NAN then use the last valuation for the position
+            if(market_price != market_price){
+                continue;
+            }
+
             position->evaluate(market_price, on_close);
             nlv += position->liquidation_value();
 

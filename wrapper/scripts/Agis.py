@@ -70,6 +70,7 @@ class Agis_Strategy(Strategy):
             return
         
         counts = 0
+        return
 
         if _avg_predicted_return < 0: 
             for index, asset_name in enumerate(keys[::-1]):
@@ -147,6 +148,6 @@ if __name__ == "__main__":
     last_positions = ft.get_last_positions(to_df=True)
     print(last_positions)
     #print(broker.get_position_history().to_df())
-    ft.plot(benchmark.df())
+    ft.plot(benchmark_df = benchmark.df())
     #last_positions.to_csv("positions.csv")
     #ft.plot_asset("NVDA",_from = "2022-01-01", _to = "2023-01-01")
