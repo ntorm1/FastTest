@@ -103,6 +103,7 @@ void __Account::evaluate_account(bool on_close){
         else {
             //if the market_price is NAN then use the last valuation for the position
             if(market_price != market_price){
+                it++;
                 continue;
             }
 
