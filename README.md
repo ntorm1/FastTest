@@ -1,3 +1,5 @@
+**out of date. See updated maintained framework at: https://github.com/ntorm1/AgisCore**
+
 # FastTest
 
 High performance C++ backtesting library with a python wrapper for Algorithmic trading. See wrapper/examples/ma_cross.py for complete example of a moving average crossover strategy and a comparison to the same strategy using Backtrader
