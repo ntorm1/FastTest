@@ -1,4 +1,4 @@
-**out of date. See updated maintained framework at: https://github.com/ntorm1/AgisCore**
+**out of date. See updated/maintained framework at: https://github.com/ntorm1/AgisCore**
 
 # FastTest
 
