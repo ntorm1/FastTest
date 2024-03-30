@@ -23,6 +23,8 @@ protected:
 public:
   BufferOpNode(Exchange &exchange, NodeType t, size_t warmup,
                Option<NonNullPtr<ASTNode>> parent) noexcept;
+  BufferOpNode(Exchange &exchange, NodeType t, size_t warmup,
+               Vector<NonNullPtr<ASTNode>> parent) noexcept;
   ~BufferOpNode() noexcept;
 };
 

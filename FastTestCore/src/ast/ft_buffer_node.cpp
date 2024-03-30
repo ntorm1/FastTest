@@ -10,6 +10,12 @@ BufferOpNode::BufferOpNode(Exchange &exchange, NodeType t, size_t warmup,
           exchange, t, warmup, std::move(parent)) {}
 
 //============================================================================
+BufferOpNode::BufferOpNode(Exchange &exchange, NodeType t, size_t warmup,
+                           Vector<NonNullPtr<ASTNode>> parent) noexcept 
+  : OpperationNode<void, LinAlg::EigenRef<LinAlg::EigenVectorXd>>(
+    exchange, t, warmup, std::move(parent)) {}
+
+//============================================================================
 BufferOpNode::~BufferOpNode() noexcept {}
 
 //============================================================================

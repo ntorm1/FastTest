@@ -5,6 +5,7 @@
 #endif
 #include "ft_buffer_node.hpp"
 #include "ft_types.hpp"
+#include "ft_ast_enums.hpp"
 
 BEGIN_AST_NAMESPACE
 
@@ -23,6 +24,24 @@ public:
   [[nodiscard]] size_t getColumn() const noexcept { return m_column; }
 
   void reset() noexcept override{};
+  FASTTEST_API void
+  evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;
+};
+
+//============================================================================
+class BinOpNode final : public BufferOpNode {
+private:
+  SharedPtr<BufferOpNode> m_asset_op_left;
+  SharedPtr<BufferOpNode> m_asset_op_right;
+  LinAlg::EigenVectorXd m_right_buffer;
+  BinOpType m_op_type;
+
+public:
+  BinOpNode(Exchange &exchange, SharedPtr<BufferOpNode> left,
+            BinOpType op_type, SharedPtr<BufferOpNode> right) noexcept;
+  ~BinOpNode() noexcept;
+
+  void reset() noexcept override;
   FASTTEST_API void
   evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;
 };

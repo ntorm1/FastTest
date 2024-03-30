@@ -4,6 +4,7 @@
 #define FASTTEST_API __declspec(dllimport)
 #endif
 #include "ft_types.hpp"
+#include "ft_ast_enums.hpp"
 
 BEGIN_AST_NAMESPACE
 
@@ -19,6 +20,9 @@ public:
 
   FASTTEST_API Option<SharedPtr<ReadOpNode>>
   createReadOpNode(String const &column, int row_offset) noexcept;
+
+  FASTTEST_API Option<SharedPtr<BinOpNode>>
+  createBinOpNode(SharedPtr<ReadOpNode> left, BinOpType op, SharedPtr<ReadOpNode> right) noexcept;
 };
 
 END_AST_NAMESPACE

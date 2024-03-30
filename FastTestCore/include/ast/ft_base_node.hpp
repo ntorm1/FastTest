@@ -10,6 +10,7 @@ BEGIN_AST_NAMESPACE
 //============================================================================
 enum class NodeType {
   ASSET_READ = 0,
+  BIN_OP = 1,
 };
 
 //============================================================================
@@ -31,16 +32,16 @@ public:
       m_parent.push_back(parent.value());
     }
   }
-  ASTNode(Exchange &exchange, NodeType type,
+  ASTNode(Exchange &exchange, NodeType type, size_t warmup,
           Vector<NonNullPtr<ASTNode>> parent) noexcept
-      : m_exchange(exchange), m_type(type), m_parent(std::move(parent)) {}
+      : m_exchange(exchange), m_type(type), m_parent(std::move(parent)), m_warmup(warmup) {}
   ASTNode(const ASTNode &) = delete;
 
   virtual ~ASTNode() {}
   virtual void reset() noexcept = 0;
   auto const &getParents() const noexcept { return m_parent; }
   NodeType getType() const noexcept { return m_type; }
-  size_t getWarmup() const noexcept { return m_warmup; }
+  [[nodiscard]] FASTTEST_API size_t getWarmup() const noexcept { return m_warmup; }
 };
 
 //============================================================================

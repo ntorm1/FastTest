@@ -28,4 +28,14 @@ NodeFactory::createReadOpNode(String const &column, int row_offset) noexcept {
   return std::make_shared<ReadOpNode>(m_impl->m_exchange, col_opt.value(), row_offset);
 }
 
+//============================================================================
+Option<SharedPtr<BinOpNode>>
+NodeFactory::createBinOpNode(SharedPtr<ReadOpNode> left, BinOpType op,
+                             SharedPtr<ReadOpNode> right) noexcept {
+  if (!left || !right) {
+    return std::nullopt;
+  }
+  return std::make_shared<BinOpNode>(m_impl->m_exchange, left, op, right);
+}
+
 END_AST_NAMESPACE
