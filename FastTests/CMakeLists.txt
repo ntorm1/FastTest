@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(FastTests)
 
-
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -14,10 +13,13 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/FastTests/src/*.cpp")
+
 add_executable(
   FastTests
-  
- "src/test_exchange.cpp" "include/pch.hpp" "src/test_strategy.cpp")
+  ${SOURCE_FILES}
+)
+
 target_link_libraries(
   FastTests
   GTest::gtest_main
@@ -32,4 +34,3 @@ gtest_discover_tests(FastTests)
 include_directories(include)
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.hpp")
-

@@ -13,18 +13,15 @@ class Exchange;
 
 enum class FTManagerState { INIT = 0, BUILT = 1, RUNING = 2, FINISHED = 3 };
 
-
-
 //============================================================================
 class FTManager {
 private:
   UniquePtr<FTManagerImpl> m_impl;
   FTManagerState m_state = FTManagerState::INIT;
 
-
 public:
   FASTTEST_API FTManager() noexcept;
-  FASTTEST_API  ~FTManager() noexcept;
+  FASTTEST_API ~FTManager() noexcept;
 
   [[nodiscard]] FASTTEST_API FastTestResult<SharedPtr<Exchange>>
   addExchange(String name, String source,

@@ -5,6 +5,7 @@ BEGIN_FASTTEST_NAMESPACE
 
 //============================================================================
 struct MetaStrategyImpl {
+  size_t warmup = 0;
   Vector<SharedPtr<StrategyAllocator>> child_strategies;
   Map<String, size_t> strategy_map;
   LinAlg::EigenMatrixXd weights;
@@ -27,6 +28,9 @@ MetaStrategy::MetaStrategy(String name, SharedPtr<Exchange> exchange,
 
 //============================================================================
 MetaStrategy::~MetaStrategy() noexcept {}
+
+//============================================================================
+size_t MetaStrategy::getWarmup() const noexcept { return m_impl->warmup; }
 
 //============================================================================
 const Eigen::Ref<const Eigen::VectorXd>
@@ -90,14 +94,19 @@ MetaStrategy::addStrategy(SharedPtr<StrategyAllocator> allocator,
     auto idx = m_impl->strategy_map[allocator->getName()];
     allocator->load();
     m_impl->child_strategies[idx] = std::move(allocator);
+    m_impl->warmup =
+        std::max(m_impl->warmup, m_impl->child_strategies[idx]->getWarmup());
     return m_impl->child_strategies[idx];
   }
+  // place allocator in the parent strategy and set id to index location in
+  // child vector and call one time load
   allocator->setID(m_impl->child_strategies.size());
   allocator->load();
   auto exception_opt = getException();
   if (exception_opt) {
     return std::nullopt;
   }
+  m_impl->warmup = std::max(m_impl->warmup, allocator->getWarmup());
   // reshape matrix/vector containers holding sub strategy weightings
   m_impl->strategy_map[allocator->getName()] = m_impl->child_strategies.size();
   m_impl->child_strategies.push_back(std::move(allocator));

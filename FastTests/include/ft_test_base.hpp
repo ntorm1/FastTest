@@ -10,6 +10,8 @@ static const std::string DATETIME_FORMAT = "%Y-%m-%d";
 static const std::string ASSET1_NAME = "asset1";
 static const std::string ASSET2_NAME = "asset2";
 
+static const double STARTING_CASH = 100.0;
+
 // Define arrays
 static const std::vector<double> ASSET1_CLOSE = {101.0, 103.0, 105.0, 106.0};
 static const std::vector<double> ASSET2_CLOSE = {101.5, 99.0,  97.0,

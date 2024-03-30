@@ -19,10 +19,6 @@ Strategy::Strategy(String name, SharedPtr<Exchange> exchange,
 Strategy::~Strategy() noexcept {}
 
 //============================================================================
-void Strategy::step(
-    LinAlg::EigenRef<LinAlg::EigenVectorXd> target_weights_buffer) noexcept {}
-
-//============================================================================
 void Strategy::reset() noexcept {}
 
 //============================================================================

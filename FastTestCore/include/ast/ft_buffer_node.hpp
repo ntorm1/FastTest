@@ -12,7 +12,7 @@ BEGIN_AST_NAMESPACE
 //============================================================================
 class BufferOpNode
     : public OpperationNode<void, LinAlg::EigenRef<LinAlg::EigenVectorXd>> {
-  friend class Exchange;
+  friend class FastTest::Exchange;
 
 private:
   LinAlg::EigenMatrixXd m_cache;

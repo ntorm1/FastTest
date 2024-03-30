@@ -12,7 +12,7 @@ BEGIN_FASTTEST_NAMESPACE
 
 struct StrategyImpl;
 
-class Strategy final : public StrategyAllocator {
+class Strategy : public StrategyAllocator {
 private:
   UniquePtr<StrategyImpl> m_impl;
 
@@ -29,8 +29,8 @@ public:
   [[nodiscard]] const LinAlg::EigenRef<const LinAlg::EigenVectorXd>
   getAllocationBuffer() const noexcept override;
 
-  void step(LinAlg::EigenRef<LinAlg::EigenVectorXd>
-                target_weights_buffer) noexcept override;
+  virtual void step(LinAlg::EigenRef<LinAlg::EigenVectorXd>
+                        target_weights_buffer) noexcept = 0;
 
   void reset() noexcept override;
   void load() noexcept override;

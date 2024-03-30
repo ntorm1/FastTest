@@ -125,8 +125,7 @@ void StrategyAllocator::evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> const
     return;
   }
   // get the current market returns
-  LinAlg::EigenConstColView market_returns =
-      m_impl->exchange.getMarketReturns(0);
+  auto market_returns = m_impl->exchange.getMarketReturns(0);
 
   // get the portfolio return by calculating the sum product of the market
   // returns and the portfolio weights

@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 #ifdef FASTTEST_EXPORTS
 #define FASTTEST_API __declspec(dllexport)
 #else
@@ -23,13 +23,15 @@ public:
   MetaStrategy(String name, SharedPtr<Exchange> exchange,
                StrategyAllocatorConfig config, double starting_cash,
                Option<SharedPtr<StrategyAllocator>> parent) noexcept;
-  ~MetaStrategy() noexcept;
+  FASTTEST_API ~MetaStrategy() noexcept;
 
   /// <summary>
   /// Call child strategy step functions to generate weights, then excute meta
   /// strategy logic. after child weight matrix has been populated
   /// </summary>
   void step() noexcept;
+
+  [[nodiscard]] size_t getWarmup() const noexcept override;
 
   /// <summary>
   /// Execute meta strategy logic by allocating weights across all child
