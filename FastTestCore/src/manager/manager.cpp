@@ -69,6 +69,12 @@ FTManager::addStrategy(SharedPtr<MetaStrategy> allocator,
 }
 
 //============================================================================
+Vector<FastTestException> const &
+FTManager::getExceptions() const noexcept {
+  return m_impl->exceptions;
+}
+
+//============================================================================
 Int64 FTManager::getGlobalTime() const noexcept {
   return m_impl->exchange_map.getGlobalTime();
 }

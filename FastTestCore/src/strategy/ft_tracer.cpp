@@ -16,6 +16,7 @@ Tracer::~Tracer() noexcept {}
 void Tracer::setStartingCash(double cash) noexcept {
   m_starting_cash = cash;
 	m_cash = cash;
+  m_nlv = cash;
 }
 
 //============================================================================

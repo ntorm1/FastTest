@@ -109,7 +109,7 @@ protected:
   /// Get mutable reference to tracer instance for the class
   /// </summary>
   /// <returns></returns>
-  Tracer &getTracer() noexcept;
+  Tracer &getMutTracer() noexcept;
 
 public:
   virtual ~StrategyAllocator() noexcept;
@@ -168,6 +168,7 @@ public:
   [[nodiscard]] Option<SharedPtr<StrategyAllocator>> getParent() const noexcept;
   [[nodiscard]] StrategyType getType() const noexcept;
 
+  [[nodiscard]] FASTTEST_API Tracer const &getTracer() const noexcept;
   [[nodiscard]] FASTTEST_API Option<double>
   getAssetAllocation(size_t index) const noexcept;
 };

@@ -60,6 +60,7 @@ void StrategyAllocator::stepBase(
   }
   step(target_weights_buffer);
   validate(target_weights_buffer);
+  evaluate(target_weights_buffer);
   m_impl->step_call = false;
 }
 
@@ -93,7 +94,10 @@ StrategyAllocator::getAssetAllocation(size_t index) const noexcept {
 }
 
 //============================================================================
-Tracer &StrategyAllocator::getTracer() noexcept { return m_impl->m_tracer; }
+Tracer &StrategyAllocator::getMutTracer() noexcept { return m_impl->m_tracer; }
+
+//============================================================================
+Tracer const &StrategyAllocator::getTracer() const noexcept { return m_impl->m_tracer; }
 
 //============================================================================
 double StrategyAllocator::getAllocation() const noexcept {

@@ -19,7 +19,7 @@ MetaStrategy::MetaStrategy(String name, SharedPtr<Exchange> exchange,
                            Option<SharedPtr<StrategyAllocator>> parent) noexcept
     : StrategyAllocator(StrategyType::META_STRATEGY, std::move(name), *exchange,
                         std::move(config), std::move(parent)) {
-  getTracer().setStartingCash(starting_cash);
+  getMutTracer().setStartingCash(starting_cash);
   m_impl = std::make_unique<MetaStrategyImpl>();
   m_impl->meta_weights.resize(getAssetCount());
   m_impl->meta_weights.setZero();
@@ -121,14 +121,14 @@ MetaStrategy::addStrategy(SharedPtr<StrategyAllocator> allocator,
     // unless they are added in with a non-zero allocation then they are assumed
     // to be part of the meta strategy
     m_impl->child_strategy_weights[i] = strategy->getAllocation();
-    double cash = getTracer().getStartingCash();
+    double cash = getMutTracer().getStartingCash();
     if (strategy->getType() != StrategyType::BENCHMARK_STRATEGY) {
       cash *= strategy->getAllocation();
     } else if (strategy->getType() == StrategyType::BENCHMARK_STRATEGY &&
                strategy->getAllocation() != 0.0) {
       cash *= strategy->getAllocation();
     }
-    strategy->getTracer().setStartingCash(cash);
+    strategy->getMutTracer().setStartingCash(cash);
     i++;
   }
   return m_impl->child_strategies.back();
