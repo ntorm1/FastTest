@@ -175,6 +175,18 @@ void Exchange::reset() noexcept {
 }
 
 //============================================================================
+void Exchange::step(Int64 global_time) noexcept {
+  if (m_impl->current_index >= m_impl->timestamps.size()) {
+    return;
+  }
+  m_impl->current_timestamp = m_impl->timestamps[m_impl->current_index];
+  if (m_impl->current_timestamp != global_time) {
+    return;
+  }
+  m_impl->current_index++;
+}
+
+//============================================================================
 Vector<Int64> const &Exchange::getTimestamps() const noexcept {
   return m_impl->timestamps;
 }
@@ -185,6 +197,63 @@ Option<size_t> Exchange::getAssetIndex(String const &asset) const noexcept {
     return std::nullopt;
   }
   return m_impl->asset_id_map.at(asset);
+}
+
+//============================================================================
+size_t Exchange::getAssetCount() const noexcept {
+  return m_impl->asset_id_map.size();
+}
+
+//============================================================================
+Option<size_t> Exchange::getColumnIndex(String const &column) const noexcept {
+  if (m_impl->headers.count(column) == 0) {
+    return std::nullopt;
+  }
+  return m_impl->headers.at(column);
+}
+
+//============================================================================
+LinAlg::EigenMatrixXd const &Exchange::getData() const noexcept {
+  return m_impl->data;
+}
+
+//============================================================================
+LinAlg::EigenVectorXd const &Exchange::getReturnsScalar() const noexcept {
+  return m_impl->returns_scaler;
+}
+
+//============================================================================
+LinAlg::EigenConstColView<double>
+Exchange::getSlice(size_t column, int row_offset) const noexcept {
+  assert(m_impl->current_index > 0);
+  size_t idx = ((m_impl->current_index - 1) * m_impl->col_count) + column;
+  if (row_offset) {
+    size_t offset = abs(row_offset) * m_impl->col_count;
+    assert(idx >= offset);
+    idx -= offset;
+  }
+  assert(idx < static_cast<size_t>(m_impl->data.cols()));
+  return m_impl->data.col(idx);
+}
+
+//============================================================================
+LinAlg::EigenBlockView<double>
+Exchange::getMarketReturnsBlock(size_t start_idx,
+                                size_t end_idx) const noexcept {
+  assert(start_idx < end_idx);
+  assert(end_idx < static_cast<size_t>(m_impl->returns.cols()));
+  return m_impl->returns(Eigen::indexing::all, Eigen::seq(start_idx, end_idx));
+}
+
+//============================================================================
+LinAlg::EigenConstColView<double>
+Exchange::getMarketReturns(int offset) const noexcept {
+  assert(m_impl->current_index > 0);
+  assert(offset <= 0);
+  assert(static_cast<size_t>(abs(offset)) <= m_impl->current_index - 1);
+  assert(m_impl->current_index - 1 + offset <
+         static_cast<size_t>(m_impl->returns.cols()));
+  return m_impl->returns.col(m_impl->current_index - 1 + offset);
 }
 
 END_FASTTEST_NAMESPACE

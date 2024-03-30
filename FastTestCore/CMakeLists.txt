@@ -19,4 +19,5 @@ target_link_libraries(
 	Microsoft.GSL::GSL
 )
 
+
 target_compile_definitions(FastTestCore PRIVATE FASTTEST_EXPORTS)

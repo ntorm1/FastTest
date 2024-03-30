@@ -1,6 +1,10 @@
 #pragma once
+#ifdef FASTTEST_EXPORTS
+#define FASTTEST_API __declspec(dllexport)
+#else
+#define FASTTEST_API __declspec(dllimport)
+#endif
 #include "ft_types.hpp"
-
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -32,6 +36,10 @@ public:
   ExchangeMap(ExchangeMap &&) = delete;
   ExchangeMap &operator=(const ExchangeMap &) = delete;
   ExchangeMap &operator=(ExchangeMap &&) = delete;
+
+  [[nodiscard]] FASTTEST_API Vector<Int64> const &
+  getTimestamps() const noexcept;
+  [[nodiscard]] Int64 getGlobalTime() const noexcept;
 };
 
 END_FASTTEST_NAMESPACE

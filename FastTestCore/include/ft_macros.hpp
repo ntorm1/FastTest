@@ -4,6 +4,11 @@
 
 #define END_FASTTEST_NAMESPACE } // namespace FastTest
 
+#define BEGIN_AST_NAMESPACE                                                    \
+  BEGIN_FASTTEST_NAMESPACE namespace AST {
+#define END_AST_NAMESPACE }  \
+ }// namespace AST
+
 #define Err(...) tl::unexpected(std::format(__VA_ARGS__))
 
 #define NAN_DOUBLE std::numeric_limits<double>::quiet_NaN()

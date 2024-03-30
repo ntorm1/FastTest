@@ -1,6 +1,6 @@
 #pragma once
 #include "ft_types.hpp"
-#include "lin_alg.hpp"
+#include "ft_linalg.hpp"
 #include "exchange/asset.hpp"
 
 BEGIN_FASTTEST_NAMESPACE

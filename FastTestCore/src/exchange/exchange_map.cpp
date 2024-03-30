@@ -1,7 +1,7 @@
-#include "ft_macros.hpp"
-#include "exchange/exchange.hpp"
 #include "exchange/exchange_map.hpp"
+#include "exchange/exchange.hpp"
 #include "ft_array.hpp"
+#include "ft_macros.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -34,7 +34,14 @@ void ExchangeMap::reset() noexcept {
 }
 
 //============================================================================
-void ExchangeMap::step() noexcept {}
+void ExchangeMap::step() noexcept {
+  assert(m_impl->current_index < m_impl->timestamps.size());
+  m_impl->global_time = m_impl->timestamps[m_impl->current_index];
+  for (auto &exchange : m_impl->exchanges) {
+    exchange->step(m_impl->global_time);
+  }
+  ++m_impl->current_index;
+}
 
 //============================================================================
 void ExchangeMap::cleanup() noexcept {}
@@ -44,7 +51,7 @@ FastTestResult<SharedPtr<Exchange>>
 ExchangeMap::addExchange(String name, String source,
                          Option<String> datetime_format) noexcept {
   FT_EXPECT_FALSE(m_impl->exchange_id_map.contains(name),
-               "Exchange with name already exists");
+                  "Exchange with name already exists");
   auto exchange =
       std::make_unique<Exchange>(std::move(name), std::move(source),
                                  m_impl->exchanges.size(), datetime_format);
@@ -56,7 +63,7 @@ ExchangeMap::addExchange(String name, String source,
 
   // copy over exchange's asset map and set the exchange's index offset equal
   // to the asset map size
-  auto& exchange_ptr = m_impl->exchanges.back();
+  auto &exchange_ptr = m_impl->exchanges.back();
   exchange_ptr->setExchangeOffset(m_impl->asset_map.size());
   for (auto const &asset : exchange_ptr->getAssetMap()) {
     m_impl->asset_map[asset.second] = asset.first;
@@ -68,9 +75,9 @@ ExchangeMap::addExchange(String name, String source,
 FastTestResult<SharedPtr<Exchange>>
 ExchangeMap::getExchange(String const &name) const noexcept {
   if (!m_impl->exchange_id_map.contains(name)) {
-		return Err("Exchange with name does not exist: ", name);
-	}
-	return m_impl->exchanges[m_impl->exchange_id_map.at(name)];
+    return Err("Exchange with name does not exist: ", name);
+  }
+  return m_impl->exchanges[m_impl->exchange_id_map.at(name)];
 }
 
 //============================================================================
@@ -80,5 +87,15 @@ ExchangeMap::ExchangeMap() noexcept {
 
 //============================================================================
 ExchangeMap::~ExchangeMap() noexcept {}
+
+//============================================================================
+Vector<Int64> const &ExchangeMap::getTimestamps() const noexcept {
+  return m_impl->timestamps;
+}
+
+//============================================================================
+Int64 ExchangeMap::getGlobalTime() const noexcept {
+  return m_impl->global_time;
+}
 
 END_FASTTEST_NAMESPACE

@@ -6,13 +6,10 @@ BEGIN_FASTTEST_NAMESPACE
 
 struct FTManagerImpl {
   ExchangeMap m_exchange_map;
-
 };
 
 //============================================================================
-FTManager::FTManager() noexcept {
-  m_impl = std::make_unique<FTManagerImpl>();
-}
+FTManager::FTManager() noexcept { m_impl = std::make_unique<FTManagerImpl>(); }
 
 //============================================================================
 FTManager::~FTManager() noexcept {}
@@ -37,6 +34,28 @@ FTManager::addExchange(String name, String source,
 FastTestResult<SharedPtr<Exchange>>
 FTManager::getExchange(String const &name) const noexcept {
   return m_impl->m_exchange_map.getExchange(name);
+}
+
+//============================================================================
+Int64 FTManager::getGlobalTime() const noexcept {
+  return m_impl->m_exchange_map.getGlobalTime();
+}
+
+//============================================================================
+void FTManager::step() noexcept {
+  assert(m_state == FTManagerState::BUILT || m_state == FTManagerState::RUNING);
+  m_impl->m_exchange_map.step();
+  m_state = FTManagerState::RUNING;
+}
+
+//============================================================================
+FastTestResult<bool> FTManager::build() noexcept {
+  m_impl->m_exchange_map.build();
+  if (m_impl->m_exchange_map.getTimestamps().size() == 0) {
+    return Err("{}", "No timestamps found");
+  }
+  m_state = FTManagerState::BUILT;
+  return true;
 }
 
 END_FASTTEST_NAMESPACE
