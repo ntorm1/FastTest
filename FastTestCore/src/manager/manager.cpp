@@ -94,6 +94,9 @@ void FTManager::step() noexcept {
 //============================================================================
 void FTManager::reset() noexcept {
   m_impl->exchange_map.reset();
+  for (auto& allocator : m_impl->m_strategies) {
+		allocator->reset();
+	}
   m_state = FTManagerState::BUILT;
 }
 

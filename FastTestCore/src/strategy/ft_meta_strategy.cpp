@@ -148,7 +148,7 @@ void MetaStrategy::reset() noexcept {
   m_impl->weights.setZero();
   m_impl->meta_weights.setZero();
   for (auto &strategy : m_impl->child_strategies) {
-    strategy->reset();
+    strategy->resetBase();
   }
 }
 

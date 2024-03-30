@@ -27,23 +27,26 @@ TEST_F(SimpleExchangeTests, TestBenchMarkStrategy) {
   auto res = root->addStrategy(std::move(benchmark));
   EXPECT_TRUE(res.has_value());
   auto strategy = res.value();
-  auto const& tracer = strategy->getTracer();
-  manager->addStrategy(std::move(root));
-  manager->step();
-  auto const &buffer = strategy->getAllocationBuffer();
-  EXPECT_EQ(buffer.size(), 2);
-  EXPECT_EQ(buffer[asset_id_1], 0.4);
-  EXPECT_EQ(buffer[asset_id_2], 0.6);
-  EXPECT_EQ(tracer.getNLV(), STARTING_CASH);
-  manager->step();
-  auto returns = .6 * (ASSET2_CLOSE[1] - ASSET2_CLOSE[0]) / ASSET2_CLOSE[0];
-  auto nlv = STARTING_CASH * (1 + returns);
-  EXPECT_EQ(tracer.getNLV(), nlv);
-  manager->step();
-  returns = .4 * (ASSET1_CLOSE[1] - ASSET1_CLOSE[0]) / ASSET1_CLOSE[0] +
-						.6 * (ASSET2_CLOSE[2] - ASSET2_CLOSE[1]) / ASSET2_CLOSE[1];
-  nlv = nlv * (1 + returns);
-  EXPECT_EQ(tracer.getNLV(), nlv);
+  auto const &tracer = strategy->getTracer();
+  manager->addStrategy(std::move(root), true);
+  for (int i = 0; i < 2; i++) {
+    manager->step();
+    auto const &buffer = strategy->getAllocationBuffer();
+    EXPECT_EQ(buffer.size(), 2);
+    EXPECT_EQ(buffer[asset_id_1], 0.4);
+    EXPECT_EQ(buffer[asset_id_2], 0.6);
+    EXPECT_EQ(tracer.getNLV(), STARTING_CASH);
+    manager->step();
+    auto returns = .6 * (ASSET2_CLOSE[1] - ASSET2_CLOSE[0]) / ASSET2_CLOSE[0];
+    auto nlv = STARTING_CASH * (1 + returns);
+    EXPECT_EQ(tracer.getNLV(), nlv);
+    manager->step();
+    returns = .4 * (ASSET1_CLOSE[1] - ASSET1_CLOSE[0]) / ASSET1_CLOSE[0] +
+              .6 * (ASSET2_CLOSE[2] - ASSET2_CLOSE[1]) / ASSET2_CLOSE[1];
+    nlv = nlv * (1 + returns);
+    EXPECT_EQ(tracer.getNLV(), nlv);
+    manager->reset();
+  }
 }
 
 END_FASTTEST_NAMESPACE
