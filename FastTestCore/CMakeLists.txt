@@ -2,12 +2,21 @@ cmake_minimum_required(VERSION 3.10)
 
 project(FastTestCore)
 
-file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE  HEADER_FILES "${CMAKE_SOURCE_DIR}/FastTestCore/include/*.hpp")
+file(GLOB_RECURSE  SOURCE_FILES "${CMAKE_SOURCE_DIR}/FastTestCore/src/*.cpp")
 
-file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+# print all files
+add_library(FastTestCore SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${HEADER_FILES})
+target_precompile_headers(FastTestCore PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.hpp")
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.hpp")
+find_package(Microsoft.GSL CONFIG REQUIRED)
 
+target_link_libraries(
+	FastTestCore
+	absl::base
+	absl::flat_hash_map
+	Microsoft.GSL::GSL
+)
 
+target_compile_definitions(FastTestCore PRIVATE FASTTEST_EXPORTS)
