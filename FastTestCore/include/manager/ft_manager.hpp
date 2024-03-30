@@ -32,8 +32,13 @@ public:
   [[nodiscard]] FASTTEST_API FastTestResult<SharedPtr<Exchange>>
   getExchange(String const &name) const noexcept;
 
+  [[nodiscard]] FASTTEST_API Option<SharedPtr<MetaStrategy>>
+  addStrategy(SharedPtr<MetaStrategy> Allocator,
+              bool replace_if_exists = false) noexcept;
+
   FASTTEST_API Int64 getGlobalTime() const noexcept;
   FASTTEST_API void step() noexcept;
+  FASTTEST_API void reset() noexcept;
   FASTTEST_API FastTestResult<bool> build() noexcept;
 };
 

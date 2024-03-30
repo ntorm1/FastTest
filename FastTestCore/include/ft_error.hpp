@@ -12,7 +12,6 @@ public:
   FastTestException(std::string message) noexcept
       : m_message(std::move(message)) {}
   ~FastTestException() noexcept override = default;
-  FastTestException& operator=(const FastTestException&) = delete;
 
   const char *what() const noexcept override { return m_message.c_str(); }
 };

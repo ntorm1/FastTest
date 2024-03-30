@@ -17,7 +17,7 @@ enable_testing()
 add_executable(
   FastTests
   
- "src/test_exchange.cpp" "include/pch.hpp")
+ "src/test_exchange.cpp" "include/pch.hpp" "src/test_strategy.cpp")
 target_link_libraries(
   FastTests
   GTest::gtest_main

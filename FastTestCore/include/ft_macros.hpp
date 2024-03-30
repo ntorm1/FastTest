@@ -26,3 +26,7 @@
       return Err<FastTest::FastTestException>(msg);                                         \
     }                                                                          \
   } while (false)
+
+
+#define ADD_EXCEPTION_TO_IMPL(msg)                                             \
+  m_impl->exceptions.push_back(FastTestException(msg));                        \

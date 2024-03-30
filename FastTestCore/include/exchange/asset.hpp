@@ -19,7 +19,7 @@ struct Asset {
   void resize(size_t _rows, size_t _cols) noexcept {
     timestamps.resize(_rows);
     data.resize(_rows * _cols);
-    rows = rows;
+    rows = _rows;
     cols = _cols;
   }
 

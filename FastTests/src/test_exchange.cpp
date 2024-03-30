@@ -39,16 +39,20 @@ TEST_F(SimpleExchangeTests, BuildTest) {
 }
 
 TEST_F(SimpleExchangeTests, ReadTest) {
-  manager->build();
-  auto factory = std::make_shared<AST::NodeFactory>(exchange_ptr);
-  auto read_op = factory->createReadOpNode("close", 0);
-  EXPECT_TRUE(read_op);
-  manager->step();
-  EXPECT_EQ(manager->getGlobalTime(), TIMESTAMPS[0]);
-  Eigen::VectorXd temp = Eigen::VectorXd::Zero(2);
-  read_op.value()->evaluate(temp);
-  EXPECT_EQ(temp[asset_id_2], ASSET2_CLOSE[0]);
-  EXPECT_NE(temp[asset_id_1],temp[asset_id_1]);
+  for (int i = 0; i <= 2; i++) {
+
+    manager->build();
+    auto factory = std::make_shared<AST::NodeFactory>(exchange_ptr);
+    auto read_op = factory->createReadOpNode("close", 0);
+    EXPECT_TRUE(read_op);
+    manager->step();
+    EXPECT_EQ(manager->getGlobalTime(), TIMESTAMPS[0]);
+    Eigen::VectorXd temp = Eigen::VectorXd::Zero(2);
+    read_op.value()->evaluate(temp);
+    EXPECT_EQ(temp[asset_id_2], ASSET2_CLOSE[0]);
+    EXPECT_NE(temp[asset_id_1], temp[asset_id_1]);
+    manager->reset();
+  }
 }
 
 TEST_F(SimpleExchangeTests, OpTest) {
@@ -59,7 +63,7 @@ TEST_F(SimpleExchangeTests, OpTest) {
   auto delta_op =
       factory->createBinOpNode(read_op, AST::BinOpType::SUB, read_prev_op);
   EXPECT_TRUE(delta_op);
-  auto op = delta_op.value();
+  auto &op = delta_op.value();
   EXPECT_EQ(op->getWarmup(), 1);
   for (int i = 0; i <= 3; i++) {
     manager->step();

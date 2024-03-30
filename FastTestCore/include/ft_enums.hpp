@@ -1,0 +1,7 @@
+#include "ft_macros.hpp"
+
+BEGIN_FASTTEST_NAMESPACE
+
+enum TracerType { NLV, WEIGHTS, VOLATILITY };
+
+END_FASTTEST_NAMESPACE
