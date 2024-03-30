@@ -17,13 +17,12 @@ struct MetaStrategyImpl {
 MetaStrategy::MetaStrategy(String name, SharedPtr<Exchange> exchange,
                            StrategyAllocatorConfig config, double starting_cash,
                            Option<SharedPtr<StrategyAllocator>> parent) noexcept
-    : StrategyAllocator(std::move(name), *exchange, std::move(config),
-                        std::move(parent)) {
+    : StrategyAllocator(StrategyType::META_STRATEGY, std::move(name), *exchange,
+                        std::move(config), std::move(parent)) {
   getTracer().setStartingCash(starting_cash);
   m_impl = std::make_unique<MetaStrategyImpl>();
   m_impl->meta_weights.resize(getAssetCount());
   m_impl->meta_weights.setZero();
-  enableMetaClass();
 }
 
 //============================================================================
@@ -98,6 +97,7 @@ MetaStrategy::addStrategy(SharedPtr<StrategyAllocator> allocator,
         std::max(m_impl->warmup, m_impl->child_strategies[idx]->getWarmup());
     return m_impl->child_strategies[idx];
   }
+
   // place allocator in the parent strategy and set id to index location in
   // child vector and call one time load
   allocator->setID(m_impl->child_strategies.size());
@@ -106,6 +106,7 @@ MetaStrategy::addStrategy(SharedPtr<StrategyAllocator> allocator,
   if (exception_opt) {
     return std::nullopt;
   }
+
   m_impl->warmup = std::max(m_impl->warmup, allocator->getWarmup());
   // reshape matrix/vector containers holding sub strategy weightings
   m_impl->strategy_map[allocator->getName()] = m_impl->child_strategies.size();
@@ -115,7 +116,19 @@ MetaStrategy::addStrategy(SharedPtr<StrategyAllocator> allocator,
   m_impl->child_strategy_weights.resize(m_impl->child_strategies.size());
   int i = 0;
   for (auto const &strategy : m_impl->child_strategies) {
+    // set strategies starting cash based on allocation of the overall strategy.
+    // Except for benchmark strategies. They will have their own starting cash
+    // unless they are added in with a non-zero allocation then they are assumed
+    // to be part of the meta strategy
     m_impl->child_strategy_weights[i] = strategy->getAllocation();
+    double cash = getTracer().getStartingCash();
+    if (strategy->getType() != StrategyType::BENCHMARK_STRATEGY) {
+      cash *= strategy->getAllocation();
+    } else if (strategy->getType() == StrategyType::BENCHMARK_STRATEGY &&
+               strategy->getAllocation() != 0.0) {
+      cash *= strategy->getAllocation();
+    }
+    strategy->getTracer().setStartingCash(cash);
     i++;
   }
   return m_impl->child_strategies.back();

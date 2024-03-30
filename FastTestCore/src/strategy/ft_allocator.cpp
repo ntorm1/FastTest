@@ -7,18 +7,18 @@ BEGIN_FASTTEST_NAMESPACE
 
 //============================================================================
 struct StrategyAllocatorImpl {
-  bool is_meta = false;
   bool step_call = false;
+  StrategyType strategy_type;
   StrategyAllocatorConfig m_config;
   Tracer m_tracer;
   Option<FastTestException> exception = std::nullopt;
   Option<SharedPtr<StrategyAllocator>> m_parent = std::nullopt;
   Exchange &exchange;
 
-  StrategyAllocatorImpl(StrategyAllocator const &allocator, Exchange &exchange,
-                        StrategyAllocatorConfig config,
+  StrategyAllocatorImpl(StrategyType type, StrategyAllocator const &allocator,
+                        Exchange &exchange, StrategyAllocatorConfig config,
                         Option<SharedPtr<StrategyAllocator>> parent) noexcept
-      : exchange(exchange), m_config(std::move(config)),
+      : exchange(exchange), m_config(std::move(config)), strategy_type(type),
         m_parent(std::move(parent)), m_tracer(exchange, allocator) {}
 };
 
@@ -27,11 +27,13 @@ StrategyAllocator ::~StrategyAllocator() noexcept {}
 
 //============================================================================
 StrategyAllocator::StrategyAllocator(
-    String name, Exchange &exchange, StrategyAllocatorConfig config,
+    StrategyType type, String name, Exchange &exchange,
+    StrategyAllocatorConfig config,
     Option<SharedPtr<StrategyAllocator>> parent) noexcept
     : m_name(std::move(name)) {
   m_impl = std::make_unique<StrategyAllocatorImpl>(
-      *this, exchange, std::move(config), std::move(parent));
+      type, *this, exchange, std::move(config), std::move(parent));
+  exchange.registerAllocator(this);
 }
 
 //============================================================================
@@ -42,7 +44,9 @@ void StrategyAllocator::resetBase() noexcept {
 }
 
 //============================================================================
-void StrategyAllocator::enableMetaClass() noexcept { m_impl->is_meta = true; }
+void StrategyAllocator::setStepCall(bool step_call) noexcept {
+  m_impl->step_call = step_call;
+}
 
 //============================================================================
 void StrategyAllocator::stepBase(
@@ -70,6 +74,25 @@ size_t StrategyAllocator::getAssetCount() const noexcept {
 }
 
 //============================================================================
+Exchange const &StrategyAllocator::getExchange() const noexcept {
+  return m_impl->exchange;
+}
+
+StrategyType StrategyAllocator::getType() const noexcept {
+  return m_impl->strategy_type;
+}
+
+//============================================================================
+Option<double>
+StrategyAllocator::getAssetAllocation(size_t index) const noexcept {
+  auto const &buffer = getAllocationBuffer();
+  if (index >= buffer.size()) {
+    return std::nullopt;
+  }
+  return buffer[index];
+}
+
+//============================================================================
 Tracer &StrategyAllocator::getTracer() noexcept { return m_impl->m_tracer; }
 
 //============================================================================
@@ -79,7 +102,7 @@ double StrategyAllocator::getAllocation() const noexcept {
 
 //============================================================================
 bool StrategyAllocator::getIsMetaClass() const noexcept {
-  return m_impl->is_meta;
+  return m_impl->strategy_type == StrategyType::META_STRATEGY;
 }
 
 //============================================================================

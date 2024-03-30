@@ -10,8 +10,8 @@ struct StrategyImpl {};
 Strategy::Strategy(String name, SharedPtr<Exchange> exchange,
                    StrategyAllocatorConfig config,
                    SharedPtr<StrategyAllocator> parent) noexcept
-    : StrategyAllocator(std::move(name), *exchange, std::move(config),
-                        std::move(parent)) {
+    : StrategyAllocator(StrategyType::STRATEGY, std::move(name), *exchange,
+                        std::move(config), std::move(parent)) {
   m_impl = std::make_unique<StrategyImpl>();
 }
 

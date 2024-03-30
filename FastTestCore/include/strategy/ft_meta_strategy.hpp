@@ -57,12 +57,12 @@ public:
   /// <param name="allocator">New strategy to insert into the tree</param>
   /// <param name="replace_if_exists">replace a strategy with the same name
   /// if it exsits. If a strategy exsists with the same name and this
-  /// parameter is false, the strategy will disabel and store an exception
+  /// parameter is false, the strategy will disabele and store an exception
   /// </param>
   /// <returns>Strategy if it was added successfully, else none</returns>
-  [[nodiscard]] Option<SharedPtr<StrategyAllocator>>
+  [[nodiscard]] FASTTEST_API Option<SharedPtr<StrategyAllocator>>
   addStrategy(SharedPtr<StrategyAllocator> allocator,
-              bool replace_if_exists) noexcept;
+              bool replace_if_exists = true) noexcept;
   void reset() noexcept override;
   void load() noexcept override;
 };

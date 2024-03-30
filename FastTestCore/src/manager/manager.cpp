@@ -1,11 +1,9 @@
+#include "exchange/exchange_map.hpp"
 #include "ft_macros.hpp"
 #include "manager/ft_manager.hpp"
-#include "exchange/exchange_map.hpp"
 #include "strategy/ft_meta_strategy.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
-
-
 
 struct FTManagerImpl {
   ExchangeMap exchange_map;
@@ -47,13 +45,14 @@ Option<SharedPtr<MetaStrategy>>
 FTManager::addStrategy(SharedPtr<MetaStrategy> allocator,
                        bool replace_if_exists) noexcept {
   if (m_state != FTManagerState::BUILT && m_state != FTManagerState::FINISHED) {
-    ADD_EXCEPTION_TO_IMPL("Hydra must be in build or finished state to add Allocator");
+    ADD_EXCEPTION_TO_IMPL(
+        "Hydra must be in build or finished state to add Allocator");
     return std::nullopt;
   }
   if (m_impl->m_strategy_map.contains(allocator->getName())) {
     if (!replace_if_exists) {
       ADD_EXCEPTION_TO_IMPL("Allocator with name " + allocator->getName() +
-                 " already exists");
+                            " already exists");
       return std::nullopt;
     }
     // find the Allocator and replace it in the vector
@@ -78,6 +77,11 @@ Int64 FTManager::getGlobalTime() const noexcept {
 void FTManager::step() noexcept {
   assert(m_state == FTManagerState::BUILT || m_state == FTManagerState::RUNING);
   m_impl->exchange_map.step();
+#pragma omp parallel
+  for (int i = 0; i < m_impl->m_strategies.size(); i++) {
+    auto &allocator = m_impl->m_strategies[i];
+    allocator->step();
+  }
   m_state = FTManagerState::RUNING;
 }
 

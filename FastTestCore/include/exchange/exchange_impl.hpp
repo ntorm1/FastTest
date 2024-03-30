@@ -1,16 +1,16 @@
 #pragma once
-#include "ft_types.hpp"
-#include "ft_linalg.hpp"
 #include "exchange/asset.hpp"
+#include "ft_linalg.hpp"
+#include "ft_types.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
 class Exchange;
 
 //============================================================================
-struct ExchangeImpl
-{
+struct ExchangeImpl {
   friend class Exchange;
+
 private:
   void setExchangeOffset(size_t _offset) noexcept { exchange_offset = _offset; }
 
@@ -18,8 +18,9 @@ public:
   Map<String, size_t> asset_id_map;
   Map<String, size_t> headers;
   Vector<Asset> assets;
-  Option<String> datetime_format = std::nullopt;
   Vector<Int64> timestamps;
+  Vector<NonNullPtr<StrategyAllocator>> allocators;
+  Option<String> datetime_format = std::nullopt;
   LinAlg::EigenMatrixXd data;
   LinAlg::EigenMatrixXd returns;
   LinAlg::EigenVectorXd returns_scaler;
@@ -33,4 +34,3 @@ public:
 };
 
 END_FASTTEST_NAMESPACE
-

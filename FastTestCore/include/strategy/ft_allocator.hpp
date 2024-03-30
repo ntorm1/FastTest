@@ -13,6 +13,9 @@ BEGIN_FASTTEST_NAMESPACE
 struct StrategyAllocatorImpl;
 
 //============================================================================
+enum class StrategyType { STRATEGY, META_STRATEGY, BENCHMARK_STRATEGY };
+
+//============================================================================
 struct StrategyAllocatorConfig {
   bool can_short = true;
   double allocation = 1.0f;
@@ -48,6 +51,12 @@ private:
   /// strategy functionality, then calls concrete class reset function
   /// </summary>
   void resetBase() noexcept;
+
+  /// <summary>
+  /// used by exchange to signal to strategy that new time step has been
+  /// reached, causing strategy logic to trigger
+  /// </summary>
+  void setStepCall(bool step_call) noexcept;
 
 protected:
   /// <summary>
@@ -94,11 +103,7 @@ protected:
   /// <param name="exceptions"></param>
   virtual void takeException(Vector<FastTestException> &exceptions) noexcept;
 
-  /// <summary>
-  /// Enable the meta class for the strategy informing base to search through
-  /// child strategies when needed
-  /// </summary>
-  void enableMetaClass() noexcept;
+  [[nodiscard]] Exchange const &getExchange() const noexcept;
 
   /// <summary>
   /// Get mutable reference to tracer instance for the class
@@ -108,7 +113,7 @@ protected:
 
 public:
   virtual ~StrategyAllocator() noexcept;
-  StrategyAllocator(String name, Exchange &exchange,
+  StrategyAllocator(StrategyType type, String name, Exchange &exchange,
                     StrategyAllocatorConfig config,
                     Option<SharedPtr<StrategyAllocator>> parent) noexcept;
 
@@ -137,7 +142,8 @@ public:
   /// Get read only view into the current target weights of the strategy
   /// </summary>
   /// <returns></returns>
-  [[nodiscard]] virtual const LinAlg::EigenRef<const LinAlg::EigenVectorXd>
+  [[nodiscard]] FASTTEST_API virtual const LinAlg::EigenRef<
+      const LinAlg::EigenVectorXd>
   getAllocationBuffer() const noexcept = 0;
 
   /// <summary>
@@ -160,6 +166,10 @@ public:
   [[nodiscard]] double getAllocation() const noexcept;
   [[nodiscard]] bool getIsMetaClass() const noexcept;
   [[nodiscard]] Option<SharedPtr<StrategyAllocator>> getParent() const noexcept;
+  [[nodiscard]] StrategyType getType() const noexcept;
+
+  [[nodiscard]] FASTTEST_API Option<double>
+  getAssetAllocation(size_t index) const noexcept;
 };
 
 END_FASTTEST_NAMESPACE

@@ -22,15 +22,11 @@ public:
                         SharedPtr<StrategyAllocator> parent) noexcept;
   ~Strategy() noexcept;
 
-  /// <summary>
-  /// Get the meta strategy's target weights buffer.
-  /// </summary>
-  /// <returns></returns>
   [[nodiscard]] const LinAlg::EigenRef<const LinAlg::EigenVectorXd>
   getAllocationBuffer() const noexcept override;
 
   virtual void step(LinAlg::EigenRef<LinAlg::EigenVectorXd>
-                        target_weights_buffer) noexcept = 0;
+                        target_weights_buffer) noexcept override = 0;
 
   void reset() noexcept override;
   void load() noexcept override;

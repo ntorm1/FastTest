@@ -40,6 +40,9 @@ public:
   [[nodiscard]] auto const &getIdx() const noexcept { return m_idx; }
   [[nodiscard]] double getNLV() const noexcept { return m_nlv; }
   [[nodiscard]] double getCash() const noexcept { return m_cash; }
+  [[nodiscard]] double getStartingCash() const noexcept {
+    return m_starting_cash;
+  }
 };
 
 END_FASTTEST_NAMESPACE

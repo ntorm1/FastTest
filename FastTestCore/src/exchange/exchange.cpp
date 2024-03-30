@@ -2,6 +2,7 @@
 
 #include "exchange/exchange.hpp"
 #include "exchange/exchange_impl.hpp"
+#include "strategy/ft_allocator.hpp"
 
 #include "ft_array.hpp"
 #include "ft_time.hpp"
@@ -17,6 +18,17 @@ Exchange::Exchange(String name, String source, size_t id,
     : m_name(name), m_source(source), m_id(id) {
   m_impl = std::make_unique<ExchangeImpl>();
   m_impl->datetime_format = datetime_format;
+}
+
+//============================================================================
+void Exchange::registerAllocator(
+    NonNullPtr<StrategyAllocator> allocator) noexcept {
+  for (auto const &alloc : m_impl->allocators) {
+    if (alloc.get() == allocator.get()) {
+      return;
+    }
+  }
+  m_impl->allocators.push_back(allocator);
 }
 
 //============================================================================
@@ -182,6 +194,9 @@ void Exchange::step(Int64 global_time) noexcept {
   m_impl->current_timestamp = m_impl->timestamps[m_impl->current_index];
   if (m_impl->current_timestamp != global_time) {
     return;
+  }
+  for (auto &allocator : m_impl->allocators) {
+    allocator->setStepCall(true);
   }
   m_impl->current_index++;
 }

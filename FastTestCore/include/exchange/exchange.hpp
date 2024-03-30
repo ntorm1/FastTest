@@ -4,8 +4,8 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_types.hpp"
 #include "ft_linalg.hpp"
+#include "ft_types.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -15,6 +15,7 @@ class ExchangeMap;
 //============================================================================
 class Exchange {
   friend class ExchangeMap;
+  friend class StrategyAllocator;
 
 private:
   UniquePtr<ExchangeImpl> m_impl;
@@ -30,6 +31,7 @@ private:
   void reset() noexcept;
   void step(Int64 global_time) noexcept;
   void setExchangeOffset(size_t offset) noexcept;
+  void registerAllocator(NonNullPtr<StrategyAllocator> allocator) noexcept;
 
 public:
   Exchange(String name, String source, size_t id,
@@ -42,20 +44,21 @@ public:
   [[nodiscard]] String const &getName() const noexcept { return m_name; }
   [[nodiscard]] String const &getSource() const noexcept { return m_source; }
   [[nodiscard]] size_t getId() const noexcept { return m_id; }
-  [[nodiscard]] FASTTEST_API Vector<Int64> const &
-  getTimestamps() const noexcept;
-  [[nodiscard]] FASTTEST_API Option<size_t>
-  getAssetIndex(String const &asset) const noexcept;
-  [[nodiscard]] FASTTEST_API Map<String, size_t> const &
-  getAssetMap() const noexcept;
   [[nodiscard]] LinAlg::EigenMatrixXd const &getData() const noexcept;
   [[nodiscard]] LinAlg::EigenVectorXd const &getReturnsScalar() const noexcept;
   [[nodiscard]] LinAlg::EigenBlockView<double>
   getMarketReturnsBlock(size_t start_idex, size_t end_idx) const noexcept;
   [[nodiscard]] LinAlg::EigenConstColView<double>
   getSlice(size_t column, int row_offset) const noexcept;
-  [[nodiscard]]  LinAlg::EigenConstColView<double>
+  [[nodiscard]] LinAlg::EigenConstColView<double>
   getMarketReturns(int offset) const noexcept;
+
+  [[nodiscard]] FASTTEST_API Vector<Int64> const &
+  getTimestamps() const noexcept;
+  [[nodiscard]] FASTTEST_API Option<size_t>
+  getAssetIndex(String const &asset) const noexcept;
+  [[nodiscard]] FASTTEST_API Map<String, size_t> const &
+  getAssetMap() const noexcept;
 };
 
 END_FASTTEST_NAMESPACE
