@@ -4,6 +4,12 @@
 
 using namespace FastTest;
 
+static void wrap_exception(py::module &m_core) noexcept {
+  py::class_<FastTestException>(m_core, "FastTestException")
+      .def(py::init<std::string>())
+      .def_property_readonly("message", &FastTestException::what);
+}
+
 void wrap_manager(py::module &m_core) noexcept {
   py::enum_<FTManagerState>(m_core, "FTManagerState")
       .value("INIT", FTManagerState::INIT)
@@ -12,20 +18,23 @@ void wrap_manager(py::module &m_core) noexcept {
       .value("FINISHED", FTManagerState::FINISHED)
       .export_values();
 
+  wrap_exception(m_core);
+
   py::class_<FTManager, std::shared_ptr<FTManager>>(m_core, "FTManager")
       .def(py::init<>(), "Initialize the FTManager instance.")
       .def("addExchange", &FTManager::addExchange, py::arg("name"),
            py::arg("source"), py::arg("datetime_format") = py::none(),
-           "Add an exchange to the FTManager instance.\n"
-           "Args:\n"
-           "    name (str): The name of the exchange.\n"
-           "    source (str): The source of the exchange data.\n"
-           "    datetime_format (str, optional): The datetime format of the "
-           "exchange data. Defaults to None.")
+           "Add an exchange to the FTManager instance.\n\n"
+           ":param str name: The name of the exchange.\n"
+           ":param str source: The source of the exchange data.\n"
+           ":param str datetime_format: The datetime format of the exchange "
+           "data. Defaults to None.")
+      .def("getExceptions", &FTManager::getExceptions)
       .def("getExchange", &FTManager::getExchange, py::arg("name"),
-           "Get the exchange by its name.\n"
-           "Args:\n"
-           "    name (str): The name of the exchange to retrieve.")
+           "Get the exchange by its name.\n\n"
+           ":param str name: The name of the exchange to retrieve.")
+      .def("build", &FTManager::build)
+      .def("run", &FTManager::run)
       .def("getGlobalTime", &FTManager::getGlobalTime,
            "Get the global time from the FTManager instance.")
       .def("step", &FTManager::step,

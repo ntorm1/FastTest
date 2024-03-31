@@ -78,7 +78,12 @@ FTManager::addStrategy(SharedPtr<MetaStrategy> allocator,
 }
 
 //============================================================================
-Vector<FastTestException> const &FTManager::getExceptions() const noexcept {
+Vector<FastTestException> FTManager::getExceptions(bool take) const noexcept {
+  if (take) {
+    Vector<FastTestException> exceptions = std::move(m_impl->exceptions);
+    m_impl->exceptions.clear();
+    return exceptions;
+  }
   return m_impl->exceptions;
 }
 
@@ -109,10 +114,57 @@ void FTManager::reset() noexcept {
 }
 
 //============================================================================
-FastTestResult<bool> FTManager::build() noexcept {
+bool FTManager::run() noexcept {
+  if (m_impl->exceptions.size()) {
+    return false;
+  }
+
+  // validate that the hydra has been built
+  if (m_state == FTManagerState::INIT) {
+    ADD_EXCEPTION_TO_IMPL("Hydra must be in build or finished state to run");
+    return false;
+  }
+  // if called directly after a run, reset the hydra
+  if (m_state == FTManagerState::FINISHED) {
+    reset();
+  }
+  size_t steps = m_impl->exchange_map.getTimestamps().size();
+
+  // if there are no timestamps, return false
+  if (steps == 0) {
+    ADD_EXCEPTION_TO_IMPL("No timestamps found");
+    return false;
+  }
+
+  // adjust loop size if calling run from middle of simulation
+  if (m_state == FTManagerState::RUNING) {
+    steps -= m_impl->exchange_map.getCurrentIdx();
+  }
+
+  // enter simulation loop
+  for (size_t i = 0; i < steps; ++i) {
+    step();
+  }
+
+  // on finish realize Allocator valuation as needed
+  for (auto &allocator : m_impl->m_strategies) {
+    // allocator->realize(m_impl->exceptions);
+  }
+  if (m_impl->exceptions.size() > 0) {
+    ADD_EXCEPTION_TO_IMPL(
+        "Exceptions occurred during run, see Hydra::getExceptions()");
+    return false;
+  }
+  m_state = FTManagerState::FINISHED;
+  return true;
+}
+
+//============================================================================
+bool FTManager::build() noexcept {
   m_impl->exchange_map.build();
   if (m_impl->exchange_map.getTimestamps().size() == 0) {
-    return Err("{}", "No timestamps found");
+    ADD_EXCEPTION_TO_IMPL("{}", "No timestamps found");
+    return false;
   }
   m_state = FTManagerState::BUILT;
   return true;

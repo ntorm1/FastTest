@@ -98,4 +98,9 @@ Int64 ExchangeMap::getGlobalTime() const noexcept {
   return m_impl->global_time;
 }
 
+//============================================================================
+size_t ExchangeMap::getCurrentIdx() {
+  return m_impl->current_index;
+}
+
 END_FASTTEST_NAMESPACE

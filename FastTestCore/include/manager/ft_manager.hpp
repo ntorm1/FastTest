@@ -32,11 +32,12 @@ public:
   [[nodiscard]] FASTTEST_API Option<SharedPtr<MetaStrategy>>
   addStrategy(SharedPtr<MetaStrategy> Allocator,
               bool replace_if_exists = false) noexcept;
-  FASTTEST_API Vector<FastTestException> const& getExceptions() const noexcept;
+  FASTTEST_API Vector<FastTestException> getExceptions(bool take = false) const noexcept;
   FASTTEST_API Int64 getGlobalTime() const noexcept;
   FASTTEST_API void step() noexcept;
   FASTTEST_API void reset() noexcept;
-  FASTTEST_API FastTestResult<bool> build() noexcept;
+  FASTTEST_API [[nodiscard]] bool run() noexcept;
+  FASTTEST_API [[nodiscard]] bool build() noexcept;
 };
 
 END_FASTTEST_NAMESPACE
