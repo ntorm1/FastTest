@@ -24,8 +24,8 @@ public:
   createReadOpNode(String const &column, int row_offset) noexcept;
 
   FASTTEST_API Option<SharedPtr<BinOpNode>>
-  createBinOpNode(SharedPtr<ReadOpNode> left, BinOpType op,
-                  SharedPtr<ReadOpNode> right) noexcept;
+  createBinOpNode(SharedPtr<BufferOpNode> left, BinOpType op,
+                  SharedPtr<BufferOpNode> right) noexcept;
 
   FASTTEST_API SharedPtr<ObserverNode>
   createSumObserverNode(SharedPtr<BufferOpNode> node, size_t window,

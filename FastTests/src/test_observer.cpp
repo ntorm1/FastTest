@@ -55,4 +55,32 @@ TEST_F(SimpleExchangeTests, TestSumObserver) {
   }
 }
 
+TEST_F(SimpleExchangeTests, TestChainedObserver) {
+  auto factory = AST::NodeFactory(exchange_ptr);
+  auto read_op = factory.createReadOpNode("close", 0);
+  auto read_op_prev = factory.createReadOpNode("open", 0);
+  auto diff = factory.createBinOpNode(read_op.value(), AST::BinOpType::SUB,
+                                      read_op_prev.value());
+  auto sum = factory.createSumObserverNode(diff.value(), 2, "sum1");
+  auto sum2 = factory.createSumObserverNode(diff.value(), 2, "sum2");
+  auto diff2 = factory.createBinOpNode(sum, AST::BinOpType::ADD,
+																			 sum2);
+  auto sum3 = factory.createSumObserverNode(diff2.value(), 2, "sum3");
+  manager->build();
+  EXPECT_EQ(sum3->getParentObserverCount(), 2);
+  for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < 4; i++) {
+      Eigen::VectorXd temp = Eigen::VectorXd::Zero(2);
+      sum->evaluate(temp);
+      double sum_value = temp.sum();
+      sum2->evaluate(temp);
+      double sum2_value = temp.sum();
+      sum3->evaluate(temp);
+      double sum3_value = temp.sum();
+      EXPECT_EQ(sum3_value, sum_value + sum2_value);
+    }
+    manager->reset();
+  }
+}
+
 END_FASTTEST_NAMESPACE

@@ -35,8 +35,8 @@ NodeFactory::createReadOpNode(String const &column, int row_offset) noexcept {
 
 //============================================================================
 Option<SharedPtr<BinOpNode>>
-NodeFactory::createBinOpNode(SharedPtr<ReadOpNode> left, BinOpType op,
-                             SharedPtr<ReadOpNode> right) noexcept {
+NodeFactory::createBinOpNode(SharedPtr<BufferOpNode> left, BinOpType op,
+                             SharedPtr<BufferOpNode> right) noexcept {
   if (!left || !right) {
     return std::nullopt;
   }

@@ -57,4 +57,27 @@ public:
   evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;
 };
 
+//============================================================================
+class UnaryOpNode final : public BufferOpNode {
+private:
+  UnaryOpType m_op_type;
+  SharedPtr<BufferOpNode> m_parent;
+  Option<double> m_func_param;
+
+public:
+  UnaryOpNode(Exchange &exchange, SharedPtr<BufferOpNode> parent,
+              UnaryOpType op_type, Option<double> func_param) noexcept;
+  ~UnaryOpNode() noexcept;
+
+  void reset() noexcept override;
+  bool isSame(NonNullPtr<BufferOpNode const> other) const noexcept override;
+  [[nodiscard]] NonNullPtr<BufferOpNode const> getParent() const noexcept {
+    return m_parent.get();
+  }
+  [[nodiscard]] UnaryOpType getOpType() const noexcept { return m_op_type; }
+
+  FASTTEST_API void
+  evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;
+};
+
 END_AST_NAMESPACE

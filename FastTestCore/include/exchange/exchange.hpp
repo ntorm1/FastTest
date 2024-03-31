@@ -65,6 +65,8 @@ public:
   getAssetIndex(String const &asset) const noexcept;
   [[nodiscard]] FASTTEST_API Map<String, size_t> const &
   getAssetMap() const noexcept;
+  [[nodiscard]] FASTTEST_API Option<SharedPtr<AST::ObserverNode>>
+  getObserver(String const &name) const noexcept;
 };
 
 END_FASTTEST_NAMESPACE

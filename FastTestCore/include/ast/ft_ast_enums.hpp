@@ -12,6 +12,9 @@ BEGIN_AST_NAMESPACE
 enum class BinOpType { ADD, SUB, MUL, DIV };
 
 //============================================================================
+enum class UnaryOpType { SCALAR = 0, SIGN = 1, POWER = 2, ABS = 3, LOG = 4 };
+
+//============================================================================
 enum class ObserverType {
   SUM = 0,
   MEAN = 1,

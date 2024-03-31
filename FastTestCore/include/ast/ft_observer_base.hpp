@@ -157,6 +157,7 @@ public:
   [[nodiscard]] ObserverType getObserverType() const noexcept {
     return m_observer_type;
   }
+  [[nodiscard]] Option<String> getName() const noexcept { return m_name; }
   [[nodiscard]] size_t getBufferIdx() const noexcept { return m_buffer_idx; }
   [[nodiscard]] size_t getWindow() const noexcept { return m_window; }
   [[nodiscard]] FASTTEST_API size_t getParentObserverCount() const noexcept {

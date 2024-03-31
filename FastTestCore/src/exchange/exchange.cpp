@@ -246,6 +246,12 @@ static void linkObserver(Vector<NonNullPtr<AST::ASTNode>> &parents,
     }
     auto &grandparents = parent->getParentsMut();
     for (auto &grandparent : grandparents) {
+      if (grandparent->getType() == AST::NodeType::ASSET_OBSERVER) {
+        auto asset_observer =
+            static_cast<AST::ObserverNode *>(grandparent.get());
+        asset_observer->insertChild(observer);
+        parent_count++;
+      }
       linkObserver(grandparent->getParentsMut(), observer, parent_count);
     }
   }
@@ -264,6 +270,18 @@ Exchange::registerObserver(SharedPtr<AST::ObserverNode> &&node) noexcept {
   node->m_parent_observer_max = parent_count;
   m_impl->observers.push_back(node);
   return node;
+}
+
+//============================================================================
+Option<SharedPtr<AST::ObserverNode>>
+Exchange::getObserver(String const &name) const noexcept {
+  for (auto const &observer : m_impl->observers) {
+    auto name_opt = observer->getName();
+    if (name_opt.has_value() && name_opt.value() == name) {
+      return observer;
+    }
+  }
+  return std::nullopt;
 }
 
 //============================================================================

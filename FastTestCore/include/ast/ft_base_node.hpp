@@ -11,8 +11,9 @@ BEGIN_AST_NAMESPACE
 //============================================================================
 enum class NodeType {
   BIN_OP = 0,
-  ASSET_READ = 1,
-  ASSET_OBSERVER = 2,
+  UNARY_OP = 1,
+  ASSET_READ = 2,
+  ASSET_OBSERVER = 3,
 };
 
 //============================================================================
