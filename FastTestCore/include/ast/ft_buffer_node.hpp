@@ -44,13 +44,15 @@ public:
   /// from the cache
   /// </summary>
   /// <param name="v"></param>
-  void enableCache(bool v) noexcept;
+  FASTTEST_API void enableCache(bool v) noexcept;
 
   /// <summary>
   /// Test of observer as full cache history enabled
   /// </summary>
   /// <returns></returns>
-  [[nodiscard]] bool hasCache() const noexcept { return m_cache.cols() > 1; }
+  [[nodiscard]] FASTTEST_API bool hasCache() const noexcept {
+    return m_cache.cols() > 1;
+  }
 
   /// <summary>
   /// Get internal address of this object, used for debugging

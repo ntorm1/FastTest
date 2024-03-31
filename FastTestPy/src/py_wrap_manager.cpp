@@ -30,6 +30,7 @@ void wrap_manager(py::module &m_core) noexcept {
            ":param str datetime_format: The datetime format of the exchange "
            "data. Defaults to None.")
       .def("getExceptions", &FTManager::getExceptions)
+      .def("getState", &FTManager::getState)
       .def("getExchange", &FTManager::getExchange, py::arg("name"),
            "Get the exchange by its name.\n\n"
            ":param str name: The name of the exchange to retrieve.")

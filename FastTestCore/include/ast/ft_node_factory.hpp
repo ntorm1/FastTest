@@ -15,7 +15,6 @@ class NodeFactory {
 private:
   UniquePtr<NodeFactoryImpl> m_impl;
 
-
 public:
   FASTTEST_API NodeFactory(SharedPtr<Exchange> exchange) noexcept;
   FASTTEST_API ~NodeFactory() noexcept;
@@ -26,6 +25,9 @@ public:
   FASTTEST_API Option<SharedPtr<BinOpNode>>
   createBinOpNode(SharedPtr<BufferOpNode> left, BinOpType op,
                   SharedPtr<BufferOpNode> right) noexcept;
+
+  FASTTEST_API Option<SharedPtr<UnaryOpNode>>
+  createUnaryOpNode(SharedPtr<BufferOpNode> left, UnaryOpType op, Option<double> op_param = std::nullopt) noexcept;
 
   FASTTEST_API SharedPtr<ObserverNode>
   createSumObserverNode(SharedPtr<BufferOpNode> node, size_t window,

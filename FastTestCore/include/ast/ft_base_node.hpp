@@ -5,18 +5,10 @@
 #define FASTTEST_API __declspec(dllimport)
 #endif
 #include "standard/ft_types.hpp"
+#include "ft_ast_enums.hpp"
 
 BEGIN_AST_NAMESPACE
 
-//============================================================================
-enum class NodeType {
-  BIN_OP = 0,
-  UNARY_OP = 1,
-  ASSET_READ = 2,
-  ASSET_OBSERVER = 3,
-  REDUCE_OP = 4,
-  ALLOCATION = 5,
-};
 
 //============================================================================
 class ASTNode {

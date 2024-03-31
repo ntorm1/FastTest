@@ -18,7 +18,7 @@ private:
 
 public:
   ReadOpNode(Exchange &exchange, size_t column, int row_offset) noexcept;
-  ~ReadOpNode() noexcept;
+  FASTTEST_API ~ReadOpNode() noexcept;
 
   [[nodiscard]] int getRowOffset() const noexcept { return m_row_offset; }
   [[nodiscard]] size_t getColumn() const noexcept { return m_column; }
@@ -41,7 +41,7 @@ private:
 public:
   BinOpNode(Exchange &exchange, SharedPtr<BufferOpNode> left, BinOpType op_type,
             SharedPtr<BufferOpNode> right) noexcept;
-  ~BinOpNode() noexcept;
+  FASTTEST_API  ~BinOpNode() noexcept;
 
   [[nodiscard]] NonNullPtr<BufferOpNode const> left() const noexcept {
     return m_asset_op_left.get();
@@ -67,7 +67,7 @@ private:
 public:
   UnaryOpNode(Exchange &exchange, SharedPtr<BufferOpNode> parent,
               UnaryOpType op_type, Option<double> func_param) noexcept;
-  ~UnaryOpNode() noexcept;
+  FASTTEST_API  ~UnaryOpNode() noexcept;
 
   void reset() noexcept override;
   bool isSame(NonNullPtr<BufferOpNode const> other) const noexcept override;

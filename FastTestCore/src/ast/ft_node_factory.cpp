@@ -44,6 +44,24 @@ NodeFactory::createBinOpNode(SharedPtr<BufferOpNode> left, BinOpType op,
 }
 
 //============================================================================
+FASTTEST_API Option<SharedPtr<UnaryOpNode>>
+NodeFactory::createUnaryOpNode(SharedPtr<BufferOpNode> parent, UnaryOpType op,
+                               Option<double> op_param) noexcept {
+  switch (op) {
+  case UnaryOpType::SCALAR:
+  case UnaryOpType::POWER:
+    if (!op_param) {
+      return std::nullopt;
+    }
+    break;
+  default:
+    break;
+  }
+  return std::make_shared<UnaryOpNode>(m_impl->m_exchange, parent, op,
+                                       op_param);
+}
+
+//============================================================================
 SharedPtr<ObserverNode>
 NodeFactory::createSumObserverNode(SharedPtr<BufferOpNode> node, size_t window,
                                    Option<String> name) noexcept {

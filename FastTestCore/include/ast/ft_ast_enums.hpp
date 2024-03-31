@@ -18,6 +18,17 @@ enum class UnaryOpType { SCALAR = 0, SIGN = 1, POWER = 2, ABS = 3, LOG = 4 };
 enum class ReduceOpType { GREATER_THAN = 0, LESS_THAN = 1, EQUAL = 2 };
 
 //============================================================================
+enum class NodeType {
+  BIN_OP = 0,
+  UNARY_OP = 1,
+  ASSET_READ = 2,
+  ASSET_OBSERVER = 3,
+  REDUCE_OP = 4,
+  ALLOCATION = 5,
+};
+
+
+//============================================================================
 enum class AllocationType {
   UNIFORM = 0,
   CONDITIONAL_SPLIT = 1,

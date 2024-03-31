@@ -36,6 +36,7 @@ public:
   FASTTEST_API Int64 getGlobalTime() const noexcept;
   FASTTEST_API void step() noexcept;
   FASTTEST_API void reset() noexcept;
+  FASTTEST_API FTManagerState getState() const noexcept { return m_state;}
   FASTTEST_API [[nodiscard]] bool run() noexcept;
   FASTTEST_API [[nodiscard]] bool build() noexcept;
 };
