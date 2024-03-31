@@ -26,6 +26,7 @@ target_link_libraries(
   FastTestCore
 )
 
+
 target_include_directories(FastTests PUBLIC ${CMAKE_SOURCE_DIR}/FastTestCore/include)
 
 include(GoogleTest)

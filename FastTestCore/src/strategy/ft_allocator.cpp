@@ -87,7 +87,7 @@ StrategyType StrategyAllocator::getType() const noexcept {
 Option<double>
 StrategyAllocator::getAssetAllocation(size_t index) const noexcept {
   auto const &buffer = getAllocationBuffer();
-  if (index >= buffer.size()) {
+  if (index >= static_cast<size_t>(buffer.size())) {
     return std::nullopt;
   }
   return buffer[index];

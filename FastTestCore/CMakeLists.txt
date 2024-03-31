@@ -16,5 +16,4 @@ target_link_libraries(
     absl::flat_hash_map
     Microsoft.GSL::GSL
 )
-
 target_compile_definitions(FastTestCore PRIVATE FASTTEST_EXPORTS)

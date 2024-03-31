@@ -28,7 +28,8 @@ TEST_F(SimpleExchangeTests, TestBenchMarkStrategy) {
   EXPECT_TRUE(res.has_value());
   auto strategy = res.value();
   auto const &tracer = strategy->getTracer();
-  manager->addStrategy(std::move(root), true);
+  auto strategy_opt = manager->addStrategy(std::move(root), true);
+  EXPECT_TRUE(strategy_opt.has_value());
   for (int i = 0; i < 2; i++) {
     manager->step();
     auto const &buffer = strategy->getAllocationBuffer();

@@ -67,6 +67,8 @@ void BenchMarkStrategy::step(
     for (size_t i = 0; i < m_impl->allocations.size(); ++i) {
       target_weights_buffer(i) = m_impl->allocations[i].second;
     }
+  } else {
+    lateRebalance(target_weights_buffer);
   }
 }
 

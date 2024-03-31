@@ -6,6 +6,7 @@
 #endif
 #include "ft_linalg.hpp"
 #include "ft_types.hpp"
+#include "ft_declare.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -38,6 +39,8 @@ public:
            Option<String> datetime_format) noexcept;
   ~Exchange() noexcept;
 
+  [[nodiscard]] SharedPtr<AST::ObserverNode>
+  registerObserver(SharedPtr<AST::ObserverNode> &&node) noexcept;
   [[nodiscard]] Option<size_t>
   getColumnIndex(String const &column) const noexcept;
   [[nodiscard]] size_t getAssetCount() const noexcept;
@@ -52,7 +55,10 @@ public:
   getSlice(size_t column, int row_offset) const noexcept;
   [[nodiscard]] LinAlg::EigenConstColView<double>
   getMarketReturns(int offset) const noexcept;
-
+  [[nodiscard]] LinAlg::EigenConstRowView<double>
+  getAssetSlice(size_t asset_index) const noexcept;
+  
+  [[nodiscard]] FASTTEST_API size_t getCurrentIdx();
   [[nodiscard]] FASTTEST_API Vector<Int64> const &
   getTimestamps() const noexcept;
   [[nodiscard]] FASTTEST_API Option<size_t>

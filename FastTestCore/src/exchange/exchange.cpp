@@ -1,5 +1,7 @@
 #include <format>
 
+#include "ast/ft_base_node.hpp"
+#include "ast/ft_observer_base.hpp"
 #include "exchange/exchange.hpp"
 #include "exchange/exchange_impl.hpp"
 #include "strategy/ft_allocator.hpp"
@@ -184,6 +186,9 @@ Map<String, size_t> const &Exchange::getAssetMap() const noexcept {
 void Exchange::reset() noexcept {
   m_impl->current_index = 0;
   m_impl->current_timestamp = 0;
+  for (auto &observer : m_impl->observers) {
+    observer->resetBase();
+  }
 }
 
 //============================================================================
@@ -199,6 +204,16 @@ void Exchange::step(Int64 global_time) noexcept {
     allocator->setStepCall(true);
   }
   m_impl->current_index++;
+#pragma omp parallel for
+  for (auto &observer : m_impl->observers) {
+    observer->cacheBase();
+  }
+}
+
+//============================================================================
+size_t Exchange::getCurrentIdx() {
+  assert(m_impl->current_index > 0);
+  return m_impl->current_index - 1;
 }
 
 //============================================================================
@@ -217,6 +232,38 @@ Option<size_t> Exchange::getAssetIndex(String const &asset) const noexcept {
 //============================================================================
 size_t Exchange::getAssetCount() const noexcept {
   return m_impl->asset_id_map.size();
+}
+
+//============================================================================
+static void linkObserver(Vector<NonNullPtr<AST::ASTNode>> &parents,
+                         SharedPtr<AST::ObserverNode> observer,
+                         int &parent_count) noexcept {
+  for (auto const &parent : parents) {
+    if (parent->getType() == AST::NodeType::ASSET_OBSERVER) {
+      auto asset_observer = static_cast<AST::ObserverNode *>(parent.get());
+      asset_observer->insertChild(observer);
+      parent_count++;
+    }
+    auto &grandparents = parent->getParentsMut();
+    for (auto &grandparent : grandparents) {
+      linkObserver(grandparent->getParentsMut(), observer, parent_count);
+    }
+  }
+}
+
+//============================================================================
+SharedPtr<AST::ObserverNode>
+Exchange::registerObserver(SharedPtr<AST::ObserverNode> &&node) noexcept {
+  for (auto const &other : m_impl->observers) {
+    if (other->isSame(node.get())) {
+      return other;
+    }
+  }
+  int parent_count = 0;
+  linkObserver(node->getParentsMut(), node, parent_count);
+  node->m_parent_observer_max = parent_count;
+  m_impl->observers.push_back(node);
+  return node;
 }
 
 //============================================================================
@@ -269,6 +316,13 @@ Exchange::getMarketReturns(int offset) const noexcept {
   assert(m_impl->current_index - 1 + offset <
          static_cast<size_t>(m_impl->returns.cols()));
   return m_impl->returns.col(m_impl->current_index - 1 + offset);
+}
+
+//============================================================================
+LinAlg::EigenConstRowView<double>
+Exchange::getAssetSlice(size_t asset_index) const noexcept {
+  assert(asset_index < static_cast<size_t>(m_impl->data.rows()));
+  return m_impl->data.row(asset_index);
 }
 
 END_FASTTEST_NAMESPACE

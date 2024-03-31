@@ -3,9 +3,9 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
+#include "ft_ast_enums.hpp"
 #include "ft_buffer_node.hpp"
 #include "ft_types.hpp"
-#include "ft_ast_enums.hpp"
 
 BEGIN_AST_NAMESPACE
 
@@ -24,6 +24,8 @@ public:
   [[nodiscard]] size_t getColumn() const noexcept { return m_column; }
 
   void reset() noexcept override{};
+  bool isSame(NonNullPtr<BufferOpNode const> other) const noexcept override;
+
   FASTTEST_API void
   evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;
 };
@@ -37,11 +39,20 @@ private:
   BinOpType m_op_type;
 
 public:
-  BinOpNode(Exchange &exchange, SharedPtr<BufferOpNode> left,
-            BinOpType op_type, SharedPtr<BufferOpNode> right) noexcept;
+  BinOpNode(Exchange &exchange, SharedPtr<BufferOpNode> left, BinOpType op_type,
+            SharedPtr<BufferOpNode> right) noexcept;
   ~BinOpNode() noexcept;
 
+  [[nodiscard]] NonNullPtr<BufferOpNode const> left() const noexcept {
+    return m_asset_op_left.get();
+  }
+  [[nodiscard]] NonNullPtr<BufferOpNode const> right() const noexcept {
+    return m_asset_op_right.get();
+  }
+
   void reset() noexcept override;
+  bool isSame(NonNullPtr<BufferOpNode const> other) const noexcept override;
+
   FASTTEST_API void
   evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;
 };

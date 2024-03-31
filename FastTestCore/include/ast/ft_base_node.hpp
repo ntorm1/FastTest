@@ -1,3 +1,4 @@
+#pragma once
 #ifdef FASTTEST_EXPORTS
 #define FASTTEST_API __declspec(dllexport)
 #else
@@ -9,8 +10,9 @@ BEGIN_AST_NAMESPACE
 
 //============================================================================
 enum class NodeType {
-  ASSET_READ = 0,
-  BIN_OP = 1,
+  BIN_OP = 0,
+  ASSET_READ = 1,
+  ASSET_OBSERVER = 2,
 };
 
 //============================================================================
@@ -22,7 +24,7 @@ private:
   NodeType m_type;
 
 protected:
-  Exchange& m_exchange;
+  Exchange &m_exchange;
 
 public:
   ASTNode(Exchange &exchange, NodeType type, size_t warmup,
@@ -34,14 +36,20 @@ public:
   }
   ASTNode(Exchange &exchange, NodeType type, size_t warmup,
           Vector<NonNullPtr<ASTNode>> parent) noexcept
-      : m_exchange(exchange), m_type(type), m_parent(std::move(parent)), m_warmup(warmup) {}
+      : m_exchange(exchange), m_type(type), m_parent(std::move(parent)),
+        m_warmup(warmup) {}
   ASTNode(const ASTNode &) = delete;
 
   virtual ~ASTNode() {}
   virtual void reset() noexcept = 0;
-  auto const &getParents() const noexcept { return m_parent; }
+  void setWarmup(size_t warmup) noexcept { m_warmup = warmup; }
+  [[nodiscard]] auto &getExchange() noexcept { return m_exchange; }
+  [[nodiscard]] auto &getParentsMut() noexcept { return m_parent; }
+  [[nodiscard]] auto const &getParents() const noexcept { return m_parent; }
   NodeType getType() const noexcept { return m_type; }
-  [[nodiscard]] FASTTEST_API size_t getWarmup() const noexcept { return m_warmup; }
+  [[nodiscard]] FASTTEST_API size_t getWarmup() const noexcept {
+    return m_warmup;
+  }
 };
 
 //============================================================================
@@ -49,7 +57,7 @@ template <typename T> class ExpressionNode : public ASTNode {
 public:
   template <typename... Args>
   ExpressionNode(Args &&...args) noexcept
-			: ASTNode(std::forward<Args>(args)...) {}
+      : ASTNode(std::forward<Args>(args)...) {}
   virtual ~ExpressionNode() {}
   virtual T evaluate() noexcept = 0;
 };

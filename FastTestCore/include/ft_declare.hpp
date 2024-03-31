@@ -19,6 +19,8 @@ class ReadOpNode;
 class BinOpNode;
 class NodeFactory;
 class BufferOpNode;
+class ObserverNode;
+class SumObserverNode;
 
 } // namespace AST
 } // namespace FastTest

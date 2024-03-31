@@ -20,6 +20,7 @@ public:
   Vector<Asset> assets;
   Vector<Int64> timestamps;
   Vector<NonNullPtr<StrategyAllocator>> allocators;
+  Vector<SharedPtr<AST::ObserverNode>> observers;
   Option<String> datetime_format = std::nullopt;
   LinAlg::EigenMatrixXd data;
   LinAlg::EigenMatrixXd returns;

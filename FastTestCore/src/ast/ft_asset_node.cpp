@@ -26,6 +26,15 @@ void ReadOpNode::evaluate(
 }
 
 //============================================================================
+bool ReadOpNode::isSame(NonNullPtr<BufferOpNode const> other) const noexcept {
+  if (other->getType() != NodeType::ASSET_READ) {
+		return false;
+	}
+  auto other_read = static_cast<ReadOpNode const *>(other.get());
+	return other_read->m_column == m_column && other_read->m_row_offset == m_row_offset;
+}
+
+//============================================================================
 BinOpNode::BinOpNode(Exchange &exchange, SharedPtr<BufferOpNode> left,
                      BinOpType op_type,
                      SharedPtr<BufferOpNode> right) noexcept
@@ -45,6 +54,17 @@ void BinOpNode::reset() noexcept {
   m_asset_op_left->reset();
   m_asset_op_right->reset();
   m_right_buffer.setZero();
+}
+
+//============================================================================
+bool BinOpNode::isSame(NonNullPtr<BufferOpNode const> other) const noexcept {
+  if (other->getType() != NodeType::BIN_OP) {
+		return false;
+	}
+	auto other_bin = static_cast<BinOpNode const *>(other.get());
+	return m_op_type == other_bin->m_op_type &&
+				 m_asset_op_left->isSame(other_bin->left()) &&
+				 m_asset_op_right->isSame(other_bin->right());
 }
 
 //============================================================================
