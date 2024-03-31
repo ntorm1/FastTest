@@ -44,6 +44,9 @@ include/divisible/*
 
 .vs/
 out/
+**/.venv/
+.vs/
+.vscode/
 
 ## Local 
 

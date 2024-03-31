@@ -1,0 +1,19 @@
+site_name: FastTest
+
+
+theme: 
+  name: material
+  palette:
+    primary: 'blue'
+    accent: 'blue'
+    theme: 'default'
+
+nav:
+    - Home: index.md
+    - Code Reference:
+        - FTManager: ft_manager.md
+        - Exchange: exchange.md
+
+plugins:
+  - search
+  - mkdocstrings

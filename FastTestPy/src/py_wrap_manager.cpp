@@ -1,6 +1,6 @@
-#include "py_manager.hpp"
-#include "manager/ft_manager.hpp"
 #include "exchange/exchange.hpp"
+#include "manager/ft_manager.hpp"
+#include "py_manager.hpp"
 
 using namespace FastTest;
 
@@ -13,11 +13,23 @@ void wrap_manager(py::module &m_core) noexcept {
       .export_values();
 
   py::class_<FTManager, std::shared_ptr<FTManager>>(m_core, "FTManager")
-      .def(py::init<>())
+      .def(py::init<>(), "Initialize the FTManager instance.")
       .def("addExchange", &FTManager::addExchange, py::arg("name"),
-           py::arg("source"), py::arg("datetime_format") = py::none())
-      .def("getExchange", &FTManager::getExchange, py::arg("name"))
-      .def("getGlobalTime", &FTManager::getGlobalTime)
-      .def("step", &FTManager::step)
-      .def("reset", &FTManager::reset);
+           py::arg("source"), py::arg("datetime_format") = py::none(),
+           "Add an exchange to the FTManager instance.\n"
+           "Args:\n"
+           "    name (str): The name of the exchange.\n"
+           "    source (str): The source of the exchange data.\n"
+           "    datetime_format (str, optional): The datetime format of the "
+           "exchange data. Defaults to None.")
+      .def("getExchange", &FTManager::getExchange, py::arg("name"),
+           "Get the exchange by its name.\n"
+           "Args:\n"
+           "    name (str): The name of the exchange to retrieve.")
+      .def("getGlobalTime", &FTManager::getGlobalTime,
+           "Get the global time from the FTManager instance.")
+      .def("step", &FTManager::step,
+           "Proceed to the next time step in the FTManager instance.")
+      .def("reset", &FTManager::reset,
+           "Reset the FTManager instance, reverting it to its initial state.");
 }
