@@ -1,10 +1,17 @@
 from __future__ import annotations
+import numpy
 import typing
 __all__ = ['BUILT', 'Exchange', 'FINISHED', 'FTManager', 'FTManagerState', 'FastTestException', 'INIT', 'RUNNING']
 class Exchange:
     def getAssetIndex(self, arg0: str) -> int | None:
         ...
+    def getAssetMap(self) -> dict[str, int]:
+        ...
+    def getColumns(self) -> list[str]:
+        ...
     def getCurrentIdx(self) -> int:
+        ...
+    def getData(self) -> numpy.ndarray[numpy.float64[m, n]]:
         ...
     def getTimestamps(self) -> list[int]:
         ...
@@ -35,6 +42,8 @@ class FTManager:
         """
         Get the global time from the FTManager instance.
         """
+    def getState(self) -> FTManagerState:
+        ...
     def reset(self) -> None:
         """
         Reset the FTManager instance, reverting it to its initial state.

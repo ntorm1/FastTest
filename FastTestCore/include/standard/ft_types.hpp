@@ -12,7 +12,7 @@ template <typename T>
 using Set = absl::flat_hash_set<T>;
 
 template <typename K, typename V>
-using Map = absl::flat_hash_map<K, V>;
+using Map = std::unordered_map<K, V>;
 
 template <typename T> using Vector = std::vector<T>;
 

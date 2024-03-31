@@ -4,6 +4,7 @@
 
 using namespace FastTest;
 
+
 static void wrap_exception(py::module &m_core) noexcept {
   py::class_<FastTestException>(m_core, "FastTestException")
       .def(py::init<std::string>())

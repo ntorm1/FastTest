@@ -310,6 +310,16 @@ bool Exchange::maskRequired() const noexcept {
 }
 
 //============================================================================
+Vector<String> Exchange::getColumns() {
+  Vector<String> columns;
+  for (auto const &[key, value] : m_impl->headers) {
+		columns.push_back(key);
+	}
+  return columns;
+}
+
+
+//============================================================================
 LinAlg::EigenMatrixXd const &Exchange::getData() const noexcept {
   return m_impl->data;
 }

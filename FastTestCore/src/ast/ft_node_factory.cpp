@@ -1,6 +1,7 @@
 #include "ast/ft_node_factory.hpp"
 #include "ast/ft_asset_node.hpp"
 #include "ast/ft_observer.hpp"
+#include "ast/ft_reduce.hpp"
 #include "exchange/exchange.hpp"
 
 BEGIN_AST_NAMESPACE
@@ -59,6 +60,13 @@ NodeFactory::createUnaryOpNode(SharedPtr<BufferOpNode> parent, UnaryOpType op,
   }
   return std::make_shared<UnaryOpNode>(m_impl->m_exchange, parent, op,
                                        op_param);
+}
+
+//============================================================================
+FASTTEST_API SharedPtr<ReduceOpNode> NodeFactory::createReduceOp(
+    SharedPtr<BufferOpNode> node,
+    Vector<std::pair<ReduceOpType, double>> filters) noexcept {
+  return std::make_shared<ReduceOpNode>(node, std::move(filters));
 }
 
 //============================================================================

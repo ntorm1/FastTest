@@ -11,7 +11,7 @@ void wrap_node_factory(py::module &m_ast) {
   py::class_<NodeFactory, std::shared_ptr<NodeFactory>>(m_ast, "NodeFactory")
       .def(py::init<std::shared_ptr<FastTest::Exchange>>(), py::arg("exchange")) 
       .def("createReadOpNode", &NodeFactory::createReadOpNode,
-           py::arg("column"), py::arg("row_offset"))
+           py::arg("column"), py::arg("row_offset") = 0)
       .def("createBinOpNode", &NodeFactory::createBinOpNode, py::arg("left"),
            py::arg("op"), py::arg("right"))
       .def("createUnaryOpNode", &NodeFactory::createUnaryOpNode,

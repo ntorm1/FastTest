@@ -27,7 +27,12 @@ public:
                   SharedPtr<BufferOpNode> right) noexcept;
 
   FASTTEST_API Option<SharedPtr<UnaryOpNode>>
-  createUnaryOpNode(SharedPtr<BufferOpNode> left, UnaryOpType op, Option<double> op_param = std::nullopt) noexcept;
+  createUnaryOpNode(SharedPtr<BufferOpNode> left, UnaryOpType op,
+                    Option<double> op_param = std::nullopt) noexcept;
+
+  FASTTEST_API SharedPtr<ReduceOpNode>
+  createReduceOp(SharedPtr<BufferOpNode> node,
+                 Vector<std::pair<ReduceOpType, double>> filters) noexcept;
 
   FASTTEST_API SharedPtr<ObserverNode>
   createSumObserverNode(SharedPtr<BufferOpNode> node, size_t window,

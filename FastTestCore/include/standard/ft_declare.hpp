@@ -19,6 +19,7 @@ class ASTNode;
 class ReadOpNode;
 class AllocationNode;
 class BinOpNode;
+class ReduceOpNode;
 class UnaryOpNode;
 class NodeFactory;
 class BufferOpNode;

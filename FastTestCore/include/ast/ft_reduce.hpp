@@ -16,13 +16,13 @@ private:
 
 public:
   ReduceOpNode(SharedPtr<BufferOpNode> parent,
-               Vector<std::pair<ReduceOpType, double>>) noexcept;
-  ~ReduceOpNode() noexcept;
+               Vector<std::pair<ReduceOpType, double>> filters) noexcept;
+  FASTTEST_API ~ReduceOpNode() noexcept;
 
   [[nodiscard]] auto const &getOps() const noexcept { return m_reduce_ops; }
   [[nodiscard]] NonNullPtr<BufferOpNode const> getParent() const noexcept;
 
-  void reset() noexcept override{resetBase();}
+  void reset() noexcept override { resetBase(); }
   bool isSame(NonNullPtr<BufferOpNode const> other) const noexcept override;
   FASTTEST_API void
   evaluate(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept override;

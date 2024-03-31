@@ -63,6 +63,15 @@ public:
   }
 
   /// <summary>
+  /// Get the cache history of the node used to store historical values of the
+  /// node
+  /// </summary>
+  /// <returns></returns>
+  [[nodiscard]] LinAlg::EigenMatrixXd const &getCache() const noexcept {
+    return m_cache;
+  }
+
+  /// <summary>
   /// Get view into the buffer's cache at a specific column index, if no column
   /// it defaults to the exchange's current row index
   /// </summary>

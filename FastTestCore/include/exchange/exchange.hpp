@@ -48,7 +48,6 @@ public:
   [[nodiscard]] String const &getSource() const noexcept { return m_source; }
   [[nodiscard]] bool maskRequired() const noexcept;
   [[nodiscard]] size_t getId() const noexcept { return m_id; }
-  [[nodiscard]] LinAlg::EigenMatrixXd const &getData() const noexcept;
   [[nodiscard]] LinAlg::EigenVectorXd const &getReturnsScalar() const noexcept;
   [[nodiscard]] LinAlg::EigenBlockView<double>
   getMarketReturnsBlock(size_t start_idex, size_t end_idx) const noexcept;
@@ -61,6 +60,9 @@ public:
   [[nodiscard]] LinAlg::EigenConstRowView<double>
   getAssetSlice(size_t asset_index) const noexcept;
   
+  [[nodiscard]] FASTTEST_API Vector<String> getColumns();
+  [[nodiscard]] FASTTEST_API LinAlg::EigenMatrixXd const &
+  getData() const noexcept;
   [[nodiscard]] FASTTEST_API size_t getCurrentIdx();
   [[nodiscard]] FASTTEST_API Vector<Int64> const &
   getTimestamps() const noexcept;
