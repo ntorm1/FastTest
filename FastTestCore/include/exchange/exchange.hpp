@@ -35,9 +35,9 @@ private:
   void registerAllocator(NonNullPtr<StrategyAllocator> allocator) noexcept;
 
 public:
-  Exchange(String name, String source, size_t id,
+  FASTTEST_API Exchange(String name, String source, size_t id,
            Option<String> datetime_format) noexcept;
-  ~Exchange() noexcept;
+  FASTTEST_API  ~Exchange() noexcept;
 
   [[nodiscard]] SharedPtr<AST::ObserverNode>
   registerObserver(SharedPtr<AST::ObserverNode> &&node) noexcept;

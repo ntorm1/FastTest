@@ -1,0 +1,70 @@
+from __future__ import annotations
+import typing
+__all__ = ['BUILT', 'Exchange', 'FINISHED', 'FTManager', 'FTManagerState', 'INIT', 'RUNNING']
+class Exchange:
+    def getAssetIndex(self, arg0: str) -> int | None:
+        ...
+    def getCurrentIdx(self) -> int:
+        ...
+    def getTimestamps(self) -> list[int]:
+        ...
+class FTManager:
+    def __init__(self) -> None:
+        ...
+    def addExchange(self, name: str, source: str, datetime_format: str | None = None) -> Exchange | None:
+        ...
+    def getExchange(self, name: str) -> Exchange | None:
+        ...
+    def getGlobalTime(self) -> int:
+        ...
+    def reset(self) -> None:
+        ...
+    def step(self) -> None:
+        ...
+class FTManagerState:
+    """
+    Members:
+    
+      INIT
+    
+      BUILT
+    
+      RUNNING
+    
+      FINISHED
+    """
+    BUILT: typing.ClassVar[FTManagerState]  # value = <FTManagerState.BUILT: 1>
+    FINISHED: typing.ClassVar[FTManagerState]  # value = <FTManagerState.FINISHED: 3>
+    INIT: typing.ClassVar[FTManagerState]  # value = <FTManagerState.INIT: 0>
+    RUNNING: typing.ClassVar[FTManagerState]  # value = <FTManagerState.RUNNING: 2>
+    __members__: typing.ClassVar[dict[str, FTManagerState]]  # value = {'INIT': <FTManagerState.INIT: 0>, 'BUILT': <FTManagerState.BUILT: 1>, 'RUNNING': <FTManagerState.RUNNING: 2>, 'FINISHED': <FTManagerState.FINISHED: 3>}
+    def __eq__(self, other: typing.Any) -> bool:
+        ...
+    def __getstate__(self) -> int:
+        ...
+    def __hash__(self) -> int:
+        ...
+    def __index__(self) -> int:
+        ...
+    def __init__(self, value: int) -> None:
+        ...
+    def __int__(self) -> int:
+        ...
+    def __ne__(self, other: typing.Any) -> bool:
+        ...
+    def __repr__(self) -> str:
+        ...
+    def __setstate__(self, state: int) -> None:
+        ...
+    def __str__(self) -> str:
+        ...
+    @property
+    def name(self) -> str:
+        ...
+    @property
+    def value(self) -> int:
+        ...
+BUILT: FTManagerState  # value = <FTManagerState.BUILT: 1>
+FINISHED: FTManagerState  # value = <FTManagerState.FINISHED: 3>
+INIT: FTManagerState  # value = <FTManagerState.INIT: 0>
+RUNNING: FTManagerState  # value = <FTManagerState.RUNNING: 2>

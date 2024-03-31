@@ -1,6 +1,6 @@
 #include "exchange/exchange_map.hpp"
-#include "standard/ft_macros.hpp"
 #include "manager/ft_manager.hpp"
+#include "standard/ft_macros.hpp"
 #include "strategy/ft_meta_strategy.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
@@ -19,25 +19,34 @@ FTManager::FTManager() noexcept { m_impl = std::make_unique<FTManagerImpl>(); }
 FTManager::~FTManager() noexcept {}
 
 //============================================================================
-FastTestResult<SharedPtr<Exchange>>
+Option<SharedPtr<Exchange>>
 FTManager::addExchange(String name, String source,
                        Option<String> datetime_format) noexcept {
   if (m_state != FTManagerState::INIT && m_state != FTManagerState::BUILT) {
-    return Err("Hydra must be in init state to add exchange");
+    ADD_EXCEPTION_TO_IMPL("Hydra must be in init state to add exchange");
+    return std::nullopt;
   }
   auto res = m_impl->exchange_map.addExchange(
       std::move(name), std::move(source), std::move(datetime_format));
   if (!res) {
-    return res;
+    ADD_EXCEPTION_TO_IMPL(
+        std::format("Failed to add exchange: {}", res.error().what()).c_str());
+    return std::nullopt;
   }
   m_state = FTManagerState::INIT;
-  return std::move(res);
+  return std::move(*res);
 }
 
 //============================================================================
-FastTestResult<SharedPtr<Exchange>>
+Option<SharedPtr<Exchange>>
 FTManager::getExchange(String const &name) const noexcept {
-  return m_impl->exchange_map.getExchange(name);
+  auto res = m_impl->exchange_map.getExchange(name);
+  if (!res) {
+    ADD_EXCEPTION_TO_IMPL(
+        std::format("error getting exchange: {}", res.error().what()).c_str());
+    return std::nullopt;
+  }
+  return *res;
 }
 
 //============================================================================
@@ -69,8 +78,7 @@ FTManager::addStrategy(SharedPtr<MetaStrategy> allocator,
 }
 
 //============================================================================
-Vector<FastTestException> const &
-FTManager::getExceptions() const noexcept {
+Vector<FastTestException> const &FTManager::getExceptions() const noexcept {
   return m_impl->exceptions;
 }
 
@@ -94,9 +102,9 @@ void FTManager::step() noexcept {
 //============================================================================
 void FTManager::reset() noexcept {
   m_impl->exchange_map.reset();
-  for (auto& allocator : m_impl->m_strategies) {
-		allocator->reset();
-	}
+  for (auto &allocator : m_impl->m_strategies) {
+    allocator->reset();
+  }
   m_state = FTManagerState::BUILT;
 }
 

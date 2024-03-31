@@ -23,10 +23,10 @@ public:
   FASTTEST_API FTManager() noexcept;
   FASTTEST_API ~FTManager() noexcept;
 
-  [[nodiscard]] FASTTEST_API FastTestResult<SharedPtr<Exchange>>
+  [[nodiscard]] FASTTEST_API Option<SharedPtr<Exchange>>
   addExchange(String name, String source,
               Option<String> datetime_format = std::nullopt) noexcept;
-  [[nodiscard]] FASTTEST_API FastTestResult<SharedPtr<Exchange>>
+  [[nodiscard]] FASTTEST_API Option<SharedPtr<Exchange>>
   getExchange(String const &name) const noexcept;
 
   [[nodiscard]] FASTTEST_API Option<SharedPtr<MetaStrategy>>

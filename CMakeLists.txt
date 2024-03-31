@@ -17,6 +17,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/FastTestCore/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/eigen)
 
+
 add_subdirectory(external/absl)
 
 add_subdirectory(external/gsl)
@@ -24,3 +25,5 @@ add_subdirectory(external/gsl)
 add_subdirectory(FastTestCore)
 
 add_subdirectory(FastTests)
+
+add_subdirectory(FastTestPy)
