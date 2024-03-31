@@ -4,7 +4,7 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_macros.hpp"
+#include "standard/ft_macros.hpp"
 
 BEGIN_AST_NAMESPACE
 
@@ -13,6 +13,21 @@ enum class BinOpType { ADD, SUB, MUL, DIV };
 
 //============================================================================
 enum class UnaryOpType { SCALAR = 0, SIGN = 1, POWER = 2, ABS = 3, LOG = 4 };
+
+//============================================================================
+enum class ReduceOpType { GREATER_THAN = 0, LESS_THAN = 1, EQUAL = 2 };
+
+//============================================================================
+enum class AllocationType {
+  UNIFORM = 0,
+  CONDITIONAL_SPLIT = 1,
+  FIXED = 2,
+  NLARGEST = 3,
+  NSMALLEST = 4,
+  NEXTREME = 5,
+  INPLACE = 6,
+};
+
 
 //============================================================================
 enum class ObserverType {

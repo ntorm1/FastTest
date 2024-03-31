@@ -10,23 +10,21 @@
 
 BEGIN_FASTTEST_NAMESPACE
 
-struct BenchMarkStrategyImpl;
+struct ASTStrategyImpl;
 
 //============================================================================
-class BenchMarkStrategy final : public StrategyAllocator {
+class ASTStrategy final : public StrategyAllocator {
 private:
-  UniquePtr<BenchMarkStrategyImpl> m_impl;
+  UniquePtr<ASTStrategyImpl> m_impl;
 
 public:
   FASTTEST_API
-  BenchMarkStrategy(String name, SharedPtr<Exchange> exchange,
-                    SharedPtr<StrategyAllocator> parent,
-                    StrategyAllocatorConfig config,
-                    Vector<std::pair<String, double>> const &allocations,
-                    bool rebalance = false) noexcept;
-  FASTTEST_API ~BenchMarkStrategy() noexcept;
+  ASTStrategy(String name, SharedPtr<StrategyAllocator> parent,
+              StrategyAllocatorConfig config,
+              SharedPtr<AST::AllocationNode> allocation) noexcept;
+  FASTTEST_API ~ASTStrategy() noexcept;
 
-  [[nodiscard]] size_t getWarmup() const noexcept override { return 0; }
+  [[nodiscard]] size_t getWarmup() const noexcept override;
   void step(LinAlg::EigenRef<LinAlg::EigenVectorXd>
                 target_weights_buffer) noexcept override;
   [[nodiscard]] const LinAlg::EigenRef<const LinAlg::EigenVectorXd>

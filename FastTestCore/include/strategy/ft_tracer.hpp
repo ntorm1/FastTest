@@ -3,20 +3,23 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_declare.hpp"
-#include "ft_types.hpp"
+#include "standard/ft_declare.hpp"
+#include "standard/ft_types.hpp"
+#include "standard/ft_linalg.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
 //============================================================================
 class Tracer {
-  friend class StrategyAllocator;
-  friend class MetaStrategy;
+  friend class FastTest::StrategyAllocator;
+  friend class FastTest::MetaStrategy;
+  friend class AST::AllocationNode;
 
 private:
   Exchange const &m_exchange;
   StrategyAllocator const &m_allocator;
   Vector<SharedPtr<Measure>> m_measures;
+  LinAlg::EigenVectorXd m_weights_buffer;
   size_t m_idx = 0;
   double m_nlv = 0.0;
   double m_cash = 0.0;

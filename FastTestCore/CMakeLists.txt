@@ -8,7 +8,7 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/FastTestCore/src/*.cpp")
 # print all files
 add_library(FastTestCore SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
-target_precompile_headers(FastTestCore PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.hpp")
+target_precompile_headers(FastTestCore PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/standard/pch.hpp")
 
 target_link_libraries(
     FastTestCore

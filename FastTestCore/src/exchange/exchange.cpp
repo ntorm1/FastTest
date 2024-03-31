@@ -6,8 +6,8 @@
 #include "exchange/exchange_impl.hpp"
 #include "strategy/ft_allocator.hpp"
 
-#include "ft_array.hpp"
-#include "ft_time.hpp"
+#include "standard/ft_array.hpp"
+#include "standard/ft_time.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -112,6 +112,14 @@ FastTestResult<bool> Exchange::build() noexcept {
                       m_impl->timestamps.size() * m_impl->headers.size());
   // store the percentage change in price for each asset at each timestamp
   m_impl->returns.resize(m_impl->assets.size(), m_impl->timestamps.size());
+  // store the mask for each asset at each timestamp, if an asset has a nan
+  // value in it's row for a given timestamp, the mask will be set to 0
+  // preventing allocations
+  m_impl->mask.resize(m_impl->assets.size(), m_impl->timestamps.size());
+  m_impl->mask.setConstant(1.0f);
+  m_impl->mask_required.resize(m_impl->timestamps.size());
+  m_impl->mask_required.setConstant(0);
+
   // store 1 + the percentage change in price for each asset at the current
   // timestamp
   m_impl->returns_scaler.resize(m_impl->assets.size());
@@ -134,6 +142,8 @@ FastTestResult<bool> Exchange::build() noexcept {
         for (size_t i = 0; i < m_impl->headers.size(); i++) {
           m_impl->data(asset_id, exchange_index * m_impl->headers.size() + i) =
               NAN_DOUBLE;
+          m_impl->mask(asset_id, exchange_index) = NAN_DOUBLE;
+          m_impl->mask_required(exchange_index) = 1;
         }
 
         // fill returns matrix with 0
@@ -204,6 +214,7 @@ void Exchange::step(Int64 global_time) noexcept {
     allocator->setStepCall(true);
   }
   m_impl->current_index++;
+  // cache the observers for the current timestamp
 #pragma omp parallel for
   for (auto &observer : m_impl->observers) {
     observer->cacheBase();
@@ -293,6 +304,12 @@ Option<size_t> Exchange::getColumnIndex(String const &column) const noexcept {
 }
 
 //============================================================================
+bool Exchange::maskRequired() const noexcept {
+  assert(m_impl->current_index > 0);
+  return m_impl->mask_required(m_impl->current_index - 1) == 1.0;
+}
+
+//============================================================================
 LinAlg::EigenMatrixXd const &Exchange::getData() const noexcept {
   return m_impl->data;
 }
@@ -314,6 +331,20 @@ Exchange::getSlice(size_t column, int row_offset) const noexcept {
   }
   assert(idx < static_cast<size_t>(m_impl->data.cols()));
   return m_impl->data.col(idx);
+}
+
+//============================================================================
+LinAlg::EigenConstColView<double>
+Exchange::getMaskSlice(int row_offset) const noexcept {
+  assert(m_impl->current_index > 0);
+  size_t idx = m_impl->current_index - 1;
+  if (row_offset) {
+    size_t offset = abs(row_offset);
+    assert(idx >= offset);
+    idx -= offset;
+  }
+  assert(idx < static_cast<size_t>(m_impl->mask.cols()));
+  return m_impl->mask.col(idx);
 }
 
 //============================================================================

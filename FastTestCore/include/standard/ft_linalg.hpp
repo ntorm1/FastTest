@@ -10,6 +10,7 @@ using EigenMatrixXd = Eigen::MatrixXd;
 using EigenVectorXf = Eigen::VectorXf;
 using EigenMatrixXf = Eigen::MatrixXf;
 using EigenVectorXi = Eigen::VectorXi;
+using EigenMatrixXi = Eigen::MatrixXi;
 
 template <typename T>
 using EigenMatrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;

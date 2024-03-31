@@ -6,9 +6,9 @@
 #endif
 #include "ft_ast_enums.hpp"
 #include "ft_buffer_node.hpp"
-#include "ft_linalg.hpp"
+#include "standard/ft_linalg.hpp"
 #include "ft_observer_base.hpp"
-#include "ft_types.hpp"
+#include "standard/ft_types.hpp"
 
 BEGIN_AST_NAMESPACE
 

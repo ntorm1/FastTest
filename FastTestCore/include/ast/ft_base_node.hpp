@@ -4,7 +4,7 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_types.hpp"
+#include "standard/ft_types.hpp"
 
 BEGIN_AST_NAMESPACE
 
@@ -14,6 +14,8 @@ enum class NodeType {
   UNARY_OP = 1,
   ASSET_READ = 2,
   ASSET_OBSERVER = 3,
+  REDUCE_OP = 4,
+  ALLOCATION = 5,
 };
 
 //============================================================================
@@ -42,6 +44,11 @@ public:
   ASTNode(const ASTNode &) = delete;
 
   virtual ~ASTNode() {}
+  void resetBase() noexcept {
+    reset();
+    for (auto &p : m_parent)
+      p->resetBase();
+  };
   virtual void reset() noexcept = 0;
   void setWarmup(size_t warmup) noexcept { m_warmup = warmup; }
   [[nodiscard]] auto &getExchange() noexcept { return m_exchange; }

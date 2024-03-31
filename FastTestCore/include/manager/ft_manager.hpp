@@ -4,7 +4,7 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_types.hpp"
+#include "standard/ft_types.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 

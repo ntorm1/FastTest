@@ -10,12 +10,14 @@ struct StrategyAllocatorConfig;
 class Strategy;
 class Measure;
 class Tracer;
+class ASTStrategy;
 class MetaStrategy;
 
 
 namespace AST {
 class ASTNode;
 class ReadOpNode;
+class AllocationNode;
 class BinOpNode;
 class NodeFactory;
 class BufferOpNode;

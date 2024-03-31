@@ -1,7 +1,7 @@
 #include "pch.hpp"
-#include "ft_macros.hpp"
+#include "standard/ft_macros.hpp"
+#include "standard/ft_declare.hpp"
 #include "ft_error.hpp"
-#include "ft_declare.hpp"
 #include <cstdint>
 #include <exception>
 

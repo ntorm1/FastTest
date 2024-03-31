@@ -4,10 +4,10 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_declare.hpp"
-#include "ft_linalg.hpp"
-#include "ft_types.hpp"
-#include "ft_enums.hpp"
+#include "standard/ft_declare.hpp"
+#include "standard/ft_linalg.hpp"
+#include "standard/ft_types.hpp"
+#include "standard/ft_enums.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 

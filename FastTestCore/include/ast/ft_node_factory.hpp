@@ -5,7 +5,7 @@
 #define FASTTEST_API __declspec(dllimport)
 #endif
 #include "ft_ast_enums.hpp"
-#include "ft_types.hpp"
+#include "standard/ft_types.hpp"
 
 BEGIN_AST_NAMESPACE
 

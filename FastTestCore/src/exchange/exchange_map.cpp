@@ -1,7 +1,7 @@
 #include "exchange/exchange_map.hpp"
 #include "exchange/exchange.hpp"
-#include "ft_array.hpp"
-#include "ft_macros.hpp"
+#include "standard/ft_array.hpp"
+#include "standard/ft_macros.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 

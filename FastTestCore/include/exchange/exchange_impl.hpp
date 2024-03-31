@@ -1,7 +1,7 @@
 #pragma once
 #include "exchange/asset.hpp"
-#include "ft_linalg.hpp"
-#include "ft_types.hpp"
+#include "standard/ft_linalg.hpp"
+#include "standard/ft_types.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -23,6 +23,8 @@ public:
   Vector<SharedPtr<AST::ObserverNode>> observers;
   Option<String> datetime_format = std::nullopt;
   LinAlg::EigenMatrixXd data;
+  LinAlg::EigenMatrixXd mask;
+  LinAlg::EigenVectorXi mask_required;
   LinAlg::EigenMatrixXd returns;
   LinAlg::EigenVectorXd returns_scaler;
   Int64 current_timestamp = 0;

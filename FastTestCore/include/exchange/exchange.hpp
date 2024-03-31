@@ -4,9 +4,9 @@
 #else
 #define FASTTEST_API __declspec(dllimport)
 #endif
-#include "ft_linalg.hpp"
-#include "ft_types.hpp"
-#include "ft_declare.hpp"
+#include "standard/ft_linalg.hpp"
+#include "standard/ft_types.hpp"
+#include "standard/ft_declare.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -46,6 +46,7 @@ public:
   [[nodiscard]] size_t getAssetCount() const noexcept;
   [[nodiscard]] String const &getName() const noexcept { return m_name; }
   [[nodiscard]] String const &getSource() const noexcept { return m_source; }
+  [[nodiscard]] bool maskRequired() const noexcept;
   [[nodiscard]] size_t getId() const noexcept { return m_id; }
   [[nodiscard]] LinAlg::EigenMatrixXd const &getData() const noexcept;
   [[nodiscard]] LinAlg::EigenVectorXd const &getReturnsScalar() const noexcept;
@@ -53,6 +54,8 @@ public:
   getMarketReturnsBlock(size_t start_idex, size_t end_idx) const noexcept;
   [[nodiscard]] LinAlg::EigenConstColView<double>
   getSlice(size_t column, int row_offset) const noexcept;
+  [[nodiscard]] LinAlg::EigenConstColView<double>
+  getMaskSlice(int row_offset) const noexcept;
   [[nodiscard]] LinAlg::EigenConstColView<double>
   getMarketReturns(int offset) const noexcept;
   [[nodiscard]] LinAlg::EigenConstRowView<double>
