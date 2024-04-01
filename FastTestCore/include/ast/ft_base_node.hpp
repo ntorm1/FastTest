@@ -24,15 +24,16 @@ protected:
 public:
   ASTNode(Exchange &exchange, NodeType type, size_t warmup,
           Option<NonNullPtr<ASTNode>> parent = std::nullopt) noexcept
-      : m_exchange(exchange), m_type(type), m_warmup(warmup) {
+      : m_warmup(warmup), m_type(type), m_exchange(exchange) {
     if (parent.has_value()) {
       m_parent.push_back(parent.value());
     }
   }
   ASTNode(Exchange &exchange, NodeType type, size_t warmup,
           Vector<NonNullPtr<ASTNode>> parent) noexcept
-      : m_exchange(exchange), m_type(type), m_parent(std::move(parent)),
-        m_warmup(warmup) {}
+      : m_warmup(warmup), m_type(type), m_exchange(exchange),
+        m_parent(std::move(parent))
+         {}
   ASTNode(const ASTNode &) = delete;
 
   virtual ~ASTNode() {}

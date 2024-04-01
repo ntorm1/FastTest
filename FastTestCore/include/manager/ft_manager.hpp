@@ -37,8 +37,8 @@ public:
   FASTTEST_API void step() noexcept;
   FASTTEST_API void reset() noexcept;
   FASTTEST_API FTManagerState getState() const noexcept { return m_state;}
-  FASTTEST_API [[nodiscard]] bool run() noexcept;
-  FASTTEST_API [[nodiscard]] bool build() noexcept;
+  [[nodiscard]] FASTTEST_API bool run() noexcept;
+  [[nodiscard]] FASTTEST_API bool build() noexcept;
 };
 
 END_FASTTEST_NAMESPACE

@@ -1,4 +1,5 @@
 #include "ast/ft_buffer_node.hpp"
+#include "ast/ft_reduce.hpp"
 #include "exchange/exchange.hpp"
 
 BEGIN_AST_NAMESPACE

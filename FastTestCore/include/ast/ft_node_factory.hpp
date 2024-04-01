@@ -31,11 +31,11 @@ public:
                     Option<double> op_param = std::nullopt) noexcept;
 
   FASTTEST_API SharedPtr<ReduceOpNode>
-  createReduceOp(SharedPtr<BufferOpNode> node,
+  createReduceOp(SharedPtr<BufferOpNode> parent,
                  Vector<std::pair<ReduceOpType, double>> filters) noexcept;
 
   FASTTEST_API SharedPtr<ObserverNode>
-  createSumObserverNode(SharedPtr<BufferOpNode> node, size_t window,
+  createSumObserverNode(SharedPtr<BufferOpNode> parent, size_t window,
                         Option<String> name = std::nullopt) noexcept;
 
   FASTTEST_API Option<SharedPtr<AllocationNode>>

@@ -1,7 +1,9 @@
 from __future__ import annotations
 import numpy
 import typing
-__all__ = ['AllocationType', 'BinOpNode', 'BinOpType', 'BufferOpNode', 'NodeFactory', 'NodeType', 'ObserverNode', 'ObserverType', 'ReadOpNode', 'ReduceOpNode', 'ReduceOpType', 'SumObserverNode', 'UnaryOpNode', 'UnaryOpType']
+__all__ = ['AllocationNode', 'AllocationType', 'BinOpNode', 'BinOpType', 'BufferOpNode', 'NodeFactory', 'NodeType', 'ObserverNode', 'ObserverType', 'ReadOpNode', 'ReduceOpNode', 'ReduceOpType', 'SumObserverNode', 'UnaryOpNode', 'UnaryOpType']
+class AllocationNode(BufferOpNode):
+    pass
 class AllocationType:
     """
     Members:
@@ -109,11 +111,13 @@ class BufferOpNode:
     def hasCache(self) -> bool:
         ...
 class NodeFactory:
-    def createAllocationNode(self, parent: BufferOpNode, alloc_type: AllocationType, epsilon: float = 0.0, alloc_param: float | None = None) -> ... | None:
+    def createAllocationNode(self, parent: BufferOpNode, alloc_type: AllocationType, epsilon: float = 0.0, alloc_param: float | None = None) -> AllocationNode | None:
         ...
-    def createBinOpNode(self, left: BufferOpNode, op: BinOpType, right: BufferOpNode) -> BinOpNode | None:
+    def createBinaryOpNode(self, left: BufferOpNode, op: BinOpType, right: BufferOpNode) -> BinOpNode | None:
         ...
     def createReadOpNode(self, column: str, row_offset: int = 0) -> ReadOpNode | None:
+        ...
+    def createReduceOp(self, parent: BufferOpNode, filters: list[tuple[ReduceOpType, float]]) -> ReduceOpNode:
         ...
     def createSumObserverNode(self, node: BufferOpNode, window: int, name: str | None = None) -> ObserverNode:
         ...

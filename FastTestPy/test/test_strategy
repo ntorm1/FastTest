@@ -1,3 +1,5 @@
+import time
+
 from context import *
 
 from fasttest import fasttest_internal
@@ -37,18 +39,41 @@ class BtcExchangeTests(unittest.TestCase):
         self.assertIsNone(allocation)
 
     def testStrategyAdd(self) -> NoReturn:
+        st = time.perf_counter_ns()
         config = fasttest_internal.strategy.StrategyAllocatorConfig()
         strategy = fasttest_internal.strategy.ASTStrategy(
             name="test", parent=self.root, config=config
         )
         factory = strategy.getNodeFactory()
         close = factory.createReadOpNode("Close")
-        self.assertIsNotNone(close)
+        ma_50 = factory.createUnaryOpNode(
+            parent=factory.createSumObserverNode(close, 50),
+            op=fasttest_internal.ast.UnaryOpType.SCALAR,
+            op_param=50,
+        )
+        ma_200 = factory.createUnaryOpNode(
+            parent=factory.createSumObserverNode(close, 200),
+            op=fasttest_internal.ast.UnaryOpType.SCALAR,
+            op_param=200,
+        )
+        spread = factory.createBinaryOpNode(
+            left=ma_50,
+            right=ma_200,
+            op=fasttest_internal.ast.BinOpType.SUB,
+        )
+        filter = factory.createReduceOp(
+            parent=spread,
+            filters=[(fasttest_internal.ast.ReduceOpType.LESS_THAN, 0)],
+        )
         _ = factory.createAllocationNode(
-            parent=close, alloc_type=fasttest_internal.ast.AllocationType.UNIFORM
+            parent=filter, alloc_type=fasttest_internal.ast.AllocationType.UNIFORM
         )
         strategy = self.root.addStrategy(strategy, replace_if_exsists=False)
-        self.assertIsNotNone(strategy)
+        res = self.manager.run()
+        et = time.perf_counter_ns()
+        avg_time_micros = (et - st) / 1000
+        print(f"Time elapsed: {avg_time_micros:.3f} us")
+        self.assertTrue(res)
 
 
 if __name__ == "__main__":

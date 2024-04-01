@@ -1,3 +1,4 @@
+#include "standard/ft_macros.hpp"
 #include "exchange/exchange_map.hpp"
 #include "manager/ft_manager.hpp"
 #include "standard/ft_macros.hpp"
@@ -66,12 +67,16 @@ FTManager::addStrategy(SharedPtr<MetaStrategy> allocator,
     }
     // find the Allocator and replace it in the vector
     auto idx = m_impl->m_strategy_map[allocator->getName()];
-    allocator->load();
+    if (!allocator->load()) {
+      return std::nullopt;
+    }
     m_impl->m_strategies[idx] = std::move(allocator);
     return m_impl->m_strategies[idx];
   }
   allocator->setID(m_impl->m_strategies.size());
-  allocator->load();
+  if (!allocator->load()) {
+    return std::nullopt;
+  }
   m_impl->m_strategy_map[allocator->getName()] = m_impl->m_strategies.size();
   m_impl->m_strategies.push_back(std::move(allocator));
   return m_impl->m_strategies.back();
@@ -163,7 +168,7 @@ bool FTManager::run() noexcept {
 bool FTManager::build() noexcept {
   m_impl->exchange_map.build();
   if (m_impl->exchange_map.getTimestamps().size() == 0) {
-    ADD_EXCEPTION_TO_IMPL("{}", "No timestamps found");
+    ADD_EXCEPTION_TO_IMPL("No timestamps found");
     return false;
   }
   m_state = FTManagerState::BUILT;

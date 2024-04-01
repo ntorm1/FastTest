@@ -35,15 +35,15 @@ void ReduceOpNode::evaluate(
     double c = filter.second;
     switch (filter.first) {
     case ReduceOpType::GREATER_THAN:
-      target = (target.array() > c)
-                   .select(target, std::numeric_limits<double>::quiet_NaN());
-      break;
-    case ReduceOpType::LESS_THAN:
       target = (target.array() < c)
                    .select(target, std::numeric_limits<double>::quiet_NaN());
       break;
+    case ReduceOpType::LESS_THAN:
+      target = (target.array() > c)
+                   .select(target, std::numeric_limits<double>::quiet_NaN());
+      break;
     case ReduceOpType::EQUAL:
-      target = (target.array().abs() == c)
+      target = (target.array().abs() != c)
                  .select(target, std::numeric_limits<double>::quiet_NaN());
       break;
     }

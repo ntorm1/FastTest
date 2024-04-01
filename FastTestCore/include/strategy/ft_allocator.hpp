@@ -155,7 +155,7 @@ public:
   /// Function called once on strategy creation, return signifies if load was a
   /// success. If not the strategy is disabled.
   /// </summary>
-  virtual [[nodiscard]] bool load() noexcept = 0;
+  [[nodiscard]] virtual bool load() noexcept = 0;
 
   /// <summary>
   /// Peek at the exception if one exists
