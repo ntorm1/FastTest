@@ -30,3 +30,12 @@
 
 #define ADD_EXCEPTION_TO_IMPL(msg)                                             \
   m_impl->exceptions.push_back(FastTestException(msg));                        \
+
+
+#define ADD_FORMATED_EXCEPTION(...)                                             \
+  m_impl->exceptions.push_back(FastTestException(std::format(__VA_ARGS__)));
+
+#define CHECK_EXCEPTIONS                                                       \
+  if (m_impl->exceptions.size()) {                                             \
+    return std::nullopt;                                                      \
+  } 

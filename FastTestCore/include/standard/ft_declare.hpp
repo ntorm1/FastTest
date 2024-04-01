@@ -16,15 +16,15 @@ class MetaStrategy;
 
 namespace AST {
 class ASTNode;
-class ReadOpNode;
 class AllocationNode;
 class BinOpNode;
-class ReduceOpNode;
-class UnaryOpNode;
-class NodeFactory;
 class BufferOpNode;
+class NodeFactory;
 class ObserverNode;
+class ReadOpNode;
+class ReduceOpNode;
 class SumObserverNode;
+class UnaryOpNode;
 
 } // namespace AST
 } // namespace FastTest

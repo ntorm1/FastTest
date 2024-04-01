@@ -22,7 +22,7 @@ Strategy::~Strategy() noexcept {}
 void Strategy::reset() noexcept {}
 
 //============================================================================
-void Strategy::load() noexcept {}
+bool Strategy::load() noexcept { return true; }
 
 //============================================================================
 const Eigen::Ref<const Eigen::VectorXd>

@@ -29,7 +29,7 @@ public:
                         target_weights_buffer) noexcept override = 0;
 
   void reset() noexcept override;
-  void load() noexcept override;
+  [[nodiscard]] bool load() noexcept override;
 };
 
 END_FASTTEST_NAMESPACE

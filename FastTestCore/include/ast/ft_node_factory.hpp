@@ -16,7 +16,7 @@ private:
   UniquePtr<NodeFactoryImpl> m_impl;
 
 public:
-  FASTTEST_API NodeFactory(SharedPtr<Exchange> exchange) noexcept;
+  FASTTEST_API NodeFactory(NonNullPtr<ASTStrategy> strategy) noexcept;
   FASTTEST_API ~NodeFactory() noexcept;
 
   FASTTEST_API Option<SharedPtr<ReadOpNode>>
@@ -37,6 +37,11 @@ public:
   FASTTEST_API SharedPtr<ObserverNode>
   createSumObserverNode(SharedPtr<BufferOpNode> node, size_t window,
                         Option<String> name = std::nullopt) noexcept;
+
+  FASTTEST_API Option<SharedPtr<AllocationNode>>
+  createAllocationNode(SharedPtr<BufferOpNode> parent,
+                       AllocationType alloc_type, double epsilon = 0.0f,
+                       Option<double> alloc_param = std::nullopt) noexcept;
 };
 
 END_AST_NAMESPACE

@@ -1,5 +1,4 @@
 from __future__ import annotations
-import fasttest_internal.core
 import numpy
 import typing
 __all__ = ['AllocationType', 'BinOpNode', 'BinOpType', 'BufferOpNode', 'NodeFactory', 'NodeType', 'ObserverNode', 'ObserverType', 'ReadOpNode', 'ReduceOpNode', 'ReduceOpType', 'SumObserverNode', 'UnaryOpNode', 'UnaryOpType']
@@ -110,7 +109,7 @@ class BufferOpNode:
     def hasCache(self) -> bool:
         ...
 class NodeFactory:
-    def __init__(self, exchange: fasttest_internal.core.Exchange) -> None:
+    def createAllocationNode(self, parent: BufferOpNode, alloc_type: AllocationType, epsilon: float = 0.0, alloc_param: float | None = None) -> ... | None:
         ...
     def createBinOpNode(self, left: BufferOpNode, op: BinOpType, right: BufferOpNode) -> BinOpNode | None:
         ...

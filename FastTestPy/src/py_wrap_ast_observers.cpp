@@ -1,7 +1,7 @@
 #include "ast/ft_ast_enums.hpp"
 #include "ast/ft_observer.hpp"
 #include "ast/ft_observer_base.hpp"
-#include "py_manager.hpp"
+#include "py_wrap_ast.hpp"
 
 using namespace FastTest::AST;
 

@@ -30,9 +30,10 @@ struct StrategyAllocatorConfig {
 
 //============================================================================
 class StrategyAllocator {
-  friend class Exchange;
-  friend class MetaStrategy;
-  friend class FTManager;
+  friend class FastTest::Exchange;
+  friend class FastTest::MetaStrategy;
+  friend class FastTest::FTManager;
+  friend class FastTest::AST::NodeFactory;
 
 private:
   UniquePtr<StrategyAllocatorImpl> m_impl;
@@ -103,7 +104,6 @@ protected:
   /// <param name="exceptions"></param>
   virtual void takeException(Vector<FastTestException> &exceptions) noexcept;
 
-  [[nodiscard]] Exchange const &getExchange() const noexcept;
 
   /// <summary>
   /// Get mutable reference to tracer instance for the class
@@ -152,9 +152,10 @@ public:
   virtual void reset() noexcept = 0;
 
   /// <summary>
-  /// Function called once on strategy creation
+  /// Function called once on strategy creation, return signifies if load was a
+  /// success. If not the strategy is disabled.
   /// </summary>
-  virtual void load() = 0;
+  virtual [[nodiscard]] bool load() noexcept = 0;
 
   /// <summary>
   /// Peek at the exception if one exists
@@ -162,6 +163,7 @@ public:
   /// <returns></returns>
   Option<FastTestException> getException() const noexcept;
 
+  [[nodiscard]] Exchange &getExchange() const noexcept;
   [[nodiscard]] String const &getName() const noexcept { return m_name; }
   [[nodiscard]] double getAllocation() const noexcept;
   [[nodiscard]] bool getIsMetaClass() const noexcept;

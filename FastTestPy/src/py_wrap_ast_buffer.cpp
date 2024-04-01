@@ -1,6 +1,7 @@
 #include "ast/ft_ast_enums.hpp"
 #include "ast/ft_buffer_node.hpp"
-#include "py_manager.hpp"
+#include "ast/ft_allocation.hpp"
+#include "py_wrap_ast.hpp"
 
 using namespace FastTest::AST;
 
@@ -11,4 +12,7 @@ void wrap_ast_buffer_node(py::module &m_ast) {
       .def("getCache", &BufferOpNode::getCache,
            py::return_value_policy::reference_internal)
       .def("address", &BufferOpNode::address);
+
+  py::class_<AllocationNode, BufferOpNode, std::shared_ptr<AllocationNode>>(
+      m_ast, "AllocationNode");
 }

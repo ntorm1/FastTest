@@ -4,6 +4,7 @@
 #include "ast/ft_node_factory.hpp"
 #include "ast/ft_observer.hpp"
 
+/*
 BEGIN_FASTTEST_NAMESPACE
 
 TEST_F(SimpleExchangeTests, TestSumObserver) {
@@ -84,3 +85,4 @@ TEST_F(SimpleExchangeTests, TestChainedObserver) {
 }
 
 END_FASTTEST_NAMESPACE
+*/

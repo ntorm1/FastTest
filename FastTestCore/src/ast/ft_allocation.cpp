@@ -1,6 +1,6 @@
-#include "strategy/ft_tracer.hpp"
-#include "exchange/exchange.hpp"
 #include "ast/ft_allocation.hpp"
+#include "exchange/exchange.hpp"
+#include "strategy/ft_tracer.hpp"
 
 BEGIN_AST_NAMESPACE
 
@@ -30,8 +30,8 @@ AllocationNode::AllocationNode(SharedPtr<BufferOpNode> parent,
   m_impl = std::make_unique<AllocationNodeImpl>(parent, std::move(tracer), type,
                                                 epsilon, alloc_param);
   if (epsilon != 0) {
-		m_impl->copy_weights_buffer = true;
-	}
+    m_impl->copy_weights_buffer = true;
+  }
 }
 
 //============================================================================
@@ -88,8 +88,9 @@ void AllocationNode::buildAllocation(
   m_impl->parent->evaluate(target);
 
   // apply exchange mask to the signal, prevents allocation to assets that have
-  // non data at the current time step. Only call when the mask is required (i.e. has element with 0)
-  // this will flip all values in target to nan where mask is overriding.
+  // non data at the current time step. Only call when the mask is required
+  // (i.e. has element with 0) this will flip all values in target to nan where
+  // mask is overriding.
   if (getExchange().maskRequired()) {
     auto mask = getExchange().getMaskSlice(0);
     target = target.cwiseProduct(mask);
@@ -122,6 +123,14 @@ void AllocationNode::buildAllocation(
                     (target.array() > *m_impl->alloc_param).select(c, target));
     target = target.unaryExpr([](double x) { return x == x ? x : 0.0; });
     break;
+  }
+  case AllocationType::INPLACE: {
+    // take relative weights in place, by default scale target to sum to 1
+    auto sum = target.array().abs().sum();
+    if (sum == 0.0f) {
+      return;
+    }
+    target = target.array() / sum;
   }
   case AllocationType::NEXTREME: {
     assert(false);

@@ -75,7 +75,7 @@ size_t StrategyAllocator::getAssetCount() const noexcept {
 }
 
 //============================================================================
-Exchange const &StrategyAllocator::getExchange() const noexcept {
+Exchange &StrategyAllocator::getExchange() const noexcept {
   return m_impl->exchange;
 }
 

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import fasttest_internal.strategy
 import numpy
 import typing
 __all__ = ['BUILT', 'Exchange', 'FINISHED', 'FTManager', 'FTManagerState', 'FastTestException', 'INIT', 'RUNNING']
@@ -28,6 +29,8 @@ class FTManager:
         :param str source: The source of the exchange data.
         :param str datetime_format: The datetime format of the exchange data. Defaults to None.
         """
+    def addStrategy(self, strategy: fasttest_internal.strategy.MetaStrategy, replace_if_exsists: bool) -> fasttest_internal.strategy.MetaStrategy | None:
+        ...
     def build(self) -> bool:
         ...
     def getExceptions(self, arg0: bool) -> list[FastTestException]:

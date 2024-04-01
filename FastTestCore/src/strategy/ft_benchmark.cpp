@@ -31,7 +31,7 @@ BenchMarkStrategy::BenchMarkStrategy(
 BenchMarkStrategy::~BenchMarkStrategy() noexcept {}
 
 //============================================================================
-void BenchMarkStrategy::load() noexcept {
+bool BenchMarkStrategy::load() noexcept {
   m_impl->allocations.clear();
   auto const &exchange = getExchange();
   for (auto const &[asset, weight] : m_impl->allocations_str) {
@@ -41,6 +41,7 @@ void BenchMarkStrategy::load() noexcept {
     }
     m_impl->allocations.push_back({*index_opt, weight});
   }
+  return true;
 }
 
 //============================================================================

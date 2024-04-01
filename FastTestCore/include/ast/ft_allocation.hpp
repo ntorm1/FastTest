@@ -6,8 +6,8 @@
 #endif
 #include "ft_ast_enums.hpp"
 #include "ft_buffer_node.hpp"
-#include "standard/ft_linalg.hpp"
 #include "ft_observer_base.hpp"
+#include "standard/ft_linalg.hpp"
 #include "standard/ft_types.hpp"
 
 BEGIN_AST_NAMESPACE
@@ -21,11 +21,11 @@ private:
 
   void buildAllocation(LinAlg::EigenRef<LinAlg::EigenVectorXd> target) noexcept;
 
-
 public:
-  AllocationNode(SharedPtr<BufferOpNode> parent,NonNullPtr<Tracer>, AllocationType type, 
-                 double epsilon, Option<double> alloc_param) noexcept;
-  ~AllocationNode() noexcept;
+  AllocationNode(SharedPtr<BufferOpNode> parent, NonNullPtr<Tracer>,
+                 AllocationType type, double epsilon,
+                 Option<double> alloc_param) noexcept;
+  FASTTEST_API ~AllocationNode() noexcept;
 
   void reset() noexcept override;
   bool isSame(NonNullPtr<BufferOpNode const> other) const noexcept override;

@@ -33,7 +33,7 @@ public:
   getAllocationBuffer() const noexcept override;
 
   void reset() noexcept override;
-  void load() noexcept override;
+  [[nodiscard]] bool load() noexcept override;
 };
 
 END_FASTTEST_NAMESPACE

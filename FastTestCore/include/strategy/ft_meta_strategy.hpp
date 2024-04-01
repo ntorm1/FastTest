@@ -64,7 +64,7 @@ public:
   addStrategy(SharedPtr<StrategyAllocator> allocator,
               bool replace_if_exists = true) noexcept;
   void reset() noexcept override;
-  void load() noexcept override;
+  [[nodiscard]] bool load() noexcept override;
 };
 
 END_FASTTEST_NAMESPACE

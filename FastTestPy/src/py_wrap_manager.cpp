@@ -1,6 +1,7 @@
 #include "exchange/exchange.hpp"
 #include "manager/ft_manager.hpp"
-#include "py_manager.hpp"
+#include "strategy/ft_meta_strategy.hpp"
+#include "py_wrap.hpp"
 
 using namespace FastTest;
 
@@ -30,6 +31,8 @@ void wrap_manager(py::module &m_core) noexcept {
            ":param str source: The source of the exchange data.\n"
            ":param str datetime_format: The datetime format of the exchange "
            "data. Defaults to None.")
+      .def("addStrategy", &FTManager::addStrategy, py::arg("strategy"),
+           py::arg("replace_if_exsists"))
       .def("getExceptions", &FTManager::getExceptions)
       .def("getState", &FTManager::getState)
       .def("getExchange", &FTManager::getExchange, py::arg("name"),

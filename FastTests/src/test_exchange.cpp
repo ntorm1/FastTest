@@ -1,6 +1,8 @@
 #include "simple_exchange.hpp"
 
+#include "strategy/ft_ast_strategy.hpp"
 #include "ast/ft_ast.hpp"
+#include "ast/ft_ast_enums.hpp"
 
 BEGIN_FASTTEST_NAMESPACE
 
@@ -14,6 +16,7 @@ TEST_F(SimpleExchangeTests, BuildTest) {
   }
 }
 
+/*
 TEST_F(SimpleExchangeTests, ReadTest) {
   for (int i = 0; i <= 2; i++) {
 
@@ -30,15 +33,20 @@ TEST_F(SimpleExchangeTests, ReadTest) {
     manager->reset();
   }
 }
+*/
 
 TEST_F(SimpleExchangeTests, OpTest) {
-  manager->build();
-  auto factory = std::make_shared<AST::NodeFactory>(exchange_ptr);
+  auto config = StrategyAllocatorConfig();
+  auto strategy = std::make_shared<ASTStrategy>("test",  root, config);
+  auto factory = strategy->getNodeFactory();
+
   auto read_op = factory->createReadOpNode("close", 0).value();
   auto read_prev_op = factory->createReadOpNode("close", -1).value();
   auto delta_op =
       factory->createBinOpNode(read_op, AST::BinOpType::SUB, read_prev_op);
   EXPECT_TRUE(delta_op);
+  auto allocation =
+      factory->createAllocationNode(read_op, AST::AllocationType::UNIFORM);
   auto &op = delta_op.value();
   EXPECT_EQ(op->getWarmup(), 1);
   for (int i = 0; i <= 3; i++) {

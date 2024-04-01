@@ -1,0 +1,55 @@
+from context import *
+
+from fasttest import fasttest_internal
+
+
+class BtcExchangeTests(unittest.TestCase):
+    def setUp(self) -> NoReturn:
+        self.manager = fasttest.fasttest_internal.core.FTManager()
+        self.exchange = self.manager.addExchange(
+            EXCHANGE_BTC_ID, EXCHANGE_BTC_PATH, DATETIME_FORMAT_BTC
+        )
+        self.manager.build()
+        self.btc_id = self.exchange.getAssetIndex("BTC-USD")
+        config = fasttest_internal.strategy.StrategyAllocatorConfig()
+        self.root = fasttest_internal.strategy.MetaStrategy(
+            "root",
+            exchange=self.exchange,
+            config=config,
+            starting_cash=STARTING_CASH,
+            parent=None,
+        )
+        self.root = self.manager.addStrategy(self.root, replace_if_exsists=False)
+        self.assertIsNotNone(self.root)
+        self.assertIsNotNone(self.btc_id)
+
+    def testFactoryExceptions(self) -> NoReturn:
+        config = fasttest_internal.strategy.StrategyAllocatorConfig()
+        strategy = fasttest_internal.strategy.ASTStrategy(
+            name="test", parent=self.root, config=config
+        )
+        factory = strategy.getNodeFactory()
+        close = factory.createReadOpNode("not_a_column")
+        self.assertIsNone(close)
+        allocation = factory.createAllocationNode(
+            parent=close, alloc_type=fasttest_internal.ast.AllocationType.UNIFORM
+        )
+        self.assertIsNone(allocation)
+
+    def testStrategyAdd(self) -> NoReturn:
+        config = fasttest_internal.strategy.StrategyAllocatorConfig()
+        strategy = fasttest_internal.strategy.ASTStrategy(
+            name="test", parent=self.root, config=config
+        )
+        factory = strategy.getNodeFactory()
+        close = factory.createReadOpNode("Close")
+        self.assertIsNotNone(close)
+        _ = factory.createAllocationNode(
+            parent=close, alloc_type=fasttest_internal.ast.AllocationType.UNIFORM
+        )
+        strategy = self.root.addStrategy(strategy, replace_if_exsists=False)
+        self.assertIsNotNone(strategy)
+
+
+if __name__ == "__main__":
+    unittest.main()

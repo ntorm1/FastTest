@@ -101,12 +101,17 @@ MetaStrategy::addStrategy(SharedPtr<StrategyAllocator> allocator,
   // place allocator in the parent strategy and set id to index location in
   // child vector and call one time load
   allocator->setID(m_impl->child_strategies.size());
-  allocator->load();
+  if (!allocator->load()) {
+    if (!getException()) {
+      disable("Failed to load allocator");
+    }
+    return std::nullopt;
+  };
   auto exception_opt = getException();
   if (exception_opt) {
     return std::nullopt;
   }
-
+  
   m_impl->warmup = std::max(m_impl->warmup, allocator->getWarmup());
   // reshape matrix/vector containers holding sub strategy weightings
   m_impl->strategy_map[allocator->getName()] = m_impl->child_strategies.size();
@@ -153,6 +158,6 @@ void MetaStrategy::reset() noexcept {
 }
 
 //============================================================================
-void MetaStrategy::load() noexcept {}
+bool MetaStrategy::load() noexcept { return true; }
 
 END_FASTTEST_NAMESPACE
